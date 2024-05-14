@@ -13,6 +13,7 @@ import time
 import urllib.request as urllib
 from selenium.webdriver.common.action_chains import ActionChains
 import warnings
+
 warnings.filterwarnings("ignore")
 
 
@@ -20,7 +21,7 @@ warnings.filterwarnings("ignore")
 # generate random latitude and longitude
 lat = 47.3667985
 lon = 8.5430297
-zoom = 1
+zoom = 3
 print(lat, lon)
 
 # get the panoid from the coordinates
@@ -39,16 +40,18 @@ buttons[1].click()
 # wait for the page to load
 driver.refresh()
 driver.implicitly_wait(5)
-time.sleep(5)
+time.sleep(3)
 
 
 buttons = driver.find_elements(By.CSS_SELECTOR, "button")
 
 #time.sleep(70000)
 while buttons.__len__() <27:
-    buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+    
     driver.refresh()
-    time.sleep(5)
+    time.sleep(3)
+    buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+    
 
 
 print(buttons[26])
@@ -78,8 +81,10 @@ print(panoid)
 panoid = panoid.split("%")[0]
 print(panoid)
 
-for x in range(1):
-        url = "https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid="+str(panoid)+"&x="+str(x)+"&y=0&zoom="+str(zoom)+"&nbt=1&fover=2"
+path_to_folder = "Roy/images_first_try/"
+for x in range(2**zoom):
+        y = 1
+        url = "https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid="+str(panoid)+"&x="+str(x)+"&y="+str(y)+"&zoom="+str(zoom)+"&nbt=1&fover=2"
         
         #check if the image exists
         response = requests.get(url)
@@ -88,17 +93,39 @@ for x in range(1):
             print(panoid)
             print("Image exists")
         else:
-            #print("Image does not exist")
+            print("Image does not exist")
             break
         
         # open the link using Chrome
+        options = selenium.webdriver.ChromeOptions()
+        options.add_argument("--headless")   # run the browser in the background
         driver = selenium.webdriver.Chrome()
         driver.get(url)
-        driver.maximize_window()
+        
         buttons = driver.find_elements(By.CSS_SELECTOR, "button")
         # delay to load the page
-        driver.implicitly_wait(5)
-        save_path = "Roy/images_first_try/"+str(lat)+str(len)+"_"+str(x)+".png"
+        time.sleep(2)
+        
+        save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index:"+str(x)+"_"+str(y)+".png"
+        print(save_path)
         # save the image via screenshot
         driver.save_screenshot(save_path)
+        
 driver.quit()
+
+
+# Since the images have a massive black border around them, we need to crop them
+# to the actual street view image
+for image in os.listdir(path_to_folder):
+    img = Image.open(path_to_folder+image)
+    width, height = img.size
+    left = width/2 -256
+    top = height/2 -256
+    right = width/2 +256
+    bottom = height/2 +256
+    
+    
+    img = img.crop((left, top, right, bottom))
+    img.save(path_to_folder+image)
+
+
