@@ -89,7 +89,7 @@ for x in range(2**zoom):
         response = requests.get(url)
         status_code = response.status_code
         if status_code == 200:
-            print(panoid)
+            #print(panoid)
             print("Image exists")
         else:
             print("Image does not exist")
@@ -106,7 +106,7 @@ for x in range(2**zoom):
         time.sleep(1)
         
         save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
-        print(save_path)
+        #print(save_path)
         # save the image via screenshot
         driver.save_screenshot(save_path)
         
@@ -130,15 +130,29 @@ for image in os.listdir(path_to_folder):
 
 path_to_combined_folder = "Roy/combined_images/"
 # combine 4 images into 1
-for x in range(2**(zoom-1)):
+for image in os.listdir(path_to_folder):
+    img = image.split("_",3)
+    ind = img[-1]
+    ind = ind[0]
+    img = img[0]+"_"+img[1]+"_"+img[2]+"_"
+    print(img)
+    print(ind)
     new_image = Image.new("RGB", (1024, 1024))
+    x = int(ind)
     for y in [1,2]:
-        image = Image.open(path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(2*x)+"_"+str(y)+".png")
-        new_image.paste(image, (0, (y-1)*512))
-        image = Image.open(path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(2*x+1)+"_"+str(y)+".png")
-        new_image.paste(image, (512, (y-1)*512))
+            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            new_image.paste(image, (0, (y-1)*512))
+            # handle wraparound
+            x= x+1
+            if x == 2**zoom:
+                x=0
+            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            new_image.paste(image, (512, (y-1)*512))
         
-    new_image.save(path_to_combined_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+".png")
+        
+    image = img
+    new_image.save(path_to_combined_folder+image+"_Index_"+str(x)+".png")
 
 
 print("Done")
+    

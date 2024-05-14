@@ -2,53 +2,40 @@ import requests
 import numpy as np
 import os
 import selenium
+from PIL import Image
 from selenium.webdriver.common.by import By
 import json
 import urllib.request as urllib
 import re
 from rich.progress import track
 
-
-# generate random latitude and longitude
-latitude = np.random.uniform(45,47)
-longitude = np.random.uniform(8, 9)
-zoom = 5
-print(latitude, longitude)
-
-MAPS_PREVIEW_ID = "CAEIBAgFCAYgAQ"
-UNKNOWN_PREVIEW_CONSTANT = 45.12133303837374
-
-
-
-panoid = "bl3v0-ol5SonuMF_4ozgxQ"
-
-#now generate a similar panoid
-
-
-
-for i in track(range(1000)):
-    panoid = np.random.choice(list("abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_-"), size=22)
-    panoid = "".join(panoid)
-    
-    for x in range(3):
-        url = "https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid="+str(panoid)+"&x="+str(x)+"&y=0&zoom=5&nbt=1&fover=2"
+zoom =3
+path_to_folder = "Roy/images_first_try/"
+path_to_combined_folder = "Roy/combined_images/"
+# combine 4 images into 1
+for image in os.listdir(path_to_folder):
+    img = image.split("_",3)
+    ind = img[-1]
+    ind = ind[0]
+    img = img[0]+"_"+img[1]+"_"+img[2]+"_"
+    print(img)
+    print(ind)
+    new_image = Image.new("RGB", (1024, 1024))
+    x = int(ind)
+    for y in [1,2]:
+            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            new_image.paste(image, (0, (y-1)*512))
+            # handle wraparound
+            x= x+1
+            if x == 2**zoom:
+                x=0
+            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            new_image.paste(image, (512, (y-1)*512))
         
-        #check if the image exists
-        response = requests.get(url)
-        status_code = response.status_code
-        if status_code == 200:
-            print(panoid)
-            print("Image exists")
-        else:
-            #print("Image does not exist")
-            break
         
-        # open the link using Chrome
-        driver = selenium.webdriver.Chrome()
-        driver.get(url)
-        driver.maximize_window()
-        buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-        # delay to load the page
-        driver.implicitly_wait(5)
-    
+    image = img
+    new_image.save(path_to_combined_folder+image+"_Index_"+str(x)+".png")
+
+
+print("Done")
     
