@@ -32,9 +32,11 @@ for image in os.listdir(path_to_folder):
             image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (512, (y-1)*512))
         
-        
+    if x == 0:
+        x = 2**zoom
+    
     image = img
-    new_image.save(path_to_combined_folder+image+"_Index_"+str(x)+".png")
+    new_image.save(path_to_combined_folder+image+"_Index_"+str(x-1)+".png")
 
 
 print("Done")
