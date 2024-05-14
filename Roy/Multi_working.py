@@ -155,26 +155,30 @@ for image in os.listdir(path_to_folder):
     for y in [1,2]:
             #check if the image exists
             #default image as a black image
-            
             image = Image.new("RGB", (512, 512))
             if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
                 image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (0, (y-1)*512))
+            
             # handle wraparound
-
             if x == 2**zoom-1:
                 x=-1
+            
                 
             image = Image.new("RGB", (512, 512))
             if os.path.exists(path_to_folder+img+str(x+1)+"_"+str(y)+".png"):
                 image = Image.open(path_to_folder+img+str(x+1)+"_"+str(y)+".png")
             new_image.paste(image, (512, (y-1)*512))
-        
-    if x == 0:
-        x = 2**zoom
+            
+            if x == -1:
+                x = 2**zoom-1
+    
+    x+=1
+    if x > 2**zoom-1:
+        x = x - 2**zoom
     
     image = img
-    new_image.save(path_to_combined_folder+image+"_Index_"+str(x-1)+".png")
+    new_image.save(path_to_combined_folder+image+"_Index_"+str(x+1)+".png")
 
 
 print("Done")
