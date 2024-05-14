@@ -23,13 +23,20 @@ for image in os.listdir(path_to_folder):
     new_image = Image.new("RGB", (1024, 1024))
     x = int(ind)
     for y in [1,2]:
-            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            #check if the image exists
+            #default image as a black image
+            image = Image.new("RGB", (512, 512))
+            if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
+                image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (0, (y-1)*512))
             # handle wraparound
             x= x+1
             if x == 2**zoom:
                 x=0
-            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+                
+            image = Image.new("RGB", (512, 512))
+            if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
+                image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (512, (y-1)*512))
         
     if x == 0:

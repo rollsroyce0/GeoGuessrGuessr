@@ -36,7 +36,7 @@ for i in track(range(10)):
     # wait for the page to load
     driver.refresh()
     driver.implicitly_wait(5)
-    time.sleep(3)
+    time.sleep(2)
 
 
     buttons = driver.find_elements(By.CSS_SELECTOR, "button")
@@ -45,7 +45,7 @@ for i in track(range(10)):
     while buttons.__len__() <27:
         
         driver.refresh()
-        time.sleep(3)
+        time.sleep(1)
         buttons = driver.find_elements(By.CSS_SELECTOR, "button")
         
     print(buttons[26])
@@ -57,7 +57,7 @@ for i in track(range(10)):
 
 
     print("Waiting for the page to load")
-    time.sleep(3)
+    time.sleep(2)
     driver.implicitly_wait(5)
 
 
@@ -88,12 +88,17 @@ for i in track(range(10)):
             #check if the image exists
             response = requests.get(url)
             status_code = response.status_code
+            
+            save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
             if status_code == 200:
                 #print(panoid)
                 print("Image exists")
             else:
                 print("Image does not exist")
-                break
+                # save a blank image
+                img = Image.new("RGB", (512, 512))
+                img.save(save_path)
+                
             
             # open the link using Chrome
             options = selenium.webdriver.ChromeOptions()
@@ -105,7 +110,7 @@ for i in track(range(10)):
             # delay to load the page
             time.sleep(0.5)
             
-            save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
+            
             #print(save_path)
             # save the image via screenshot
             driver.save_screenshot(save_path)
@@ -140,16 +145,25 @@ for image in os.listdir(path_to_folder):
     new_image = Image.new("RGB", (1024, 1024))
     x = int(ind)
     for y in [1,2]:
-            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            #check if the image exists
+            #default image as a black image
+            image = Image.new("RGB", (512, 512))
+            if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
+                image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (0, (y-1)*512))
             # handle wraparound
             x= x+1
             if x == 2**zoom:
                 x=0
-            image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+                
+            image = Image.new("RGB", (512, 512))
+            if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
+                image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (512, (y-1)*512))
         
-        
+    if x == 0:
+        x = 2**zoom
+    
     image = img
     new_image.save(path_to_combined_folder+image+"_Index_"+str(x-1)+".png")
 
