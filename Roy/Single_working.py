@@ -1,16 +1,10 @@
 import requests
 from PIL import Image
-import re
-import json
-import io
-import math
-import numpy as np
 from rich.progress import track
 import selenium
 from selenium.webdriver.common.by import By
 import os
 import time
-import urllib.request as urllib
 from selenium.webdriver.common.action_chains import ActionChains
 import warnings
 
@@ -21,7 +15,7 @@ warnings.filterwarnings("ignore")
 # generate random latitude and longitude
 lat = 47.3667985
 lon = 8.5430297
-zoom = 3
+
 print(lat, lon)
 
 # get the panoid from the coordinates
@@ -81,9 +75,14 @@ print(panoid)
 panoid = panoid.split("%")[0]
 print(panoid)
 
+
+
+zoom = 3
 path_to_folder = "Roy/images_first_try/"
 for x in range(2**zoom):
-        y = 1
+    for y in range(2**(zoom-1)):
+        if y == 0 or y == 2**(zoom-1)-1:
+            continue
         url = "https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid="+str(panoid)+"&x="+str(x)+"&y="+str(y)+"&zoom="+str(zoom)+"&nbt=1&fover=2"
         
         #check if the image exists
@@ -99,21 +98,21 @@ for x in range(2**zoom):
         # open the link using Chrome
         options = selenium.webdriver.ChromeOptions()
         options.add_argument("--headless")   # run the browser in the background
-        driver = selenium.webdriver.Chrome()
+        driver = selenium.webdriver.Chrome(options=options)
         driver.get(url)
         
         buttons = driver.find_elements(By.CSS_SELECTOR, "button")
         # delay to load the page
-        time.sleep(2)
+        time.sleep(1)
         
-        save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index:"+str(x)+"_"+str(y)+".png"
+        save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
         print(save_path)
         # save the image via screenshot
         driver.save_screenshot(save_path)
         
 driver.quit()
 
-
+print("zoom", zoom)
 # Since the images have a massive black border around them, we need to crop them
 # to the actual street view image
 for image in os.listdir(path_to_folder):
@@ -129,3 +128,17 @@ for image in os.listdir(path_to_folder):
     img.save(path_to_folder+image)
 
 
+path_to_combined_folder = "Roy/combined_images/"
+# combine 4 images into 1
+for x in range(2**(zoom-1)):
+    new_image = Image.new("RGB", (1024, 1024))
+    for y in [1,2]:
+        image = Image.open(path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(2*x)+"_"+str(y)+".png")
+        new_image.paste(image, (0, (y-1)*512))
+        image = Image.open(path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(2*x+1)+"_"+str(y)+".png")
+        new_image.paste(image, (512, (y-1)*512))
+        
+    new_image.save(path_to_combined_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+".png")
+
+
+print("Done")
