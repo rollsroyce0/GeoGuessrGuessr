@@ -9,6 +9,13 @@ import time
 from selenium.webdriver.common.action_chains import ActionChains
 import warnings
 
+# Maybe always delete first try to free up space and reduce computation time
+
+# delete all images in the folder
+for image in os.listdir("Roy/images_first_try/"):
+    os.remove("Roy/images_first_try/"+image)
+
+
 warnings.filterwarnings("ignore")
 zoom = 3
 path_to_folder = "Roy/images_first_try/"
@@ -71,7 +78,7 @@ for i in track(range(10)):
     driver.quit()
     # get the panoid
     panoid = current.split("panoid%3D")[1]
-    print(panoid)
+
     panoid = panoid.split("%")[0]
     print(panoid)
 
@@ -81,7 +88,7 @@ for i in track(range(10)):
     for x in range(2**zoom):
         for y in range(2**(zoom-1)):
             if y == 0 or y == 2**(zoom-1)-1:
-                print(y)
+                #print(y)
                 continue
             url = "https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid="+str(panoid)+"&x="+str(x)+"&y="+str(y)+"&zoom="+str(zoom)+"&nbt=1&fover=2"
             
@@ -98,6 +105,7 @@ for i in track(range(10)):
                 # save a blank image
                 img = Image.new("RGB", (512, 512))
                 img.save(save_path)
+                continue
                 
             
             # open the link using Chrome
@@ -147,18 +155,19 @@ for image in os.listdir(path_to_folder):
     for y in [1,2]:
             #check if the image exists
             #default image as a black image
+            
             image = Image.new("RGB", (512, 512))
             if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
                 image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (0, (y-1)*512))
             # handle wraparound
-            x= x+1
-            if x == 2**zoom:
-                x=0
+
+            if x == 2**zoom-1:
+                x=-1
                 
             image = Image.new("RGB", (512, 512))
-            if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
-                image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            if os.path.exists(path_to_folder+img+str(x+1)+"_"+str(y)+".png"):
+                image = Image.open(path_to_folder+img+str(x+1)+"_"+str(y)+".png")
             new_image.paste(image, (512, (y-1)*512))
         
     if x == 0:
