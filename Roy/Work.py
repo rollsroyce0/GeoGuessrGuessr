@@ -50,7 +50,7 @@ def main():
     # create a folder to save the images
     os.makedirs("datasets/images_first_try", exist_ok=True)
     # create a csv file to save the coordinates
-    with open("coordinates.csv", "w", newline="") as file:
+    with open("Roy/coordinates.csv", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["latitude", "longitude"])
     # create a loop to scrape the images
