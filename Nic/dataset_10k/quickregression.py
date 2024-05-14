@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader, Dataset
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 csv_file_path = os.path.join(dir_path, 'coords.csv')
 
@@ -52,10 +54,12 @@ print("Coordinates:", coordinates)
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 model = Net()
+model = Net().to(device)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 for epoch in range(2):  # loop over the dataset multiple times
+    print(epoch)
     running_loss = 0.0
     for i, data in enumerate(dataloader, 0):
         # get the inputs; data is a list of [inputs, labels]
