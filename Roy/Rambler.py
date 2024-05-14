@@ -4,48 +4,101 @@ import re
 import json
 import io
 import math
+import numpy as np
+from rich.progress import track
+import selenium
+from selenium.webdriver.common.by import By
+import os
+import time
+import urllib.request as urllib
+from selenium.webdriver.common.action_chains import ActionChains
+import warnings
+warnings.filterwarnings("ignore")
 
-MAPS_PREVIEW_ID = "CAEIBAgFCAYgAQ"
-UNKNOWN_PREVIEW_CONSTANT = 45.12133303837374
-latitude = 52.09
-longitude = 5.12
-zoom = 3
 
-client_id = re.search(
-    '"],null,0,"[^"]+"', requests.get(url="https://www.google.com/maps").json()
-).group()[11:-1]
+    
+# generate random latitude and longitude
+lat = 47.3667985
+lon = 8.5430297
+zoom = 1
+print(lat, lon)
 
-preview_document = json.loads(
-    requests.get(
-        url="https://www.google.com/maps/preview/photo?authuser=0&hl=en&gl=us&pb=!1e3!5m54!2m2!1i203!2i100!3m3!2i4!3s%s!5b1!7m42!1m3!1e1!2b0!3e3!1m3!1e2!2b1!3e2!1m3!1e2!2b0!3e3!1m3!1e8!2b0!3e3!1m3!1e10!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e9!2b1!3e2!1m3!1e10!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e10!2b0!3e4!2b1!4b1!8m0!9b0!11m1!4b1!6m3!1s%s!7e81!15i11021!9m2!2d%f!3d%f!10d%f"
-        % (MAPS_PREVIEW_ID, client_id, longitude, latitude, UNKNOWN_PREVIEW_CONSTANT)
-    ).text[4:]
-)
-sphere_id = preview_document[0][0][0]
+# get the panoid from the coordinates
+url = "https://www.google.ch/maps/@"+str(lat)+","+str(lon)+",17z?entry=ttu"
 
-photometa_document = json.loads(
-    requests.get(
-        url="https://www.google.com/maps/photometa/v1?authuser=0&hl=en&gl=us&pb=!1m4!1smaps_sv.tactile!11m2!2m1!1b1!2m2!1sen!2sus!3m3!1m2!1e2!2s%s!4m57!1e1!1e2!1e3!1e4!1e5!1e6!1e8!1e12!2m1!1e1!4m1!1i48!5m1!1e1!5m1!1e2!6m1!1e1!6m1!1e2!9m36!1m3!1e2!2b1!3e2!1m3!1e2!2b0!3e3!1m3!1e3!2b1!3e2!1m3!1e3!2b0!3e3!1m3!1e8!2b0!3e3!1m3!1e1!2b0!3e3!1m3!1e4!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e10!2b0!3e3"
-        % (sphere_id)
-    ).text[4:]
-)
+options = selenium.webdriver.ChromeOptions()
+#options.add_argument("--headless")   # run the browser in the background
 
-width = int(photometa_document[1][0][2][2][0] / pow(2, 4 - zoom))
-height = int(photometa_document[1][0][2][2][0] / pow(2, 5 - zoom))
-tiles_width = math.ceil(width / 512)
-tiles_height = math.ceil(height / 512)
+driver = selenium.webdriver.Chrome(options=options)
 
-image_output = Image.new(mode="RGB", size=(width, height))
-for x in range(tiles_width):
-    for y in range(tiles_height):
-        image_chunk = Image.open(
-            io.BytesIO(
-                requests.get(
-                    url="https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid=%s&x=%d&y=%d&zoom=%d&nbt=1&fover=2"
-                    % (sphere_id, x, y, zoom)
-                ).content
-            )
-        )
-        image_output.paste(image_chunk, (x * 512, y * 512))
+driver.get(url)
+driver.set_window_size(1920, 1080)
+buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+#print(buttons)
+buttons[1].click()
+# wait for the page to load
+driver.refresh()
+driver.implicitly_wait(5)
+time.sleep(5)
 
-image_output.save("photo-sphere.png")
+
+buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+
+#time.sleep(70000)
+while buttons.__len__() <27:
+    buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+    driver.refresh()
+    time.sleep(5)
+
+
+print(buttons[26])
+
+# drag the street view to a random location
+element=buttons[26]
+action = ActionChains(driver)
+action.move_to_element(element).click_and_hold().move_by_offset(-800, -500).release().perform()
+
+
+print("Waiting for the page to load")
+time.sleep(3)
+driver.implicitly_wait(5)
+
+
+# click the button that says "Alle ablehnen"
+current=driver.current_url
+if not current.__contains__("streetviewpixels-pa.googleapis"):
+    print("Not the correct page")
+    driver.quit()
+    exit()
+
+driver.quit()
+# get the panoid
+panoid = current.split("panoid%3D")[1]
+print(panoid)
+panoid = panoid.split("%")[0]
+print(panoid)
+
+for x in range(1):
+        url = "https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid="+str(panoid)+"&x="+str(x)+"&y=0&zoom="+str(zoom)+"&nbt=1&fover=2"
+        
+        #check if the image exists
+        response = requests.get(url)
+        status_code = response.status_code
+        if status_code == 200:
+            print(panoid)
+            print("Image exists")
+        else:
+            #print("Image does not exist")
+            break
+        
+        # open the link using Chrome
+        driver = selenium.webdriver.Chrome()
+        driver.get(url)
+        driver.maximize_window()
+        buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+        # delay to load the page
+        driver.implicitly_wait(5)
+        save_path = "Roy/images_first_try/"+str(lat)+str(len)+"_"+str(x)+".png"
+        # save the image via screenshot
+        driver.save_screenshot(save_path)
+driver.quit()
