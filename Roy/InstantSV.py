@@ -30,9 +30,10 @@ driver = selenium.webdriver.Chrome(options=options)
 url = "https://www.instantstreetview.com/@47.3768866,8.541694,0h,0p,1z"
 driver.get(url)
 driver.set_window_size(1920, 1080)
-buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-print(buttons.__len__())
-buttons[31].click() 
+buttons = driver.find_elements(By.ID, "save")
+print(buttons)
+time.sleep(10)
+buttons.click() 
 
 
 for i in track(range(10)):
@@ -45,8 +46,6 @@ for i in track(range(10)):
         print("China")
         continue
 
-    lat = 40.7242741
-    lon = -73.9976913
     
     # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
