@@ -25,6 +25,7 @@ path_to_folder = "Roy/images_first_try/"
 
 options = selenium.webdriver.ChromeOptions()
 options.add_argument("--headless")   # run the browser in the background
+options.add_argument('log-level=3')
 
 driver = selenium.webdriver.Chrome(options=options)
 url = "https://www.google.ch/maps/"
@@ -69,7 +70,6 @@ for i in track(range(50)):
         time.sleep(1)
         buttons = driver.find_elements(By.CSS_SELECTOR, "button")
         
-    print(buttons[26])
 
     # drag the street view to a random location
     element=buttons[26]
@@ -92,6 +92,8 @@ for i in track(range(50)):
 
     panoid = panoid.split("%")[0]
     print(panoid)
+    
+    continue
 
 
 

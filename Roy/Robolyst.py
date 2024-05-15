@@ -49,7 +49,7 @@ for i in track(range(1800)):
     
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
-        print("China")
+        #print("China")
         lat_track.append([lat, 0])
         lon_track.append([lon, 0])
         continue
@@ -57,7 +57,7 @@ for i in track(range(1800)):
     
     # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
-        print("Not on land")
+        #print("Not on land")
         lat_track.append([lat, 0])
         lon_track.append([lon, 0])
         continue
@@ -66,49 +66,16 @@ for i in track(range(1800)):
     lat_track.append([lat, 1])
     lon_track.append([lon, 1])
 
-    # get the panoid from the coordinates
-    url = f"https://www.google.ch/maps/@{lat},{lon},12z"
-    # wait for the page to load
-    driver.get(url)
-    driver.implicitly_wait(5)
-    time.sleep(2)
-    # search for red symbol on screen in bottom left corner and click on it
-    
-    
-
-
- 
-
-    print("Waiting for the page to load")
-    time.sleep(2)
-
-    buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-
-    #time.sleep(70000)
-    while buttons.__len__() <50:
-        
-        
-        time.sleep(1)
-        buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-        
-
-    # drag the street view to a random location
-    element=buttons[26]
-    action = ActionChains(driver)
-    action.move_to_element(element).click_and_hold().move_by_offset(-800, -500).release().perform()
-    time.sleep(2)
-
-    # click the button that says "Alle ablehnen"
-    current=driver.current_url
-    #print(current)
-    if not current.__contains__("streetviewpixels-pa.googleapis"):
-        print("Could not find street view")
-
+    panoids = search_panoramas(lat = lat, lon = lon)
+    if len(panoids) == 0:
+        print("No panoids found")
         continue
-    # get the panoid
-    panoid = current.split("panoid%3D")[1]
-
-    panoid = panoid.split("%")[0]
+    #print(panoids)
+    panoid = panoids[0]
+    panoid = str(panoid)
+    panoid = panoid.split("'")[1]
+    panoid = panoid.split("'")[0]
+    
     print(panoid)
 
     # get the images
