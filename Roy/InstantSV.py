@@ -1,5 +1,6 @@
 import requests
 from PIL import Image
+import matplotlib.pyplot as plt
 from rich.progress import track
 import selenium
 from selenium.webdriver.common.by import By
@@ -8,6 +9,7 @@ import numpy as np
 import time
 from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
+from streetview import search_panoramas
 import warnings
 
 # Maybe always delete first try to free up space and reduce computation time
@@ -24,49 +26,81 @@ path_to_folder = "Roy/images_first_try/"
 
 
 options = selenium.webdriver.ChromeOptions()
-#options.add_argument("--headless")   # run the browser in the background
+options.add_argument('log-level=3')
+options.add_argument("--headless")   # run the browser in the background
 
 driver = selenium.webdriver.Chrome(options=options)
-url = "https://www.instantstreetview.com/@47.3768866,8.541694,0h,0p,1z"
+url = "https://www.google.ch/maps/"
 driver.get(url)
 driver.set_window_size(1920, 1080)
-buttons = driver.find_elements(By.ID, "save")
-print(buttons)
-time.sleep(10)
-buttons.click() 
+buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+#print(buttons)
+buttons[1].click()
 
+lat_track=[]
+lon_track = []
 
-for i in track(range(10)):
+for i in track(range(1800)):
     # generate random latitude and longitude within street view limits
     lat = np.random.uniform(-70,80)
     lon = np.random.uniform(-180,180)
     
+
+    
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
         print("China")
+        lat_track.append([lat, 0])
+        lon_track.append([lon, 0])
         continue
 
     
     # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
         print("Not on land")
+        lat_track.append([lat, 0])
+        lon_track.append([lon, 0])
         continue
     print(lat, lon)
+    
+    lat_track.append([lat, 1])
+    lon_track.append([lon, 1])
 
     # get the panoid from the coordinates
-    url = "https://www.instantstreetview.com/@"+str(lat)+","+str(lon)+",0h,0p,1z"   
-    #print("Opening URL" + url)
+    url = f"https://www.google.ch/maps/@{lat},{lon},12z"
     # wait for the page to load
     driver.get(url)
     driver.implicitly_wait(5)
-    time.sleep(5)
+    time.sleep(2)
+    # search for red symbol on screen in bottom left corner and click on it
+    
+    
+
+
+ 
 
     print("Waiting for the page to load")
+    time.sleep(2)
 
+    buttons = driver.find_elements(By.CSS_SELECTOR, "button")
 
+    #time.sleep(70000)
+    while buttons.__len__() <50:
+        
+        
+        time.sleep(1)
+        buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+        
+
+    # drag the street view to a random location
+    element=buttons[26]
+    action = ActionChains(driver)
+    action.move_to_element(element).click_and_hold().move_by_offset(-800, -500).release().perform()
+    time.sleep(2)
 
     # click the button that says "Alle ablehnen"
     current=driver.current_url
+    #print(current)
     if not current.__contains__("streetviewpixels-pa.googleapis"):
         print("Could not find street view")
 
@@ -77,9 +111,8 @@ for i in track(range(10)):
     panoid = panoid.split("%")[0]
     print(panoid)
 
-
-
-
+    # get the images
+    
     for x in range(2**zoom):
         for y in range(2**(zoom-1)):
             if y == 0 or y == 2**(zoom-1)-1:
@@ -103,15 +136,9 @@ for i in track(range(10)):
                 continue
                 
             
-            # open the link using Chrome
-            options = selenium.webdriver.ChromeOptions()
-            options.add_argument("--headless")   # run the browser in the background
-            driver = selenium.webdriver.Chrome(options=options)
             driver.get(url)
-            
-            buttons = driver.find_elements(By.CSS_SELECTOR, "button")
             # delay to load the page
-            time.sleep(0.5)
+            time.sleep(0.25)
             
             
             #print(save_path)
@@ -174,6 +201,13 @@ for image in os.listdir(path_to_folder):
     
     image = img
     new_image.save(path_to_combined_folder+image+"_Index_"+str(x+1)+".png")
+
+
+for i in range(len(lat_track)):
+    if lat_track[i][1] == 0:
+        plt.scatter(lat_track[i][0], lon_track[i][0], c="red")
+    else:
+        plt.scatter(lat_track[i][0], lon_track[i][0], c="blue")
 
 
 print("Done")
