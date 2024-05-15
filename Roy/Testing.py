@@ -23,7 +23,7 @@ lon_track = []
 
 for i in track(range(100000)):
     # generate random latitude and longitude within street view limits
-    lat = np.random.uniform(-70,80)
+    lat = np.random.uniform(-90,90)
     lon = np.random.uniform(-180,180)
     
     # rule out China
