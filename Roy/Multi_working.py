@@ -7,6 +7,7 @@ import os
 import numpy as np
 import time
 from selenium.webdriver.common.action_chains import ActionChains
+from global_land_mask import globe
 import warnings
 
 # Maybe always delete first try to free up space and reduce computation time
@@ -20,11 +21,13 @@ warnings.filterwarnings("ignore")
 zoom = 3
 path_to_folder = "Roy/images_first_try/"
 
-for i in track(range(100)):
+for i in track(range(2250)):
     # generate random latitude and longitude
     lat = np.random.uniform(-90,90)
     lon = np.random.uniform(-180,180)
-
+    if not (globe.is_land(lat, lon)):
+        print("Not on land")
+        continue
     print(lat, lon)
 
     # get the panoid from the coordinates
