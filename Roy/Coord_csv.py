@@ -9,7 +9,7 @@ lon = [image.split("_")[1] for image in images]
 
 lat = np.array(lat, dtype=float)
 lon = np.array(lon, dtype=float)
-print(len(lat))
+print(len(lat)/8)
 
 # Create a dataframe
 df = pd.DataFrame({"Latitude": lat, "Longitude": lon})
