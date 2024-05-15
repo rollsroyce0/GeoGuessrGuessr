@@ -55,7 +55,7 @@ for i in track(range(2400)):
     # get the panoid from the coordinates
     url = f"https://www.google.ch/maps/@{lat},{lon},12.5z?entry=ttu"
     # wait for the page to load
-    driver.refresh()
+    driver.get(url)
     driver.implicitly_wait(5)
     time.sleep(2)
 
