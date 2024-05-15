@@ -27,15 +27,16 @@ options = selenium.webdriver.ChromeOptions()
 #options.add_argument("--headless")   # run the browser in the background
 
 driver = selenium.webdriver.Chrome(options=options)
-url = "https://www.google.ch/maps/"
+url = "https://www.instantstreetview.com/@47.3768866,8.541694,0h,0p,1z"
 driver.get(url)
 driver.set_window_size(1920, 1080)
-buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-#print(buttons)
-buttons[1].click()
+buttons = driver.find_elements(By.ID, "save")
+print(buttons)
+time.sleep(10)
+buttons.click() 
 
 
-for i in track(range(2400)):
+for i in track(range(10)):
     # generate random latitude and longitude within street view limits
     lat = np.random.uniform(-70,80)
     lon = np.random.uniform(-180,180)
@@ -53,32 +54,15 @@ for i in track(range(2400)):
     print(lat, lon)
 
     # get the panoid from the coordinates
-    url = f"https://www.google.ch/maps/@{lat},{lon},12.5z?entry=ttu"
+    url = "https://www.instantstreetview.com/@"+str(lat)+","+str(lon)+",0h,0p,1z"   
+    #print("Opening URL" + url)
     # wait for the page to load
     driver.get(url)
     driver.implicitly_wait(5)
-    time.sleep(2)
-
-
-    buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-
-    #time.sleep(70000)
-    while buttons.__len__() <27:
-        
-        driver.refresh()
-        time.sleep(1)
-        buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-        
-    print(buttons[26])
-
-    # drag the street view to a random location
-    element=buttons[26]
-    action = ActionChains(driver)
-    action.move_to_element(element).click_and_hold().move_by_offset(-800, -500).release().perform()
-
+    time.sleep(5)
 
     print("Waiting for the page to load")
-    time.sleep(2)
+
 
 
     # click the button that says "Alle ablehnen"
@@ -120,10 +104,9 @@ for i in track(range(2400)):
                 
             
             # open the link using Chrome
-            # We don't need to redefine this, right?
-            #options = selenium.webdriver.ChromeOptions()
-            #options.add_argument("--headless")   # run the browser in the background
-            #driver = selenium.webdriver.Chrome(options=options)
+            options = selenium.webdriver.ChromeOptions()
+            options.add_argument("--headless")   # run the browser in the background
+            driver = selenium.webdriver.Chrome(options=options)
             driver.get(url)
             
             buttons = driver.find_elements(By.CSS_SELECTOR, "button")
