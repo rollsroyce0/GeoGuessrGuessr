@@ -9,10 +9,11 @@ lon = [image.split("_")[1] for image in images]
 
 lat = np.array(lat, dtype=float)
 lon = np.array(lon, dtype=float)
+print(len(lat))
 
 # Create a dataframe
 df = pd.DataFrame({"Latitude": lat, "Longitude": lon})
 
-save_path = "Roy/combined_images/combined_images.csv"
+save_path = "Roy/combined_images.csv"
 df.to_csv(save_path, index=False)
 
