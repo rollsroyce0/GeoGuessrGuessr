@@ -12,20 +12,18 @@ from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+images_dir = os.path.join(script_dir, 'temp_images')
 # delete all images in the folder
-for image in os.listdir("Roy/images_first_try/"):
-    os.remove("Roy/images_first_try/"+image)
-
+for image in os.listdir(images_dir):
+    os.remove(images_dir+image)
 
 warnings.filterwarnings("ignore")
 zoom = 3
-path_to_folder = "Roy/images_first_try/"
-
-
 
 options = selenium.webdriver.ChromeOptions()
 options.add_argument('log-level=3')
-options.add_argument("--headless")   # run the browser in the background
+options.add_argument("--headless")
 
 driver = selenium.webdriver.Chrome(options=options)
 url = "https://www.google.ch/maps/"
@@ -43,7 +41,6 @@ for i in track(range(7000)):
     lat = np.random.uniform(-65,80)
     lon = np.random.uniform(-180,180)
     
-
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
         #print("China")
@@ -57,7 +54,6 @@ for i in track(range(7000)):
         lon_track.append([lon, 2])
         continue
         
-    
     # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
         #print("Not on land")
@@ -66,8 +62,6 @@ for i in track(range(7000)):
         continue
     #print(lat, lon)
     
-    
-
     panoids = search_panoramas(lat = lat, lon = lon)
     if len(panoids) == 0:
         #print("No panoids found")
@@ -99,7 +93,7 @@ for i in track(range(7000)):
             response = requests.get(url)
             status_code = response.status_code
             
-            save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
+            save_path = images_dir+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
             if status_code == 200:
                 #print(panoid)
                 if x == 0 and y == 1:
@@ -116,9 +110,6 @@ for i in track(range(7000)):
             # delay to load the page
             time.sleep(0.25)
             
-            
-            #print(save_path)
-            # save the image via screenshot
             driver.save_screenshot(save_path)
         
 driver.quit()
@@ -126,8 +117,8 @@ driver.quit()
 print("zoom", zoom)
 # Since the images have a massive black border around them, we need to crop them
 # to the actual street view image
-for image in os.listdir(path_to_folder):
-    img = Image.open(path_to_folder+image)
+for image in os.listdir(images_dir):
+    img = Image.open(images_dir+image)
     width, height = img.size
     left = width/2 -256
     top = height/2 -256
@@ -136,12 +127,12 @@ for image in os.listdir(path_to_folder):
     
     
     img = img.crop((left, top, right, bottom))
-    img.save(path_to_folder+image)
+    img.save(images_dir+image)
 
 
 path_to_combined_folder = "Roy/combined_images/"
 # combine 4 images into 1
-for image in track(os.listdir(path_to_folder)):
+for image in track(os.listdir(images_dir)):
     img = image.split("_",3)
     ind = img[-1]
     ind = ind[0]
@@ -154,8 +145,8 @@ for image in track(os.listdir(path_to_folder)):
             #check if the image exists
             #default image as a black image
             image = Image.new("RGB", (512, 512))
-            if os.path.exists(path_to_folder+img+str(x)+"_"+str(y)+".png"):
-                image = Image.open(path_to_folder+img+str(x)+"_"+str(y)+".png")
+            if os.path.exists(images_dir+img+str(x)+"_"+str(y)+".png"):
+                image = Image.open(images_dir+img+str(x)+"_"+str(y)+".png")
             new_image.paste(image, (0, (y-1)*512))
             
             # handle wraparound
@@ -164,8 +155,8 @@ for image in track(os.listdir(path_to_folder)):
             
                 
             image = Image.new("RGB", (512, 512))
-            if os.path.exists(path_to_folder+img+str(x+1)+"_"+str(y)+".png"):
-                image = Image.open(path_to_folder+img+str(x+1)+"_"+str(y)+".png")
+            if os.path.exists(images_dir+img+str(x+1)+"_"+str(y)+".png"):
+                image = Image.open(images_dir+img+str(x+1)+"_"+str(y)+".png")
             new_image.paste(image, (512, (y-1)*512))
             
             if x == -1:
