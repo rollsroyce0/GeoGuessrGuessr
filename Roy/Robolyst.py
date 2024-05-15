@@ -40,20 +40,25 @@ buttons[1].click()
 lat_track=[]
 lon_track = []
 
-for i in track(range(10000)):
+for i in track(range(7000)):
     # generate random latitude and longitude within street view limits
-    lat = np.random.uniform(-70,80)
+    lat = np.random.uniform(-65,80)
     lon = np.random.uniform(-180,180)
     
 
-    
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
         #print("China")
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
-
+    
+    #rule out Greenland
+    if lat > 67 and lat < 80 and lon > -49 and lon < -27:
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
+        
     
     # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
@@ -61,23 +66,24 @@ for i in track(range(10000)):
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
-    print(lat, lon)
+    #print(lat, lon)
     
     
 
     panoids = search_panoramas(lat = lat, lon = lon)
     if len(panoids) == 0:
-        print("No panoids found")
+        #print("No panoids found")
         lat_track.append([lat, 1])
         lon_track.append([lon, 1])
         continue
     #print(panoids)
+    
     panoid = panoids[0]
     panoid = str(panoid)
     panoid = panoid.split("'")[1]
     panoid = panoid.split("'")[0]
     
-    print(panoid)
+    print("Panoid found:", panoid)
     
     lat_track.append([lat, 0])
     lon_track.append([lon, 0])
@@ -98,9 +104,10 @@ for i in track(range(10000)):
             save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
             if status_code == 200:
                 #print(panoid)
-                print("Image exists")
+                if x == 0 and y == 1:
+                    print("Image exists")
             else:
-                print("Image does not exist")
+                print("Old Gen", x, y)
                 # save a blank image
                 img = Image.new("RGB", (512, 512))
                 img.save(save_path)
@@ -177,9 +184,9 @@ for image in track(os.listdir(path_to_folder)):
 lat_track = np.array(lat_track)
 lon_track = np.array(lon_track)
 
-plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="black", label="China or Ocean", s=1)
-plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=1)
-plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="blue", label="Found a spot", s=1)
+plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=40)
+plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=40)
+plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="green", label="Found a spot", s=150)
 plt.legend()
 
 plt.show()
