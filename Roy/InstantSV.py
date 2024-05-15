@@ -24,6 +24,7 @@ path_to_folder = "Roy/images_first_try/"
 
 
 options = selenium.webdriver.ChromeOptions()
+options.add_argument('log-level=2')
 options.add_argument("--headless")   # run the browser in the background
 
 driver = selenium.webdriver.Chrome(options=options)
@@ -35,7 +36,7 @@ buttons = driver.find_elements(By.CSS_SELECTOR, "button")
 buttons[1].click()
 
 
-for i in track(range(50)):
+for i in track(range(5)):
     # generate random latitude and longitude within street view limits
     lat = np.random.uniform(-70,80)
     lon = np.random.uniform(-180,180)
@@ -53,29 +54,14 @@ for i in track(range(50)):
     print(lat, lon)
 
     # get the panoid from the coordinates
-    url = f"https://www.google.ch/maps/@{lat},{lon},12.5z?entry=ttu"
+    url = f"https://www.instantstreetview.com/@{lat},{lon},0h,0p,1z"
     # wait for the page to load
     driver.get(url)
     driver.implicitly_wait(5)
     time.sleep(2)
 
 
-    buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-
-    #time.sleep(70000)
-    while buttons.__len__() <50:
-        
-        
-        time.sleep(1)
-        buttons = driver.find_elements(By.CSS_SELECTOR, "button")
-        
-    print(buttons[26])
-
-    # drag the street view to a random location
-    element=buttons[26]
-    action = ActionChains(driver)
-    action.move_to_element(element).click_and_hold().move_by_offset(-800, -500).release().perform()
-
+ 
 
     print("Waiting for the page to load")
     time.sleep(2)
@@ -83,17 +69,13 @@ for i in track(range(50)):
 
     # click the button that says "Alle ablehnen"
     current=driver.current_url
-    if not current.__contains__("streetviewpixels-pa.googleapis"):
-        print("Could not find street view")
-
-        continue
-    # get the panoid
-    panoid = current.split("panoid%3D")[1]
-
-    panoid = panoid.split("%")[0]
+    print(current)
+    if len(current.split(",",4)[4]) < 4:
+        print("No street view")
+        continue  
+    
+    panoid = current.split(",",5)[1]
     print(panoid)
-
-
 
 
     for x in range(2**zoom):
