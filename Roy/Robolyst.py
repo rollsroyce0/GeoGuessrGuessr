@@ -40,7 +40,7 @@ buttons[1].click()
 lat_track=[]
 lon_track = []
 
-for i in track(range(1800)):
+for i in track(range(10000)):
     # generate random latitude and longitude within street view limits
     lat = np.random.uniform(-70,80)
     lon = np.random.uniform(-180,180)
@@ -50,25 +50,26 @@ for i in track(range(1800)):
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
         #print("China")
-        lat_track.append([lat, 0])
-        lon_track.append([lon, 0])
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
         continue
 
     
     # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
         #print("Not on land")
-        lat_track.append([lat, 0])
-        lon_track.append([lon, 0])
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
         continue
     print(lat, lon)
     
-    lat_track.append([lat, 1])
-    lon_track.append([lon, 1])
+    
 
     panoids = search_panoramas(lat = lat, lon = lon)
     if len(panoids) == 0:
         print("No panoids found")
+        lat_track.append([lat, 1])
+        lon_track.append([lon, 1])
         continue
     #print(panoids)
     panoid = panoids[0]
@@ -77,6 +78,9 @@ for i in track(range(1800)):
     panoid = panoid.split("'")[0]
     
     print(panoid)
+    
+    lat_track.append([lat, 0])
+    lon_track.append([lon, 0])
 
     # get the images
     
@@ -132,13 +136,13 @@ for image in os.listdir(path_to_folder):
 
 path_to_combined_folder = "Roy/combined_images/"
 # combine 4 images into 1
-for image in os.listdir(path_to_folder):
+for image in track(os.listdir(path_to_folder)):
     img = image.split("_",3)
     ind = img[-1]
     ind = ind[0]
     img = img[0]+"_"+img[1]+"_"+img[2]+"_"
-    print(img)
-    print(ind)
+    #print(img)
+    #print(ind)
     new_image = Image.new("RGB", (1024, 1024))
     x = int(ind)
     for y in [1,2]:
@@ -170,12 +174,14 @@ for image in os.listdir(path_to_folder):
     new_image.save(path_to_combined_folder+image+"_Index_"+str(x+1)+".png")
 
 
-for i in range(len(lat_track)):
-    if lat_track[i][1] == 0:
-        plt.scatter(lat_track[i][0], lon_track[i][0], c="red")
-    else:
-        plt.scatter(lat_track[i][0], lon_track[i][0], c="blue")
+lat_track = np.array(lat_track)
+lon_track = np.array(lon_track)
 
+plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="black", label="China or Ocean", s=1)
+plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=1)
+plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="blue", label="Found a spot", s=1)
+plt.legend()
 
+plt.show()
 print("Done")
     
