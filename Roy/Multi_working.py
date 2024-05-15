@@ -21,17 +21,25 @@ warnings.filterwarnings("ignore")
 zoom = 3
 path_to_folder = "Roy/images_first_try/"
 
-for i in track(range(2250)):
-    # generate random latitude and longitude
-    lat = np.random.uniform(-90,90)
+for i in track(range(2400)):
+    # generate random latitude and longitude within street view limits
+    lat = np.random.uniform(-70,80)
     lon = np.random.uniform(-180,180)
+    
+    # rule out China
+    if lat >29 and lat <42 and lon > 85 and lon < 120:
+        print("China")
+        continue
+
+    
+    # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
         print("Not on land")
         continue
     print(lat, lon)
 
     # get the panoid from the coordinates
-    url = "https://www.google.ch/maps/@"+str(lat)+","+str(lon)+",15z?entry=ttu"
+    url = "https://www.google.ch/maps/@"+str(lat)+","+str(lon)+",12.5z?entry=ttu"
 
     options = selenium.webdriver.ChromeOptions()
     #options.add_argument("--headless")   # run the browser in the background
@@ -68,7 +76,6 @@ for i in track(range(2250)):
 
     print("Waiting for the page to load")
     time.sleep(2)
-    driver.implicitly_wait(5)
 
 
     # click the button that says "Alle ablehnen"
