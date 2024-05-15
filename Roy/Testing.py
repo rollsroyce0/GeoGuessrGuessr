@@ -21,7 +21,7 @@ warnings.filterwarnings("ignore")
 lat_track=[]
 lon_track = []
 
-for i in track(range(300000)):
+for i in track(range(100000)):
     # generate random latitude and longitude within street view limits
     lat = np.random.uniform(-70,80)
     lon = np.random.uniform(-180,180)
@@ -51,8 +51,26 @@ for i in track(range(300000)):
 lat_track = np.array(lat_track)
 lon_track = np.array(lon_track)
 
-plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="blue", label="On land", s=1)
-plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="red", label="Not on land", s=1)
+plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="white", label="On land", s=1)
+plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="blue", label="Not on land", s=1)
+
+
+# load the names of the images in combined_images
+images = os.listdir("Roy/combined_images/")
+
+lat =[image.split("_")[0] for image in images]
+lon = [image.split("_")[1] for image in images]
+
+lat = np.array(lat, dtype=float)
+lon = np.array(lon, dtype=float)
+
+
+plt.scatter(lon, lat, c="green", label="Images", s=30)
+plt.xlabel("Longitude")
+plt.ylabel("Latitude")
+plt.legend()
+plt.title("Distribution of images, Number of Images"+str( len(lat)))
+
 
 plt.show()
 print("Done")

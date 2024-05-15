@@ -40,7 +40,7 @@ buttons[1].click()
 lat_track=[]
 lon_track = []
 
-for i in track(range(10000)):
+for i in track(range(5000)):
     # generate random latitude and longitude within street view limits
     lat = np.random.uniform(-70,80)
     lon = np.random.uniform(-180,180)
@@ -61,23 +61,24 @@ for i in track(range(10000)):
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
-    print(lat, lon)
+    #print(lat, lon)
     
     
 
     panoids = search_panoramas(lat = lat, lon = lon)
     if len(panoids) == 0:
-        print("No panoids found")
+        #print("No panoids found")
         lat_track.append([lat, 1])
         lon_track.append([lon, 1])
         continue
     #print(panoids)
+    
     panoid = panoids[0]
     panoid = str(panoid)
     panoid = panoid.split("'")[1]
     panoid = panoid.split("'")[0]
     
-    print(panoid)
+    print("Panoid found:", panoid)
     
     lat_track.append([lat, 0])
     lon_track.append([lon, 0])
@@ -98,7 +99,8 @@ for i in track(range(10000)):
             save_path = path_to_folder+str(lat)+"_"+str(lon)+"_Index_"+str(x)+"_"+str(y)+".png"
             if status_code == 200:
                 #print(panoid)
-                print("Image exists")
+                if x == 0 and y == 1:
+                    print("Image exists")
             else:
                 print("Image does not exist")
                 # save a blank image
@@ -177,9 +179,9 @@ for image in track(os.listdir(path_to_folder)):
 lat_track = np.array(lat_track)
 lon_track = np.array(lon_track)
 
-plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="black", label="China or Ocean", s=1)
-plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=1)
-plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="blue", label="Found a spot", s=1)
+plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=40)
+plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=40)
+plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="green", label="Found a spot", s=150)
 plt.legend()
 
 plt.show()
