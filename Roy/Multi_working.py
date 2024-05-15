@@ -120,9 +120,10 @@ for i in track(range(2400)):
                 
             
             # open the link using Chrome
-            options = selenium.webdriver.ChromeOptions()
-            options.add_argument("--headless")   # run the browser in the background
-            driver = selenium.webdriver.Chrome(options=options)
+            # We don't need to redefine this, right?
+            #options = selenium.webdriver.ChromeOptions()
+            #options.add_argument("--headless")   # run the browser in the background
+            #driver = selenium.webdriver.Chrome(options=options)
             driver.get(url)
             
             buttons = driver.find_elements(By.CSS_SELECTOR, "button")
