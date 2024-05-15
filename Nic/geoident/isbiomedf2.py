@@ -78,21 +78,18 @@ class VBRGeoAnalyzer:
 
         plt.show()
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+csv_path = 'coords.csv'
+df = pd.read_csv(os.path.join(script_dir, csv_path), names=['latitude', 'longitude'])
+df = df.drop_duplicates()
+start_time = time.time()
+
 geo_analyzer = VBRGeoAnalyzer()
-if True: 
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    csv_path = 'combined_images.csv'
-    df = pd.read_csv(os.path.join(script_dir, csv_path))
-    df = df.drop_duplicates()
-    geo_analyzer.pd_plot(df)
-else:
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    csv_path = 'combined_images.csv'
-    df = pd.read_csv(os.path.join(script_dir, csv_path))
-    df = df.drop_duplicates()
-    start_time = time.time()
-    geo_analyzer.pd_biome(df)
-    end_time = time.time()
-    print(df.head())
-    print(len(df), " coordinate entries processed in ", end_time - start_time, " seconds.")
-    df.to_csv('output.csv', index=False)
+geo_analyzer.pd_biome(df)
+
+end_time = time.time()
+print(df.head())
+print(len(df), " coordinate entries processed in ", end_time - start_time, " seconds.")
+df.to_csv(os.path.join(script_dir, 'output.csv'), index=False)
+
+geo_analyzer.pd_plot(df)
