@@ -55,7 +55,7 @@ for i in track(range(2400)):
     # get the panoid from the coordinates
     url = f"https://www.google.ch/maps/@{lat},{lon},12.5z?entry=ttu"
     # wait for the page to load
-    driver.refresh()
+    driver.get(url)
     driver.implicitly_wait(5)
     time.sleep(2)
 
@@ -120,9 +120,10 @@ for i in track(range(2400)):
                 
             
             # open the link using Chrome
-            options = selenium.webdriver.ChromeOptions()
-            options.add_argument("--headless")   # run the browser in the background
-            driver = selenium.webdriver.Chrome(options=options)
+            # We don't need to redefine this, right?
+            #options = selenium.webdriver.ChromeOptions()
+            #options.add_argument("--headless")   # run the browser in the background
+            #driver = selenium.webdriver.Chrome(options=options)
             driver.get(url)
             
             buttons = driver.find_elements(By.CSS_SELECTOR, "button")
