@@ -39,7 +39,7 @@ for i in track(range(2400)):
     print(lat, lon)
 
     # get the panoid from the coordinates
-    url = "https://www.google.ch/maps/@"+str(lat)+","+str(lon)+",12.5z?entry=ttu"
+    url = "https://www.google.ch/maps/@"+str(lat)+","+str(lon)+",12z?entry=ttu"
 
     options = selenium.webdriver.ChromeOptions()
     #options.add_argument("--headless")   # run the browser in the background
