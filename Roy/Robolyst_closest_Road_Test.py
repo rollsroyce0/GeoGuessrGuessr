@@ -93,7 +93,6 @@ for i in track(range(100)):
         lon_track.append([lon, 2])
         continue
         
-    
     # rule out central Australia
     if lat > -32 and lat < -19 and lon > 123 and lon < 130:
         lat_track.append([lat, 2])
