@@ -12,10 +12,12 @@ shp_file_path = os.path.join(script_dir, country_json_file)
 world = gpd.read_file(shp_file_path)
 sindex = world.sindex
 
-def generate_random_country_code(continent=None):
+def generate_random_country_code(continent=None):   
+    
     if continent is not None:
         continent = continent.lower()
         continent_codes = world[world['continent'].str.lower() == continent].iso3.unique()
+        continent_codes = [code for code in continent_codes if code is not None]
         return random.choice(continent_codes)
     else:
         return random.choice(world.iso3.unique())
@@ -24,6 +26,7 @@ def generate_random_country_code(continent=None):
 def generate_random_point_in_country(country_code):
     # Select the polygon for the country
     country_polygon = world[world['iso3'] == country_code].geometry.iloc[0]
+    #print(country_polygon)
 
     minx, miny, maxx, maxy = country_polygon.bounds
     while True:
@@ -37,3 +40,7 @@ end_time = time.time()
 execution_time = end_time - start_time
 print(f"The function took {execution_time} seconds to execute.")
 
+for i in range(1000):
+    code = generate_random_country_code('Africa')  # Continent code is case-insensitive
+    if code is None:
+        print("No country code found")

@@ -44,9 +44,8 @@ lon_track = []
 for i in track(range(1000)):
     # generate random latitude and longitude within street view limits
     
-    
-    
-    
+    code = geofindcountry.generate_random_country_code('Africa')
+    print(code)
     lat, lon = geofindcountry.generate_random_point_in_country(code)
     
     
@@ -56,7 +55,6 @@ for i in track(range(1000)):
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
-    #print(lat, lon)
 
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
@@ -88,7 +86,6 @@ for i in track(range(1000)):
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
-        
     
     # rule out central Australia
     if lat > -32 and lat < -19 and lon > 123 and lon < 130:
