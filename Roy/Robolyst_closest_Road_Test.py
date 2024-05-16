@@ -11,7 +11,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
-import geofindcountry
+import geofindurban
+import findclosestroad
 
 # Maybe always delete first try to free up space and reduce computation time
 
@@ -40,13 +41,17 @@ buttons[1].click()
 
 lat_track=[]
 lon_track = []
+dist_track = []
 
-for i in track(range(500)):
+for i in track(range(100)):
     # generate random latitude and longitude within street view limits
+    lat, lon = geofindurban.generate_random_point_in_urban_area()
     
-    code = geofindcountry.generate_random_country_code('Africa')
-    
-    lat, lon = geofindcountry.generate_random_point_in_country(code)
+    latlon, dist = findclosestroad.find_closest_road(lat, lon)
+    print(dist)
+    lat = latlon[0]
+    lon = latlon[1]
+    dist_track.append(dist)
     
     
     # check if the coordinates are on land
@@ -55,6 +60,7 @@ for i in track(range(500)):
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
+    #print(lat, lon)
 
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
@@ -86,6 +92,7 @@ for i in track(range(500)):
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
+        
     
     # rule out central Australia
     if lat > -32 and lat < -19 and lon > 123 and lon < 130:
@@ -93,7 +100,7 @@ for i in track(range(500)):
         lon_track.append([lon, 2])
         continue
 
-       
+    
 
     panoids = search_panoramas(lat = lat, lon = lon)
     if len(panoids) == 0:
@@ -209,11 +216,13 @@ for image in track(os.listdir(path_to_folder), description="Combining images"):
 lat_track = np.array(lat_track)
 lon_track = np.array(lon_track)
 
-plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="Excluded for No coverage", s=20)
+plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=20)
 plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=20)
 plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="green", label="Found a spot", s=100)
 plt.legend()
 
 plt.show()
+
+print ("Average distance to road:", np.mean(dist_track))
 print("Done")
     
