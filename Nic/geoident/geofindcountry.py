@@ -23,7 +23,7 @@ def generate_random_point_in_country(country_code):
             return random_point.y, random_point.x  # Return as (latitude, longitude)
 
 start_time = time.time()
-print(generate_random_point_in_country('CHE'))  # 'CHE' is the ISO3 country code for Switzerland
+print(generate_random_point_in_country('USA'))  # 'CHE' is the ISO3 country code for Switzerland
 end_time = time.time()
 execution_time = end_time - start_time
 print(f"The function took {execution_time} seconds to execute.")
