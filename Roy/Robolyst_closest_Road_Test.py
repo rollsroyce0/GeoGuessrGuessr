@@ -13,6 +13,7 @@ from streetview import search_panoramas
 import warnings
 import geofindurban
 import findclosestroad
+import geofindcountry
 
 # Maybe always delete first try to free up space and reduce computation time
 
@@ -43,9 +44,10 @@ lat_track=[]
 lon_track = []
 dist_track = []
 
-for i in track(range(100)):
+for i in track(range(300)):
     # generate random latitude and longitude within street view limits
-    lat, lon = geofindurban.generate_random_point_in_urban_area()
+    code = geofindcountry.generate_random_country_code()
+    lat, lon = geofindcountry.generate_random_point_in_country(code)
     
     latlon, dist = findclosestroad.find_closest_road(lat, lon)
     print(dist)
@@ -65,6 +67,18 @@ for i in track(range(100)):
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
         #print("China")
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
+    
+    # rule out more of Siberia
+    if lat > 64 and lat < 80 and lon > 111 and lon < 157:
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
+    
+    # rule out canadian arctic
+    if lat > 57 and lat < 80 and lon > -109 and lon < -95:
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
@@ -99,7 +113,11 @@ for i in track(range(100)):
         lon_track.append([lon, 2])
         continue
 
-    
+    #rule out greater Afghanistan
+    if lat > 30 and lat < 38 and lon > 61 and lon < 70:
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
 
     panoids = search_panoramas(lat = lat, lon = lon)
     if len(panoids) == 0:

@@ -20,7 +20,9 @@ def generate_random_country_code(continent=None):
         continent_codes = [code for code in continent_codes if code is not None]
         return random.choice(continent_codes)
     else:
-        return random.choice(world.iso3.unique())
+        codes = world.iso3.unique()
+        codes = [code for code in codes if code is not None]
+        return random.choice(codes)
 
 
 def generate_random_point_in_country(country_code):
@@ -39,4 +41,6 @@ print(generate_random_point_in_country('CHE'))  # 'CHE' is the ISO3 country code
 end_time = time.time()
 execution_time = end_time - start_time
 print(f"The function took {execution_time} seconds to execute.")
+
+
 
