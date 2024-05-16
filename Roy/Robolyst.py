@@ -40,7 +40,12 @@ buttons[1].click()
 lat_track=[]
 lon_track = []
 
-for i in track(range(30000)):
+for i in track(range(35000)):
+    # generate random latitude and longitude within street view limits
+    lat = np.random.uniform(-65,80)
+    lon = np.random.uniform(-180,180)
+    
+    
     # check if the coordinates are on land
     if not (globe.is_land(lat, lon)):
         #print("Not on land")
@@ -48,11 +53,6 @@ for i in track(range(30000)):
         lon_track.append([lon, 2])
         continue
     #print(lat, lon)
-    
-    # generate random latitude and longitude within street view limits
-    lat = np.random.uniform(-65,80)
-    lon = np.random.uniform(-180,180)
-    
 
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
