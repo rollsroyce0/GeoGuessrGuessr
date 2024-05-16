@@ -40,7 +40,15 @@ buttons[1].click()
 lat_track=[]
 lon_track = []
 
-for i in track(range(7000)):
+for i in track(range(30000)):
+    # check if the coordinates are on land
+    if not (globe.is_land(lat, lon)):
+        #print("Not on land")
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
+    #print(lat, lon)
+    
     # generate random latitude and longitude within street view limits
     lat = np.random.uniform(-65,80)
     lon = np.random.uniform(-180,180)
@@ -58,17 +66,33 @@ for i in track(range(7000)):
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
-        
     
-    # check if the coordinates are on land
-    if not (globe.is_land(lat, lon)):
-        #print("Not on land")
+    # rule out the Sahara desert
+    if lat > 14 and lat < 28 and lon > -10 and lon < 28:
         lat_track.append([lat, 2])
         lon_track.append([lon, 2])
         continue
-    #print(lat, lon)
     
+    # rule out central africa
+    if lat > -17 and lat < 17 and lon > 15 and lon < 28:
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
     
+    # Rule out part of Siberia
+    if lat > 58 and lat < 68 and lon > 83 and lon < 111:
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
+        
+    
+    # rule out central Australia
+    if lat > -32 and lat < -19 and lon > 123 and lon < 130:
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
+        continue
+
+       
 
     panoids = search_panoramas(lat = lat, lon = lon)
     if len(panoids) == 0:
@@ -184,9 +208,9 @@ for image in track(os.listdir(path_to_folder)):
 lat_track = np.array(lat_track)
 lon_track = np.array(lon_track)
 
-plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=40)
-plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=40)
-plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="green", label="Found a spot", s=150)
+plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=20)
+plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=20)
+plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="green", label="Found a spot", s=100)
 plt.legend()
 
 plt.show()
