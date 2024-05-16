@@ -149,10 +149,10 @@ for i in track(range(1000)):
         
 driver.quit()
 
-print("zoom", zoom)
+#print("zoom", zoom)
 # Since the images have a massive black border around them, we need to crop them
 # to the actual street view image
-for image in os.listdir(path_to_folder):
+for image in track(os.listdir(path_to_folder), description="Cropping images"):
     img = Image.open(path_to_folder+image)
     width, height = img.size
     left = width/2 -256
@@ -167,7 +167,7 @@ for image in os.listdir(path_to_folder):
 
 path_to_combined_folder = "Roy/combined_images/"
 # combine 4 images into 1
-for image in track(os.listdir(path_to_folder)):
+for image in track(os.listdir(path_to_folder), description="Combining images"):
     img = image.split("_",3)
     ind = img[-1]
     ind = ind[0]
