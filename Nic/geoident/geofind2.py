@@ -7,6 +7,8 @@ import geopandas as gpd
 import os
 from shapely.ops import unary_union
 from shapely.affinity import translate
+from shapely.strtree import STRtree
+from geopandas import GeoDataFrame
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from tqdm import tqdm
@@ -65,10 +67,14 @@ class VBRGeoFinder:
         else:
             intersection_area = self.countries.unary_union
 
+        # Create a spatial index
+        spatial_index = STRtree(list(intersection_area))
+
         for _ in tqdm(range(n), desc="Generating points"):
             for _ in range(max_attempts):
                 point = Point(random.uniform(intersection_area.bounds[0], intersection_area.bounds[2]), random.uniform(intersection_area.bounds[1], intersection_area.bounds[3]))
-                if intersection_area.contains(point):
+                # Use the spatial index for the contains check
+                if any(p.contains(point) for p in spatial_index.query(point)):
                     points.append(point)
                     break
             else:
