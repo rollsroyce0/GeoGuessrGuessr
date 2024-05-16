@@ -15,14 +15,14 @@ def find_closest_road(lat, lon):
     """
     response = requests.get(overpass_url, params={'data': overpass_query})
     data = response.json()
-    print(data)
+    #print(data)
 
     # Extract coordinates of the nearest road
     if data['elements'] != []:
         for element in data['elements']:
             if element['type'] == 'way':
                 # Get the first node of the way as the location of the road
-                print(data['elements'][0])
+                #print(data['elements'][0])
                 road_lat = data['elements'][0]['lat']
                 road_lon = data['elements'][0]['lon']
                 
