@@ -8,7 +8,6 @@ from selenium.webdriver.common.by import By
 import os
 import numpy as np
 import time
-from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
@@ -58,7 +57,7 @@ def get_images(driver, lat, lon, panoid, zoom):
             img = Image.new("RGB", (512, 512))
             img.save(save_path)
         driver.get(url)
-        time.sleep(0.5)
+        time.sleep(0.1)
         driver.save_screenshot(save_path)
         # print("Cropping image...")
         img = Image.open(save_path)
@@ -76,8 +75,8 @@ def plot_locations(lat_track, lon_track):
     lat_track = np.array(lat_track)
     lon_track = np.array(lon_track)
 
-    plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=40)
-    plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=40)
+    plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=30)
+    plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=30)
     plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="green", label="Found a spot", s=150)
     plt.legend()
 
@@ -94,7 +93,7 @@ def main():
 
     lat_track=[]
     lon_track = []
-    for i in track(range(1000), description="Processing..."):
+    for i in track(range(300), description="Processing..."):
         panoid = None
         i = 0
         while panoid is None:

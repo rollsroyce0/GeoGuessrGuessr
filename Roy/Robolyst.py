@@ -11,6 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
+import geofindurban
 
 # Maybe always delete first try to free up space and reduce computation time
 
@@ -40,10 +41,9 @@ buttons[1].click()
 lat_track=[]
 lon_track = []
 
-for i in track(range(35000)):
+for i in track(range(1000)):
     # generate random latitude and longitude within street view limits
-    lat = np.random.uniform(-65,80)
-    lon = np.random.uniform(-180,180)
+    lat, lon = geofindurban.generate_random_point_in_urban_area()
     
     
     # check if the coordinates are on land
@@ -140,7 +140,7 @@ for i in track(range(35000)):
             
             driver.get(url)
             # delay to load the page
-            time.sleep(0.25)
+            time.sleep(0.1)
             
             
             #print(save_path)
