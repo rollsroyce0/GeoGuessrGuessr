@@ -7,11 +7,14 @@ from shapely.ops import unary_union
 from shapely.affinity import translate
 import random
 
-# Load the shapefile
-country_json_file = 'shapefiles\\urban_shp\\ne_50m_urban_areas.shp'
+country_json_file = 'shapefiles\\country_json\\world-administrative-boundaries.geojson'
+
+# Load the GeoJSON file and create a spatial index
 script_dir = os.path.dirname(os.path.realpath(__file__))
 shp_file_path = os.path.join(script_dir, country_json_file)
-urban_areas = gpd.read_file(shp_file_path)
+world = gpd.read_file(shp_file_path)
+sindex = world.sindex
+
 
 def select_random_polygon(gdf):
     random_index = random.randint(0, len(gdf) - 1)
