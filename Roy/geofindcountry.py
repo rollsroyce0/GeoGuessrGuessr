@@ -40,7 +40,3 @@ end_time = time.time()
 execution_time = end_time - start_time
 print(f"The function took {execution_time} seconds to execute.")
 
-for i in range(1000):
-    code = generate_random_country_code('Africa')  # Continent code is case-insensitive
-    if code is None:
-        print("No country code found")
