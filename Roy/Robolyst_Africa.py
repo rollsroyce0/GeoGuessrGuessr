@@ -41,11 +41,11 @@ buttons[1].click()
 lat_track=[]
 lon_track = []
 
-for i in track(range(1000)):
+for i in track(range(500)):
     # generate random latitude and longitude within street view limits
     
-    code = geofindcountry.generate_random_country_code('Africa')
-    print(code)
+    #code = geofindcountry.generate_random_country_code('Africa')
+    code = 'LSO'
     lat, lon = geofindcountry.generate_random_point_in_country(code)
     
     
@@ -209,7 +209,7 @@ for image in track(os.listdir(path_to_folder), description="Combining images"):
 lat_track = np.array(lat_track)
 lon_track = np.array(lon_track)
 
-plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="China or Ocean", s=20)
+plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="blue", label="Excluded for No coverage", s=20)
 plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="red", label="No Panoids", s=20)
 plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="green", label="Found a spot", s=100)
 plt.legend()
