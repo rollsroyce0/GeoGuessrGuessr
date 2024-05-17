@@ -5,7 +5,7 @@ from shapely.geometry import Point
 
 def is_in_ocean(coord: tuple) -> bool:
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    shp_file_path = os.path.join(script_dir, 'ne_110m_land.shp')
+    shp_file_path = os.path.join(script_dir, 'shapefiles\\land_shp\\ne_110m_land.shp')
     world = gpd.read_file(shp_file_path)
     point = Point(coord)
     for _, row in world.iterrows():
