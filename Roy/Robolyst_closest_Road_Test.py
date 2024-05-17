@@ -11,9 +11,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
-import geofindurban
+import Helper_Functions.geofindurban
 import findclosestroad
-import geofindcountry
+import Helper_Functions.geofindcountry as geofindcountry
 
 # Maybe always delete first try to free up space and reduce computation time
 
@@ -46,7 +46,7 @@ dist_track = []
 
 for i in track(range(1000)):
     # generate random latitude and longitude within street view limits
-    code = geofindcountry.generate_random_country_code("Australia")
+    code = geofindcountry.generate_random_country_code("oceania")
     lat, lon = geofindcountry.generate_random_point_in_country(code)
     
     latlon, dist = findclosestroad.find_closest_road(lat, lon)
