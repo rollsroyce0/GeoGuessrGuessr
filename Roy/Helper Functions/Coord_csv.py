@@ -1,8 +1,9 @@
 import os
 import numpy as np
 import pandas as pd
-# load the names of the images in combined_images
-images = os.listdir("Roy/combined_images/")
+# load the names of the images in other folder different drive
+
+images = os.listdir("D:/GeoGuessrGuessr/geoguesst")
 
 lat =[image.split("_")[0] for image in images]
 lon = [image.split("_")[1] for image in images]
