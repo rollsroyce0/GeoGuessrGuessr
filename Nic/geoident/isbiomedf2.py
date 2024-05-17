@@ -74,14 +74,15 @@ class VBRGeoAnalyzer:
         
         if 'longitude' in df.columns and 'latitude' in df.columns:
             gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-            gdf.plot(ax=ax, color='red', label='Coordinates', markersize=0.3)
+            gdf.plot(ax=ax, color='indigo', label='Coordinates', markersize=0.3)
 
         plt.show()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-csv_path = 'coords.csv'
-df = pd.read_csv(os.path.join(script_dir, csv_path), names=['latitude', 'longitude'])
+csv_path = 'combined_images.csv'
+df = pd.read_csv(os.path.join(script_dir, csv_path))
 df = df.drop_duplicates()
+print(df.head())
 start_time = time.time()
 
 geo_analyzer = VBRGeoAnalyzer()
@@ -90,6 +91,9 @@ geo_analyzer.pd_biome(df)
 end_time = time.time()
 print(df.head())
 print(len(df), " coordinate entries processed in ", end_time - start_time, " seconds.")
-df.to_csv(os.path.join(script_dir, 'output.csv'), index=False)
+biome_counts = df['is_biome'].value_counts()
+print(biome_counts)
+geo_analyzer.pd_plot(df)
+df.to_csv(os.path.join(script_dir, 'updated_images.csv'), index=False)
 
 geo_analyzer.pd_plot(df)

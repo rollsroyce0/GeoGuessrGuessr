@@ -5,10 +5,8 @@ from shapely.geometry import Polygon, Point
 from typing import Optional
 import geopandas as gpd
 import os
-from shapely.ops import unary_union
+from shapely.ops import unary_union, cascaded_union
 from shapely.affinity import translate
-from shapely.strtree import STRtree
-from geopandas import GeoDataFrame
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from tqdm import tqdm
@@ -50,14 +48,17 @@ class VBRGeoFinder:
         loading_time = end_time - start_time
         print(f"Shapefiles loaded in {loading_time} seconds.")
 
-    def generate_point(self, urban: Optional[bool] = False, country: Optional[str] = None, biome: Optional[int] = None, n: Optional[int] = 1, plot: Optional[bool] = False):
-        max_attempts = 1000
+    def generate_point(self, urban: Optional[bool] = False, countries: Optional[list[str]] = None, biome: Optional[int] = None, n: Optional[int] = 1, plot: Optional[bool] = False):
+        max_attempts = 10000
         points = []
         polygons = []
         if urban:
             polygons.append(self.urban.unary_union)
-        if country:
-            polygons.append(self.countries[self.countries['iso3'] == country].unary_union)
+        if countries:
+            country_polygons = []
+            for country in countries:
+                country_polygons.append(self.countries[self.countries['iso3'] == country].unary_union)
+            polygons.append(cascaded_union(country_polygons))
         if biome:
             polygons.append(self.biomes[self.biomes['BIOME'] == biome].unary_union)
         if polygons:
@@ -67,28 +68,25 @@ class VBRGeoFinder:
         else:
             intersection_area = self.countries.unary_union
 
-        # Create a spatial index
-        spatial_index = STRtree(list(intersection_area))
+        if plot:
+            fig, ax = plt.subplots()
+            gpd.GeoSeries(intersection_area).plot(ax=ax, color='red')
 
         for _ in tqdm(range(n), desc="Generating points"):
             for _ in range(max_attempts):
                 point = Point(random.uniform(intersection_area.bounds[0], intersection_area.bounds[2]), random.uniform(intersection_area.bounds[1], intersection_area.bounds[3]))
-                # Use the spatial index for the contains check
-                if any(p.contains(point) for p in spatial_index.query(point)):
+                if intersection_area.contains(point):
                     points.append(point)
+                    if plot:
+                        gpd.GeoSeries(points).plot(ax=ax, color='blue', markersize=5)
+                        plt.draw()
+                        plt.pause(0.01)
                     break
             else:
                 print("Did not find a point that satisfies the requirements")
                 return None
 
-        # Plotting
-        if plot:
-            fig, ax = plt.subplots()
-            gpd.GeoSeries(intersection_area).plot(ax=ax, color='red')
-            gpd.GeoSeries(points).plot(ax=ax, color='blue', markersize=5)
-            plt.show()
-
         return points
     
 finder = VBRGeoFinder()
-print(finder.generate_point(biome=4, n=20, plot = True))
+print(finder.generate_point(urban=False, countries=['DEU', 'FRA', 'GBR'], n=100, plot = True))
