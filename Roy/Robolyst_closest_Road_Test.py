@@ -44,7 +44,7 @@ lat_track=[]
 lon_track = []
 dist_track = []
 
-for i in track(range(1000)):
+for i in track(range(300)):
     # generate random latitude and longitude within street view limits
     code = geofindcountry.generate_random_country_code("oceania")
     lat, lon = geofindcountry.generate_random_point_in_country(code)

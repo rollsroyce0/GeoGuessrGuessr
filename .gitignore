@@ -6,4 +6,14 @@ venv/
 .venv/
 
 #pycache
+**/__pycache__/
+__pycache__
 __pycache__/
+
+#Roys gitignore
+**/images_first_try/
+**/combined_images
+combined_images
+
+#Nics gitignore
+**/temp_images/
