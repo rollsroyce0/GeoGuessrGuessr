@@ -49,7 +49,7 @@ class VBRGeoFinder:
         print(f"Shapefiles loaded in {loading_time} seconds.")
 
     def generate_point(self, urban: Optional[bool] = False, country: Optional[str] = None, biome: Optional[int] = None, n: Optional[int] = 1, plot: Optional[bool] = False):
-        max_attempts = 1000
+        max_attempts = 10000
         points = []
         polygons = []
         if urban:
@@ -85,4 +85,4 @@ class VBRGeoFinder:
         return points
     
 finder = VBRGeoFinder()
-print(finder.generate_point(biome=4, n=20, plot = True))
+print(finder.generate_point(urban=True, country='USA', n=20, plot = True))
