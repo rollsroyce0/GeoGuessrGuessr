@@ -27,14 +27,13 @@ def find_closest_road(lat, lon):
                 road_lon = data['elements'][0]['lon']
                 
                 break
-        distance = geodesic((lat, lon), (road_lat, road_lon)).meters
     else:
         # If no road is found, return the input coordinates
-        road_lat, road_lon = lat, lon
-        distance = 1000000 # A large distance  
+        road_lat, road_lon = 0,0
+    distance = geodesic((lat, lon), (road_lat, road_lon)).meters
 
     return (road_lat, road_lon), distance
 
-lat, lon = 0,0  # Coordinates of Brandenburg Gate, Berlin
+lat, lon = 0,0.1  # Coordinates of Brandenburg Gate, Berlin
 road_coords, distance = find_closest_road(lat, lon)
 print(f"The closest road is at {road_coords} and is {distance} meters away.")
