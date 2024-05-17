@@ -1,0 +1,9 @@
+#datasets
+dataset*/
+
+#virtual_environments
+venv/
+.venv/
+
+#pycache
+__pycache__/

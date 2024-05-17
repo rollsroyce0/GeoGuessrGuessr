@@ -1,0 +1,759 @@
+latitude,longitude,is_land,is_biome,is_country,is_urban
+-0.5553639144514619,34.20849312589263,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Kenya,True
+-10.025315699140457,-54.90933679504083,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-10.757900930336646,-42.40363239602684,True,Deserts & Xeric Shrublands,Brazil,True
+-10.940253674614375,-37.08934408936446,True,Mangroves,Brazil,True
+-11.303761152151315,-51.67145435242219,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-11.32890269231713,-41.86221418441036,True,Deserts & Xeric Shrublands,Brazil,True
+-12.213543575471842,-38.964021399160046,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-12.402553597289604,-40.40141927013886,True,Tropical & Subtropical Dry Broadleaf Forests,Brazil,True
+-13.252282529137505,-43.40048704368127,True,Tropical & Subtropical Dry Broadleaf Forests,Brazil,True
+-13.923527665716108,-71.68670924822855,True,Montane Grasslands & Shrublands,Peru,True
+-15.535975631929034,-44.47340330491221,True,Tropical & Subtropical Dry Broadleaf Forests,Brazil,True
+-15.808476162214022,-48.05796171118176,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-16.766473971974143,-49.29866386679597,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-17.816470297100928,-51.12106169782746,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-19.0382563254926,-65.23869347294215,True,Tropical & Subtropical Dry Broadleaf Forests,Bolivia,True
+-2.2069545474408243,-79.92550706543513,True,Tropical & Subtropical Moist Broadleaf Forests,Ecuador,True
+-20.278968511189877,-42.82537907761147,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-20.42978250591589,-54.61691214344582,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-20.44008357644728,-54.609642555686726,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-20.683892346612637,139.4887661611277,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Australia,True
+-20.80082158639674,-49.409279554530784,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-20.889067169188127,55.4636424665843,True,Tropical & Subtropical Moist Broadleaf Forests,Reunion,True
+-22.03604659872845,-46.50066452153146,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-22.347272535269365,-49.09435887849409,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-22.49598544957001,-46.8282563270441,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-22.76474722844494,-42.90469493056116,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-22.98994034276425,-46.81970723413593,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-23.011315758167587,-45.53673352688722,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-23.02747291145291,-43.47684779909694,True,Tropical & Subtropical Moist Broadleaf Forests,,True
+-23.06261928894814,30.67178661875991,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",South Africa,True
+-23.12413919489677,-46.564352868798565,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-23.48736408265529,-46.435595334320354,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-23.90713072092974,29.462453929967403,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",South Africa,True
+-23.9177896478453,31.022899542283486,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",South Africa,True
+-24.196955426518528,-65.27404452971906,True,Tropical & Subtropical Moist Broadleaf Forests,Argentina,True
+-24.209566647818068,-65.26406633109539,True,Tropical & Subtropical Moist Broadleaf Forests,Argentina,True
+-24.23697158257852,-65.27057786401893,True,Tropical & Subtropical Moist Broadleaf Forests,Argentina,True
+-24.77853910025981,-65.44388629522844,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Argentina,True
+-24.88498807288656,28.2831625673452,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",South Africa,True
+-25.375587143354867,31.163314340067128,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",South Africa,True
+-25.571668554720866,27.983489445701714,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",South Africa,True
+-25.916800796420663,29.17392133536672,True,Montane Grasslands & Shrublands,South Africa,True
+-26.19430061743412,-58.22421531523506,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Argentina,True
+-26.68838580869022,27.825723351763795,True,Montane Grasslands & Shrublands,South Africa,True
+-26.846731086369868,-65.25545142636258,True,Tropical & Subtropical Moist Broadleaf Forests,Argentina,True
+-27.1121262839436,-52.59647381567159,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-27.142349478130058,26.54022553646439,True,Montane Grasslands & Shrublands,South Africa,True
+-27.316284085459635,-49.066177189950224,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-27.464520294419493,-58.97423485280668,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Argentina,True
+-27.93697266691423,26.81358516702207,True,Montane Grasslands & Shrublands,South Africa,True
+-28.250331206850184,28.31849990960245,True,Montane Grasslands & Shrublands,South Africa,True
+-28.475785754286548,153.53010020748656,True,Temperate Broadleaf & Mixed Forests,Australia,True
+-28.712791142674725,24.749533290353323,True,Deserts & Xeric Shrublands,South Africa,True
+-29.29444598597444,28.5375083839264,True,Montane Grasslands & Shrublands,Lesotho,True
+-29.35189006371921,27.602467910982607,True,Montane Grasslands & Shrublands,Lesotho,True
+-29.356015196670956,27.569508813839896,True,Montane Grasslands & Shrublands,Lesotho,True
+-29.51391529572749,28.062403390022897,True,Montane Grasslands & Shrublands,Lesotho,True
+-29.5379336803574,28.10748898225377,True,Montane Grasslands & Shrublands,Lesotho,True
+-29.646865552744103,30.366036115319822,True,Montane Grasslands & Shrublands,South Africa,True
+-29.7328560324745,-51.17648159244087,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-29.820397732907185,27.22769468149357,True,Montane Grasslands & Shrublands,Lesotho,True
+-29.844647638779005,30.91301366118989,True,Tropical & Subtropical Moist Broadleaf Forests,South Africa,True
+-31.3771737199032,-64.18289321991568,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-32.08867430502136,115.98813769415452,True,"Mediterranean Forests, Woodlands & Scrub",Australia,True
+-32.42898277944964,25.768420143930594,True,Montane Grasslands & Shrublands,South Africa,True
+-32.875177574915746,-68.80621313281688,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-32.9061564746291,-60.72413260585563,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-33.33707392401306,-71.63832109056975,True,"Mediterranean Forests, Woodlands & Scrub",Chile,True
+-33.43720723989326,146.5546757877014,True,"Temperate Grasslands, Savannas & Shrublands",Australia,True
+-33.55294218978289,135.91567368391412,True,"Mediterranean Forests, Woodlands & Scrub",Australia,True
+-33.66179632422254,119.73564853027318,True,"Mediterranean Forests, Woodlands & Scrub",Australia,True
+-33.893057602163644,25.56462666315319,True,"Mediterranean Forests, Woodlands & Scrub",South Africa,True
+-33.98831581948997,151.23231243482638,True,Temperate Broadleaf & Mixed Forests,Australia,True
+-33.99315529130136,18.69016172628625,True,"Mediterranean Forests, Woodlands & Scrub",South Africa,True
+-34.34870722269157,-58.80142818435246,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-34.601470616795524,-68.31285715648171,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-34.90479353537796,-54.956633273346405,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Uruguay,True
+-34.91666665243139,-58.53502310491822,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-35.248282060794416,149.1321757709143,True,Temperate Broadleaf & Mixed Forests,Australia,True
+-35.28315290587286,149.08019277111322,True,Temperate Broadleaf & Mixed Forests,Australia,True
+-35.5944918264552,144.68532538621628,True,"Temperate Grasslands, Savannas & Shrublands",Australia,True
+-36.916881394250574,-72.94085509552313,True,Temperate Broadleaf & Mixed Forests,Chile,True
+-37.32931594629302,-69.05285740764414,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-37.704708345825765,143.80478211174005,True,Temperate Broadleaf & Mixed Forests,Australia,True
+-37.74055805190856,-57.6524126315512,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-37.82735650215198,-73.50896596176372,True,Temperate Broadleaf & Mixed Forests,Chile,True
+-37.84828635758374,145.1335715768469,True,Temperate Broadleaf & Mixed Forests,Australia,True
+-37.96745718297494,-57.55620096426468,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-37.987467670958274,143.0359234211926,True,Temperate Broadleaf & Mixed Forests,Australia,True
+-38.68460017955983,-62.30492839274221,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-4.941915051779382,105.51503876042574,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-40.50036708620809,-67.20954818884421,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-43.329908090442814,-65.87242581215938,True,"Temperate Grasslands, Savannas & Shrublands",Argentina,True
+-5.091926739544522,-42.76104077490098,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+-5.114245738007789,-36.81629286909731,True,Deserts & Xeric Shrublands,Brazil,True
+-5.323870556299703,-36.57106354378689,True,Deserts & Xeric Shrublands,Brazil,True
+-5.490951099842675,104.20048051994456,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-5.9143298425057935,-35.523795051588706,True,Deserts & Xeric Shrublands,Brazil,True
+-6.2067920461915165,-42.10249696698719,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+-6.960934244780593,107.6540017956154,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-7.247150158537082,112.56955490958644,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-7.353884533083637,109.29419616655264,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-7.524768380359845,112.29673970619064,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-7.808954651467538,113.9884209173564,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-8.421261517245746,115.2919415820772,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+-8.817314240427265,116.35094782011646,True,Tropical & Subtropical Dry Broadleaf Forests,Indonesia,True
+-9.979206548124672,-67.85673307435067,True,Tropical & Subtropical Moist Broadleaf Forests,Brazil,True
+0.2871678681253931,6.671139140243355,True,Tropical & Subtropical Moist Broadleaf Forests,Sao Tome and Principe,True
+0.3040498746274415,6.677645821916651,True,Tropical & Subtropical Moist Broadleaf Forests,Sao Tome and Principe,True
+0.560121652802593,121.60197042900069,True,Tropical & Subtropical Moist Broadleaf Forests,Indonesia,True
+1.3410457178896025,103.83532553315852,True,Tropical & Subtropical Moist Broadleaf Forests,Singapore,True
+1.5075637529463068,103.76865558222153,True,Tropical & Subtropical Moist Broadleaf Forests,Malaysia,True
+1.513890053541733,103.76850140921847,True,Tropical & Subtropical Moist Broadleaf Forests,Malaysia,True
+10.549822628524684,7.420043553105687,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Nigeria,True
+10.993067901558998,-74.79571240932273,True,Deserts & Xeric Shrublands,Colombia,True
+12.010359796380088,8.501218122122946,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Nigeria,True
+12.135420254851596,75.17833286685897,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+12.24479956518148,78.01240776163456,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+12.4159209442427,75.19828458560875,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+12.872754547801144,-15.603988388884211,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Senegal,True
+13.085950290338053,80.17852609536835,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+13.22959241591154,101.02546147770944,True,Tropical & Subtropical Moist Broadleaf Forests,Thailand,True
+13.29931483134169,78.02122746501323,True,Deserts & Xeric Shrublands,India,True
+13.702099241210052,-15.694162911616944,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Senegal,True
+13.70493254683062,101.97003329361348,True,Tropical & Subtropical Moist Broadleaf Forests,Thailand,True
+13.8254527483369,103.464110779956,True,Tropical & Subtropical Dry Broadleaf Forests,Cambodia,True
+14.02231623126896,107.08727621586496,True,Tropical & Subtropical Dry Broadleaf Forests,Cambodia,True
+14.39365388904976,100.4839316134607,True,Tropical & Subtropical Moist Broadleaf Forests,Thailand,True
+14.433631403596529,-16.057270124313188,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Senegal,True
+14.439189032935332,75.1130011150131,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+14.552910082774368,-16.615843468234296,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Senegal,True
+14.653392310643454,104.61090257195406,True,Tropical & Subtropical Dry Broadleaf Forests,Thailand,True
+14.719152844723911,-17.432137389732144,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Senegal,True
+14.771805075824409,-16.959246179947062,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Senegal,True
+14.792338212559727,-92.18649064903562,True,Tropical & Subtropical Moist Broadleaf Forests,Mexico,True
+14.881203090950256,-15.917476175934764,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Senegal,True
+15.17702863288882,77.78994813487549,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+16.457276462103522,78.41373635594164,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+16.729134648807502,102.70365715611725,True,Tropical & Subtropical Dry Broadleaf Forests,Thailand,True
+16.741459507064476,-98.31650302056168,True,Tropical & Subtropical Dry Broadleaf Forests,Mexico,True
+16.95890517097179,78.45029940442845,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+17.348030958194677,78.56282711798343,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+17.72343437446733,-95.12523708006005,True,Tropical & Subtropical Moist Broadleaf Forests,Mexico,True
+18.78757851774513,99.02362833163993,True,Tropical & Subtropical Dry Broadleaf Forests,Thailand,True
+18.875210923155432,-99.17430049713514,True,Tropical & Subtropical Dry Broadleaf Forests,Mexico,True
+18.887703684874964,74.18417155312125,True,Deserts & Xeric Shrublands,India,True
+18.91095215667487,-99.20720712419894,True,Tropical & Subtropical Dry Broadleaf Forests,Mexico,True
+19.088308876931592,-98.18760350838856,True,Tropical & Subtropical Coniferous Forests,Mexico,True
+19.09070809386439,-98.2763259146128,True,Tropical & Subtropical Coniferous Forests,Mexico,True
+19.128750235310804,-97.34768825616104,True,Tropical & Subtropical Coniferous Forests,Mexico,True
+19.28227339918616,-99.65325030819928,True,Deserts & Xeric Shrublands,Mexico,True
+19.636601649441648,-99.13706710368544,True,Deserts & Xeric Shrublands,Mexico,True
+2.115322483359094,-74.77313225051279,True,Tropical & Subtropical Moist Broadleaf Forests,Colombia,True
+2.8399708818879645,-60.71159194674386,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Brazil,True
+20.13095373696703,-98.65710990253989,True,Tropical & Subtropical Coniferous Forests,Mexico,True
+20.61686450012742,-103.1935114248584,True,Tropical & Subtropical Dry Broadleaf Forests,Mexico,True
+20.635628086293565,-100.59532426618324,True,Tropical & Subtropical Dry Broadleaf Forests,Mexico,True
+20.98518112787758,81.04197825201004,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+21.11882672829391,86.54577573522295,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+21.75201098198076,80.06351572227891,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+21.775201568808757,84.31485435373634,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+21.90149313244616,-102.2822180454409,True,Deserts & Xeric Shrublands,Mexico,True
+22.00022107341965,87.12115521621013,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+22.02414600580967,120.74462509632554,True,Tropical & Subtropical Moist Broadleaf Forests,Taiwan,True
+22.08448553698743,82.7967272012745,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+22.09043795595549,73.57666181866477,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+22.27558402163011,-97.797843498701,True,Tropical & Subtropical Moist Broadleaf Forests,Mexico,True
+22.291604424445115,70.81077464196446,True,Deserts & Xeric Shrublands,India,True
+22.329550262077817,-97.87431874205714,True,Tropical & Subtropical Moist Broadleaf Forests,Mexico,True
+22.396717134731663,91.87244294420812,True,Tropical & Subtropical Moist Broadleaf Forests,Bangladesh,True
+22.47587053147391,70.0376667504318,True,Deserts & Xeric Shrublands,India,True
+22.560784430385496,70.53905169625412,True,Deserts & Xeric Shrublands,India,True
+22.90146718718273,91.67818550525288,True,Tropical & Subtropical Moist Broadleaf Forests,Bangladesh,True
+22.90933149720888,76.04696739001633,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+23.029953413361756,74.12840876438196,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+23.150697935215504,120.40100436395612,True,Tropical & Subtropical Moist Broadleaf Forests,Taiwan,True
+23.260592022106845,72.64194038943681,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+23.550336301171622,68.51838505289601,True,Deserts & Xeric Shrublands,India,True
+23.668398937370355,120.27153130358828,True,Tropical & Subtropical Moist Broadleaf Forests,Taiwan,True
+23.797411407012227,90.40266632419112,True,Tropical & Subtropical Moist Broadleaf Forests,Bangladesh,True
+24.07953533560608,85.77845106576535,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+24.8137785864168,88.1428726553965,True,Tropical & Subtropical Moist Broadleaf Forests,Bangladesh,True
+25.061541611142047,84.16765185690826,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+25.27497458282818,87.95274660359303,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+25.307046075570703,51.50111086454774,True,Deserts & Xeric Shrublands,Qatar,True
+25.329311833126116,85.57549088150506,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+25.388681062658392,83.45960459619647,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+25.72440854299268,72.85722577935113,True,Deserts & Xeric Shrublands,India,True
+25.78409099363856,-108.97283620259049,True,Tropical & Subtropical Dry Broadleaf Forests,Mexico,True
+26.10354421555121,51.279347572553775,True,Deserts & Xeric Shrublands,Qatar,True
+26.2453055463765,75.43770592395916,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+26.44367604676792,-97.70830666167532,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",United States of America,True
+26.613825976263257,75.5105793805559,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+26.714846472290503,83.32664825748748,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+26.836937885081213,85.15196472751944,True,Tropical & Subtropical Moist Broadleaf Forests,Nepal,True
+26.84169295404205,75.76705117227,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+26.86883310787813,70.90117768977984,True,Deserts & Xeric Shrublands,India,True
+26.910476898470904,-101.44638785048764,True,Deserts & Xeric Shrublands,Mexico,True
+26.959560332858445,75.71478669744383,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+26.97815673272106,79.5012377587737,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+27.14692002025663,76.64148040896242,True,Tropical & Subtropical Dry Broadleaf Forests,India,True
+27.37318941770667,-81.43431285094603,True,Temperate Conifer Forests,United States of America,True
+27.472576405516627,-109.9569883135616,True,Tropical & Subtropical Dry Broadleaf Forests,Mexico,True
+27.712848502888107,74.45690897259364,True,Deserts & Xeric Shrublands,India,True
+27.75285751065995,74.71070967934168,True,Deserts & Xeric Shrublands,India,True
+27.758049491931164,-97.42994786629107,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",United States of America,True
+27.793917734972425,73.35090447759117,True,Deserts & Xeric Shrublands,India,True
+27.9622310996281,-97.50008563307333,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",United States of America,True
+28.12986372352256,-80.69681227527909,True,Temperate Conifer Forests,United States of America,True
+28.24242710607058,-100.94749692800592,True,Deserts & Xeric Shrublands,Mexico,True
+28.561292656077853,80.0330415028481,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+28.623977206996127,-106.1138412579492,True,Deserts & Xeric Shrublands,Mexico,True
+29.114383218777533,-110.96488995461878,True,Deserts & Xeric Shrublands,Mexico,True
+29.1197518187268,75.75909806279299,True,Deserts & Xeric Shrublands,India,True
+29.52086740024233,-98.35416857232566,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+29.52830075882227,-98.06412546219364,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+29.60576972839409,-95.12768631687794,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",United States of America,True
+29.651906164214697,-82.3083674406111,True,Temperate Conifer Forests,United States of America,True
+29.92623319881356,78.14078080121651,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+29.93886683691666,-90.09234213816168,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+29.95136302298404,77.52518074541756,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+29.96906773753575,77.52920394675455,True,Tropical & Subtropical Moist Broadleaf Forests,India,True
+3.1183093029321127,101.60089270627664,True,Tropical & Subtropical Moist Broadleaf Forests,Malaysia,True
+30.057623078030232,-95.6260005062198,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",United States of America,True
+30.066203805385555,76.7898104671961,True,Deserts & Xeric Shrublands,India,True
+30.07732521566101,-94.09177393865252,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",United States of America,True
+30.21916934890952,-81.55794621443025,True,Temperate Conifer Forests,United States of America,True
+30.425652328228125,-97.78083665885562,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+30.4608623372564,-95.6475172393098,True,Temperate Conifer Forests,United States of America,True
+30.49334806196221,-87.19701165803332,True,Temperate Conifer Forests,United States of America,True
+30.494477562360714,-87.25434228468595,True,Temperate Conifer Forests,United States of America,True
+30.897911610577022,75.84550746893223,True,Deserts & Xeric Shrublands,India,True
+31.329236625912937,75.5858375424924,True,Deserts & Xeric Shrublands,India,True
+31.584858187069106,-84.16471972192825,True,Temperate Conifer Forests,United States of America,True
+31.626578823597768,74.85349973528082,True,Deserts & Xeric Shrublands,India,True
+31.70937462792599,131.0604714951644,True,Temperate Broadleaf & Mixed Forests,Japan,True
+31.72462270455492,131.02977668535624,True,Temperate Broadleaf & Mixed Forests,Japan,True
+31.729263850692888,131.0649562056,True,Temperate Broadleaf & Mixed Forests,Japan,True
+31.784395518761283,130.31196019041786,True,Temperate Broadleaf & Mixed Forests,Japan,True
+31.87035562540716,-106.4258972220928,True,Deserts & Xeric Shrublands,United States of America,True
+31.888275419414665,-106.55929603803996,True,Deserts & Xeric Shrublands,United States of America,True
+32.02907807766536,-95.61580452003656,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+32.07838942957062,131.46665244363007,True,Temperate Broadleaf & Mixed Forests,Japan,True
+32.23741172544159,-93.38634255071165,True,Temperate Conifer Forests,United States of America,True
+32.30570917924739,-106.76119957990528,True,Deserts & Xeric Shrublands,United States of America,True
+32.3518319505781,-89.3409016006049,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+32.35953091516076,130.03326137833108,True,Temperate Broadleaf & Mixed Forests,Japan,True
+32.37111420598094,-86.18686799861752,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+32.37518323934415,-86.21958565765512,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+32.82903285302536,130.0101884487763,True,Temperate Broadleaf & Mixed Forests,Japan,True
+32.85658980703029,130.04731507329896,True,Temperate Broadleaf & Mixed Forests,Japan,True
+32.86552806384175,-116.98365686443852,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+32.96419988928457,-96.73565942070572,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+33.14515954894496,-99.7473524271512,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+33.17025947752288,131.6389770332407,True,Temperate Broadleaf & Mixed Forests,Japan,True
+33.181228986340344,-102.20104726392528,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+33.22916346219365,129.84501270830154,True,Temperate Broadleaf & Mixed Forests,Japan,True
+33.42112773241618,-82.02542674568792,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+33.46724740000659,-94.0883097343908,True,Temperate Conifer Forests,United States of America,True
+33.50719307427512,-82.17699132482336,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+33.518348706148714,133.56939983745076,True,Temperate Broadleaf & Mixed Forests,Japan,True
+33.542945649443425,-83.26526133012106,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+33.65036325414478,133.350183043796,True,Temperate Broadleaf & Mixed Forests,Japan,True
+33.680542708703285,-112.62637817209324,True,Deserts & Xeric Shrublands,United States of America,True
+33.74933185151128,135.35226276426096,True,Temperate Broadleaf & Mixed Forests,Japan,True
+33.84414365444141,134.6371157174769,True,Temperate Broadleaf & Mixed Forests,Japan,True
+33.93777640898223,-98.49355992269147,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+33.988775046061974,-118.33698608065728,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+33.99391978108118,-81.08271938177721,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+34.06091862777927,-118.3489217948474,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+34.119944826779275,130.97576178920883,True,Temperate Broadleaf & Mixed Forests,Japan,True
+34.28723055907636,-77.83046157000561,True,Temperate Conifer Forests,United States of America,True
+34.48520798626514,-117.33308340174068,True,Deserts & Xeric Shrublands,United States of America,True
+34.67905498988014,-86.01132459553669,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+34.75212908354496,135.37357049493187,True,Temperate Broadleaf & Mixed Forests,Japan,True
+34.94892312876233,-90.36571478275286,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+34.99127217611455,-80.73881026471487,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+34.992189454236055,-82.00289073284873,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.05710680706487,-106.75239950064515,True,Deserts & Xeric Shrublands,United States of America,True
+35.07247830069973,134.0362201720136,True,Temperate Broadleaf & Mixed Forests,Japan,True
+35.17951087221701,137.07598708161146,True,Temperate Broadleaf & Mixed Forests,Japan,True
+35.18070881347674,-111.64483138073392,True,Temperate Conifer Forests,United States of America,True
+35.18596190414927,-101.8548823594798,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+35.208901211918395,-111.61841987168376,True,Temperate Conifer Forests,United States of America,True
+35.216895993005096,132.5101122137188,True,Temperate Broadleaf & Mixed Forests,Japan,True
+35.27449155489538,-79.20393655675936,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.288017823813846,-105.93587952786218,True,Deserts & Xeric Shrublands,United States of America,True
+35.3555527647155,-81.92129340067255,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.36869473274152,-84.59016441416937,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.44677036135451,-99.16437401565634,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+35.45115240636939,133.33618510588198,True,,,True
+35.510904095554324,-84.18153295818827,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.615750877494975,-78.81743353866656,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.6466447720759,137.91575854498137,True,Temperate Broadleaf & Mixed Forests,Japan,True
+35.7200000771969,-85.44675284112071,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.75681761608813,-84.71090923650979,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.75990399259574,-81.52818372514835,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.84708346017227,-107.17814283199762,True,Deserts & Xeric Shrublands,United States of America,True
+35.85977561435975,-91.3260026258718,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+35.87893939186856,-106.32817646497728,True,Temperate Conifer Forests,United States of America,True
+35.90283174055643,-106.29477844080738,True,Temperate Conifer Forests,United States of America,True
+36.00235571027069,140.47239056178654,True,Temperate Broadleaf & Mixed Forests,Japan,True
+36.03502780679224,-96.06055533961536,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+36.03705788106252,-86.79523047254521,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.0649170162466,-80.63066125154461,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.09885382793007,-121.15752208665396,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+36.1538903899248,-85.9912338407894,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.251773920088056,-82.36470613395076,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.31648857149506,-88.32216780850985,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.55803840925651,140.08645721297967,True,Temperate Broadleaf & Mixed Forests,Japan,True
+36.683296620071545,-121.6748129564493,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+36.700967641953085,-86.10812033583034,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.71035944656989,-4.47846119394615,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+36.71109610710352,-84.1917003448326,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.769385178431406,137.42671962694016,True,Temperate Broadleaf & Mixed Forests,Japan,True
+36.77629898700068,36.224904860174696,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+36.84619195751503,-85.80092696193175,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.86568430172564,-4.275720566663892,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+36.88067239280678,-76.12154969371132,True,Temperate Conifer Forests,United States of America,True
+36.89828913134065,-88.31431162390746,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+36.925309265979024,-76.23747430510085,True,Temperate Conifer Forests,United States of America,True
+36.955016764936936,30.78503488899876,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+37.02923017873718,-109.3614439134385,True,Deserts & Xeric Shrublands,United States of America,True
+37.067950191674456,14.335960314162747,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+37.07925128358676,-79.57567384587311,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+37.08318104904748,-2.5094626710907164,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+37.08626505273924,-97.03785913355723,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+37.23032295349603,-77.23309815630262,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+37.28811042116698,-82.92058476859737,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+37.2940155710824,-93.1806865865796,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+37.335085618446286,-105.82036596244438,True,Deserts & Xeric Shrublands,United States of America,True
+37.392571837075,-122.01885523752472,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+37.3964573507308,-84.004575709898,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+37.39822261766998,138.60110565263807,True,Temperate Broadleaf & Mixed Forests,Japan,True
+37.42510369472858,-5.985522714396132,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+37.49637228579054,-120.50450889970536,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+37.53482999688861,25.16963542020017,True,"Mediterranean Forests, Woodlands & Scrub",Greece,True
+37.571401907380974,128.23878170560107,True,Temperate Broadleaf & Mixed Forests,Republic of Korea,True
+37.68602741292168,-122.12324916903438,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+37.845405322009896,27.80655715085745,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+37.92114890660787,-87.93754576364363,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+37.93750154073897,-1.1669870521850731,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+37.98128035476351,-97.22634655407352,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+38.03361165739574,32.5760614730691,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+38.08470092778497,15.67756195175564,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+38.175925040799896,-4.01741929273058,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+38.3052609598345,140.3243024975569,True,Temperate Broadleaf & Mixed Forests,Japan,True
+38.311143824415225,-122.74476144982916,True,"Mediterranean Forests, Woodlands & Scrub",United States of America,True
+38.32709871011605,34.01990461883892,True,"Temperate Grasslands, Savannas & Shrublands",Turkey,True
+38.35794266749736,35.48785675053537,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+38.38731424034125,-101.40694614524698,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+38.38782533007298,38.33143449796447,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+38.44630626081462,-90.01336202701864,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+38.48238899426369,22.041364741887776,True,"Mediterranean Forests, Woodlands & Scrub",Greece,True
+38.510078648680256,-82.69488563622605,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+38.57986393872901,-121.44089349164832,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+38.58151747191128,27.08648382472279,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+38.6806009163124,1.4857005848684537,True,,Spain,True
+38.76373686186196,139.85077348680383,True,Temperate Broadleaf & Mixed Forests,Japan,True
+38.83955051561577,28.879891792311383,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+39.09886741357244,-88.06507120337939,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+39.22636167933729,8.996573684452358,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+39.296587533352266,-107.0040642494454,True,Deserts & Xeric Shrublands,United States of America,True
+39.302184354264526,-81.58866066613729,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+39.39236414446158,-5.968272633572099,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+39.406474551958894,-90.65564837755656,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+39.49066943812179,-119.7954123415408,True,Deserts & Xeric Shrublands,United States of America,True
+39.49893729533284,-74.98385150287527,True,Temperate Conifer Forests,United States of America,True
+39.51213194034776,2.837362223802188,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+39.54063338265898,-75.60737309773954,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+39.70633373192777,-88.55765872295449,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+39.76930061938916,-104.96774152889871,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+39.79412797290091,15.900306423708969,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+39.82995721192548,-105.11180176017928,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+39.94117528924124,-76.70752087256083,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+39.998735195867056,-82.32497154303493,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.002095989136734,32.873752482799915,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+40.025260832707744,32.77768836582971,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+40.02990520803085,30.026198734568226,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+40.206765468354895,28.980963638595625,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+40.24767401164311,28.98158898461758,True,"Mediterranean Forests, Woodlands & Scrub",Turkey,True
+40.30045213592881,-111.70461883453568,True,Temperate Conifer Forests,United States of America,True
+40.31300052907265,-1.6147243338022008,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+40.354863143858296,-4.251990697899799,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+40.359495452243365,-75.55984184435074,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.49948449375522,22.21959914050497,True,Temperate Broadleaf & Mixed Forests,Greece,True
+40.50316759836589,-74.62670860397098,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.533177615596585,-78.39867148407795,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.546617911686646,-74.17686835189296,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.55223663335965,-79.94200795080584,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.57004122127341,-74.1460281744646,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.61019011007782,-105.0779597636883,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+40.61728967168918,140.52382045284028,True,Temperate Broadleaf & Mixed Forests,Japan,True
+40.67702443785066,-89.5620918710847,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+40.68013037735558,-7.899549335356922,True,Temperate Broadleaf & Mixed Forests,Portugal,True
+40.72158634214533,-83.87849925512127,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.72905537375188,0.5540700292573317,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+40.79499921866044,-96.6547677972598,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+40.827809988266566,31.13074433632687,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+40.94764981337073,-74.20704758840822,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+40.98156870630272,39.69391162538721,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+41.240194335342615,32.65305301049678,True,Temperate Conifer Forests,Turkey,True
+41.29197722380422,-96.00942388827514,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+41.41212095436383,32.090192864769755,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+41.491280269886175,32.08892261438274,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+41.53361171155439,2.069912911709963,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+41.54992378762872,-73.0421370170372,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.57421263917739,-90.58359572421298,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+41.60598508612716,-79.54855593824863,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.61292861472101,-93.68297891770328,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+41.6318176124565,-83.5933264153789,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.66668614980527,-85.94065908921358,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.73506499133112,27.22135618580549,True,Temperate Broadleaf & Mixed Forests,Turkey,True
+41.73678377714166,-86.21442844878027,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.74149362685952,-86.25530951886495,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.86193542873718,-85.50551240855243,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.9268133703479,-105.07283461870657,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+41.93790994119048,-73.19208201161199,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.9387868199281,-85.527216186816,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+41.94718371182668,8.744415504316635,True,"Mediterranean Forests, Woodlands & Scrub",France,True
+41.97722626895916,-73.87112327207237,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.00210877948684,21.37934530921653,True,Temperate Broadleaf & Mixed Forests,The former Yugoslav Republic of Macedonia,True
+42.0885878974637,13.596238041106515,True,Temperate Broadleaf & Mixed Forests,Italy,True
+42.11196021110453,14.63208256177495,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+42.13415090839059,-71.46546984206275,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.2037563348233,23.983666815390396,True,Temperate Broadleaf & Mixed Forests,Bulgaria,True
+42.22721067886717,-8.727751015896954,True,Temperate Broadleaf & Mixed Forests,Spain,True
+42.28624967265988,-82.98430809563519,True,Temperate Broadleaf & Mixed Forests,Canada,True
+42.304000446651614,-82.9785089940958,True,Temperate Broadleaf & Mixed Forests,Canada,True
+42.30640885955847,-5.833664121893548,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+42.33368535263492,-7.903632421519881,True,Temperate Broadleaf & Mixed Forests,Spain,True
+42.350345930015465,-122.8842084880618,True,Temperate Conifer Forests,United States of America,True
+42.37240859015347,139.84249771477613,True,Temperate Broadleaf & Mixed Forests,Japan,True
+42.37892808102236,141.0006989357615,True,Temperate Broadleaf & Mixed Forests,Japan,True
+42.38952600393151,-71.14687371004727,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.39340678599172,141.00179829175437,True,Temperate Broadleaf & Mixed Forests,Japan,True
+42.437269805654026,14.20409694323665,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+42.44421431171124,19.287371340375,True,"Mediterranean Forests, Woodlands & Scrub",Montenegro,True
+42.470969566217015,-92.39364650290526,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+42.5010646063118,-92.38944098494764,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+42.50252097714229,-92.39164720185724,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+42.51757482585069,-81.87830156224517,True,Temperate Broadleaf & Mixed Forests,Canada,True
+42.5198463200779,-6.854735598306377,True,"Mediterranean Forests, Woodlands & Scrub",Spain,True
+42.58241590510211,12.278011109676072,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+42.62090859869548,140.79399258274702,True,Temperate Conifer Forests,Japan,True
+42.62306465621978,23.51752197375174,True,Temperate Broadleaf & Mixed Forests,Bulgaria,True
+42.638633521225,-77.08932732020546,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.668268632607656,23.307181632672307,True,Temperate Broadleaf & Mixed Forests,Bulgaria,True
+42.69855115377685,-73.82476719816187,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.71683419709903,-71.42568849718386,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.75121039435574,-84.60205585014404,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.793215754262704,-7.430374155087918,True,Temperate Broadleaf & Mixed Forests,Spain,True
+42.87951188461224,71.37859801289733,True,Deserts & Xeric Shrublands,Kazakhstan,True
+42.91401522285121,71.43983457006281,True,Deserts & Xeric Shrublands,Kazakhstan,True
+42.95224843069738,-80.39296230729829,True,Temperate Broadleaf & Mixed Forests,Canada,True
+42.96452722178926,-82.44033011819523,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+42.99711801000397,-79.33716785748337,True,Temperate Broadleaf & Mixed Forests,Canada,True
+43.00020919247906,144.38871131647392,True,Temperate Conifer Forests,Japan,True
+43.01508495754516,141.39387550519794,True,Temperate Broadleaf & Mixed Forests,Japan,True
+43.02692032223943,-76.15995111415988,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+43.26204637762913,-97.44606020200936,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+43.2898736298758,2.4426861476044364,True,"Mediterranean Forests, Woodlands & Scrub",France,True
+43.44835141461012,5.251249849200519,True,"Mediterranean Forests, Woodlands & Scrub",France,True
+43.46237815535214,5.477155148210617,True,"Mediterranean Forests, Woodlands & Scrub",France,True
+43.465403695392766,-3.5467795028176567,True,Temperate Broadleaf & Mixed Forests,Spain,True
+43.47657807493458,43.58243296231319,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+43.54239491610208,-119.5046018980243,True,Deserts & Xeric Shrublands,United States of America,True
+43.56716874987026,-84.08410857076994,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+43.59764496749513,16.46900020326933,True,"Mediterranean Forests, Woodlands & Scrub",Croatia,True
+43.64336827853493,-116.28594813397586,True,Deserts & Xeric Shrublands,United States of America,True
+43.67775124070887,-70.35423138850848,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+43.680441193222975,-70.2697069299464,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+43.73849781716558,15.890562258600454,True,"Mediterranean Forests, Woodlands & Scrub",Croatia,True
+43.748462018911454,142.34050269920476,True,Temperate Broadleaf & Mixed Forests,Japan,True
+43.79877184184177,11.639005374005391,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+43.84002952084361,-91.23293916948889,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+43.84180623338976,27.92666647283613,True,"Temperate Grasslands, Savannas & Shrublands",Bulgaria,True
+43.93327809137275,-78.84936721143686,True,Temperate Broadleaf & Mixed Forests,Canada,True
+43.95598828452249,8.11082704415367,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+44.00980791824424,10.147665933383434,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+44.03371131716513,6.79781665361557,True,"Mediterranean Forests, Woodlands & Scrub",France,True
+44.07535827128932,10.06318649838618,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+44.076281584086765,-103.2576984943088,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+44.10311420531866,142.3033162738766,True,Temperate Conifer Forests,Japan,True
+44.13987662084602,12.270681603849129,True,Temperate Broadleaf & Mixed Forests,Italy,True
+44.23127319754917,42.06739514867631,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+44.32474234261798,-104.1377165451808,True,Temperate Conifer Forests,United States of America,True
+44.430161821763626,8.896761816134083,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+44.44286692868762,11.787004184561823,True,Temperate Broadleaf & Mixed Forests,Italy,True
+44.46578235096571,-87.92323151246094,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+44.50701811570285,-73.11284454131044,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+44.673097011508894,-63.6654689370334,True,Temperate Broadleaf & Mixed Forests,Canada,True
+44.69421652357221,25.43329289463111,True,Temperate Broadleaf & Mixed Forests,Romania,True
+44.74590584442829,11.208134393292312,True,Temperate Broadleaf & Mixed Forests,Italy,True
+44.765527535947534,8.327069441522674,True,"Mediterranean Forests, Woodlands & Scrub",Italy,True
+44.79980417948664,-122.78079645242772,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+44.82509872648558,7.228242391719931,True,Temperate Conifer Forests,Italy,True
+44.93033477811986,4.948790271788738,True,"Mediterranean Forests, Woodlands & Scrub",France,True
+45.004882429827006,27.231188342976598,True,"Temperate Grasslands, Savannas & Shrublands",Romania,True
+45.01991648837064,38.958330784713326,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+45.05998785269652,10.508893128141809,True,Temperate Broadleaf & Mixed Forests,Italy,True
+45.07204912626817,-64.20848035966354,True,Temperate Broadleaf & Mixed Forests,Canada,True
+45.07642264870035,11.813892886373228,True,Temperate Broadleaf & Mixed Forests,Italy,True
+45.11589294816408,5.752817303039172,True,Temperate Conifer Forests,France,True
+45.15561586595803,7.161761608832851,True,Temperate Conifer Forests,Italy,True
+45.16928735468253,10.851753201366757,True,Temperate Broadleaf & Mixed Forests,Italy,True
+45.23986632686229,7.73143878855069,True,Temperate Broadleaf & Mixed Forests,Italy,True
+45.37214948332105,9.735455040212038,True,Temperate Broadleaf & Mixed Forests,Italy,True
+45.39071654344508,-73.54824227742031,True,Temperate Broadleaf & Mixed Forests,Canada,True
+45.45078888350561,11.733018104010652,True,Temperate Broadleaf & Mixed Forests,Italy,True
+45.45575828964982,6.119255724112975,True,Temperate Conifer Forests,France,True
+45.52683889144734,-92.55717644129942,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+45.532047487744165,-73.35657934857458,True,Temperate Broadleaf & Mixed Forests,Canada,True
+45.60027947127643,5.922513103968018,True,Temperate Broadleaf & Mixed Forests,France,True
+45.71242234922953,10.413587212541415,True,Temperate Conifer Forests,Italy,True
+45.73058027401839,-73.61188299947952,True,Temperate Broadleaf & Mixed Forests,Canada,True
+45.73279701993052,9.642930978574611,True,Temperate Conifer Forests,Italy,True
+45.75424314335295,-108.4989497265813,True,"Temperate Grasslands, Savannas & Shrublands",United States of America,True
+45.76640345092575,12.25637094221788,True,Temperate Broadleaf & Mixed Forests,Italy,True
+45.77852554992171,42.73760182206422,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+45.8516541572169,22.964886743978354,True,Temperate Broadleaf & Mixed Forests,Romania,True
+45.89788701431134,-93.21278154087624,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+45.90270124869693,-95.52025718106772,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+46.03639033844189,2.111199659719716,True,Temperate Broadleaf & Mixed Forests,France,True
+46.03821206123362,11.40267771616817,True,Temperate Conifer Forests,Italy,True
+46.15317689806909,38.958655837747166,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+46.18857277615498,6.154439766653473,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+46.220167347858194,-94.96840713038354,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+46.23165705202156,7.275004578504789,True,Temperate Conifer Forests,Switzerland,True
+46.25456085502182,7.3166419435969,True,Temperate Conifer Forests,Switzerland,True
+46.279851510001166,7.451014265287682,True,Temperate Conifer Forests,Switzerland,True
+46.321552471685735,48.0299017512508,True,Deserts & Xeric Shrublands,Russian Federation,True
+46.37857866950601,-62.715786262054166,True,Temperate Broadleaf & Mixed Forests,Canada,True
+46.37895879240752,-95.10060340940493,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+46.43989072656783,-119.19668579742256,True,Deserts & Xeric Shrublands,United States of America,True
+46.52730222733453,-1.2665560365743715,True,Temperate Broadleaf & Mixed Forests,France,True
+46.56058471439562,1.142165446733884,True,Temperate Broadleaf & Mixed Forests,France,True
+46.68271586676684,2.33006222219484,True,Temperate Broadleaf & Mixed Forests,France,True
+46.84568043546023,-71.34310816800553,True,Temperate Broadleaf & Mixed Forests,Canada,True
+46.95423418397559,-93.94367708171129,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+46.99525852138465,15.396048785636914,True,Temperate Broadleaf & Mixed Forests,Austria,True
+47.021856789702966,42.178912939587946,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+47.038196260089215,15.430267186483269,True,Temperate Broadleaf & Mixed Forests,Austria,True
+47.05018739083336,8.5349828205759,True,Temperate Conifer Forests,Switzerland,True
+47.09042376071052,4.615784738198869,True,Temperate Broadleaf & Mixed Forests,France,True
+47.10032626301612,8.177631910903264,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.17150922951619,8.282775000588567,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.17967008664167,8.452941150801342,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.19741922911874,18.429334365181592,True,Temperate Broadleaf & Mixed Forests,Hungary,True
+47.20174978773404,8.453977891484477,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.23473789064555,-1.4218403501217551,True,Temperate Broadleaf & Mixed Forests,France,True
+47.25853013441726,8.44429991536876,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.27271392884165,39.70386200832942,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+47.280381323758135,1.7718989855978575,True,Temperate Broadleaf & Mixed Forests,France,True
+47.32169702006244,8.205634543206207,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.36166865292548,8.651906898066635,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.38513542715478,4.036861176018164,True,Temperate Broadleaf & Mixed Forests,France,True
+47.39589684772388,-92.6013859797196,True,Temperate Broadleaf & Mixed Forests,United States of America,True
+47.40126871665566,8.621761851901931,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.40383977132083,8.533511588466567,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.41075584557459,8.432666027489145,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.44779234314007,-120.32988244205822,True,Deserts & Xeric Shrublands,United States of America,True
+47.46254747730093,5.529156748682453,True,Temperate Broadleaf & Mixed Forests,France,True
+47.49031756161999,8.19295642507044,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.49905366102391,8.879031800631736,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.50212767663149,8.791124701509963,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.51552320755542,8.37334412620935,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.53011079230561,19.15192106900353,True,Temperate Broadleaf & Mixed Forests,Hungary,True
+47.54360365403797,8.783849707054566,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.54973392433282,8.843423855147407,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.61002900743829,-122.32135504836198,True,Temperate Conifer Forests,United States of America,True
+47.62772224773862,-122.13418491203022,True,Temperate Conifer Forests,United States of America,True
+47.63297314665404,19.03661345437439,True,Temperate Broadleaf & Mixed Forests,Hungary,True
+47.68303683960972,8.681139208768396,True,Temperate Broadleaf & Mixed Forests,Switzerland,True
+47.72979775540211,-116.7892494566565,True,Temperate Conifer Forests,United States of America,True
+47.73715008187653,-116.80427288938954,True,Temperate Conifer Forests,United States of America,True
+47.74931625037069,8.34564468527757,True,Temperate Broadleaf & Mixed Forests,Germany,True
+47.80011151939621,-122.17664777856312,True,Temperate Conifer Forests,United States of America,True
+47.82337747290978,4.8245792149613465,True,Temperate Broadleaf & Mixed Forests,France,True
+47.95127345660956,4.072144981359287,True,Temperate Broadleaf & Mixed Forests,France,True
+47.987021031810166,8.046975331095243,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.04142946334332,21.864306296975087,True,Temperate Broadleaf & Mixed Forests,Hungary,True
+48.044598485520574,16.273091325019625,True,Temperate Broadleaf & Mixed Forests,Austria,True
+48.046553702810286,2.9404266238695413,True,Temperate Broadleaf & Mixed Forests,France,True
+48.04717821446752,30.8875479632585,True,"Temperate Grasslands, Savannas & Shrublands",Ukraine,True
+48.075321035026704,-1.662909377895565,True,Temperate Broadleaf & Mixed Forests,France,True
+48.07609873684956,1.8794369899351864,True,Temperate Broadleaf & Mixed Forests,France,True
+48.15506518975192,-69.70926749120487,True,Boreal Forests/Taiga,Canada,True
+48.2269894374764,14.310855546496322,True,Temperate Broadleaf & Mixed Forests,Austria,True
+48.27632103694158,1.5752043770182809,True,Temperate Broadleaf & Mixed Forests,France,True
+48.28778828130322,-3.378361320488437,True,Temperate Broadleaf & Mixed Forests,France,True
+48.293919825827736,25.93154661922879,True,Temperate Conifer Forests,Ukraine,True
+48.39418509104429,10.93567992857878,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.4077647255514,10.038356188802863,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.41339657768164,14.131728288110594,True,Temperate Broadleaf & Mixed Forests,Austria,True
+48.44732295017114,4.958418193272195,True,Temperate Broadleaf & Mixed Forests,France,True
+48.500113958412,-123.38405266116024,True,Temperate Conifer Forests,Canada,True
+48.52335928116824,9.093503518924068,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.577490754308585,8.092110103129073,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.64325677738802,0.664949670533673,True,Temperate Broadleaf & Mixed Forests,France,True
+48.65806066197421,9.379669141823712,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.687231633174605,-3.512700520402433,True,Temperate Broadleaf & Mixed Forests,France,True
+48.70582201638443,11.348098691007806,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.73649263676808,7.373530536156352,True,Temperate Broadleaf & Mixed Forests,France,True
+48.777725117247925,12.878928681675404,True,Temperate Broadleaf & Mixed Forests,Germany,True
+48.79850651133806,21.960154496439515,True,Temperate Broadleaf & Mixed Forests,Slovakia,True
+48.80607105080164,44.7403519125942,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+48.90043906877621,8.692453571243293,True,Temperate Broadleaf & Mixed Forests,Germany,True
+49.00763949765022,5.659744566821615,True,Temperate Broadleaf & Mixed Forests,France,True
+49.127324704662506,-122.68773696512672,True,Temperate Conifer Forests,Canada,True
+49.14575606764825,33.409582686514256,True,Temperate Broadleaf & Mixed Forests,Ukraine,True
+49.20159774812361,28.47153459947109,True,Temperate Broadleaf & Mixed Forests,Ukraine,True
+49.22175160759343,0.6040780114117013,True,Temperate Broadleaf & Mixed Forests,France,True
+49.24501481389986,6.566856448468116,True,Temperate Broadleaf & Mixed Forests,France,True
+49.249694131218725,6.939229534917384,True,Temperate Broadleaf & Mixed Forests,Germany,True
+49.32265045057888,6.106246863479382,True,Temperate Broadleaf & Mixed Forests,France,True
+49.39165474033241,5.209477748463144,True,Temperate Broadleaf & Mixed Forests,France,True
+49.45418868443613,7.752302090493707,True,Temperate Broadleaf & Mixed Forests,Germany,True
+49.75011023401943,7.016416040485666,True,Temperate Broadleaf & Mixed Forests,Germany,True
+49.794732391733234,24.05808601856225,True,Temperate Broadleaf & Mixed Forests,Ukraine,True
+49.82431051004023,19.00449200599101,True,Temperate Conifer Forests,Poland,True
+49.90505225493223,8.608002953504723,True,Temperate Broadleaf & Mixed Forests,Germany,True
+49.91179304224939,-97.08487731665626,True,"Temperate Grasslands, Savannas & Shrublands",Canada,True
+49.980918377569424,36.389252877345086,True,Temperate Broadleaf & Mixed Forests,Ukraine,True
+49.98410801619205,36.23315508049159,True,Temperate Broadleaf & Mixed Forests,Ukraine,True
+49.994848288352586,3.603627754891562,True,Temperate Broadleaf & Mixed Forests,France,True
+50.06303443211692,15.761988842762712,True,Temperate Broadleaf & Mixed Forests,Czech Republic,True
+50.068337774687805,22.573465142966626,True,Temperate Broadleaf & Mixed Forests,Poland,True
+50.60624732479979,13.74356690919617,True,Temperate Broadleaf & Mixed Forests,Czech Republic,True
+50.70428177086147,7.341247163057403,True,Temperate Broadleaf & Mixed Forests,Germany,True
+50.75126837887351,-1.8457247276222144,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+50.75849756755592,-3.5157796119242164,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+50.829770176707605,3.2886313785279406,True,Temperate Broadleaf & Mixed Forests,Belgium,True
+50.83941565330035,19.12225553561831,True,Temperate Broadleaf & Mixed Forests,Poland,True
+50.85775958377006,6.971613209030892,True,Temperate Broadleaf & Mixed Forests,Germany,True
+50.88548075188121,20.60246862632897,True,Temperate Broadleaf & Mixed Forests,Poland,True
+50.90635933452359,20.601120602569505,True,Temperate Broadleaf & Mixed Forests,Poland,True
+50.92230209646576,5.492798258362342,True,Temperate Broadleaf & Mixed Forests,Belgium,True
+50.92500851699815,18.499621309053964,True,Temperate Broadleaf & Mixed Forests,Poland,True
+50.97760959606078,-114.04847551767364,True,"Temperate Grasslands, Savannas & Shrublands",Canada,True
+50.9820391270368,21.205903549501755,True,Temperate Broadleaf & Mixed Forests,Poland,True
+50.9941535439019,-0.6153277790292577,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+50.998525012487065,11.224387008085529,True,Temperate Broadleaf & Mixed Forests,Germany,True
+51.00992122416338,14.349695506133912,True,Temperate Broadleaf & Mixed Forests,Czech Republic,True
+51.04022317199205,13.736159462611944,True,Temperate Broadleaf & Mixed Forests,Germany,True
+51.11928615713856,2.659446022633997,True,Temperate Broadleaf & Mixed Forests,Belgium,True
+51.19640447777539,7.068778182170718,True,Temperate Broadleaf & Mixed Forests,Germany,True
+51.235461054949255,71.5585970647875,True,"Temperate Grasslands, Savannas & Shrublands",Kazakhstan,True
+51.25844475225695,22.545713561819284,True,Temperate Broadleaf & Mixed Forests,Poland,True
+51.26409409716423,5.681352015889717,True,Temperate Broadleaf & Mixed Forests,Netherlands,True
+51.41712055254475,-0.997602896773103,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+51.564699174794185,12.132690457806431,True,Temperate Broadleaf & Mixed Forests,Germany,True
+51.73344568474399,-1.2330304205798246,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+51.76804640181989,55.07182007603706,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+51.77621949314626,-103.9904070310422,True,"Temperate Grasslands, Savannas & Shrublands",Canada,True
+51.818431484100266,5.799812897143242,True,Temperate Broadleaf & Mixed Forests,Netherlands,True
+51.90971149049265,5.832993420001025,True,Temperate Broadleaf & Mixed Forests,Netherlands,True
+51.943058471698734,0.37139703554692,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+51.97432274798628,7.629520110084669,True,Temperate Broadleaf & Mixed Forests,Germany,True
+51.982948460438536,22.31520442728632,True,Temperate Broadleaf & Mixed Forests,Poland,True
+52.00874190754409,-0.7312711186777452,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+52.08974051705273,4.74100543345989,True,Temperate Broadleaf & Mixed Forests,Netherlands,True
+52.12385198780306,-106.65289664285667,True,"Temperate Grasslands, Savannas & Shrublands",Canada,True
+52.26002382774017,-0.8354229964252574,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+52.29586405598635,-0.7123929191895362,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+52.33888143869938,5.510281048947905,True,Temperate Broadleaf & Mixed Forests,Netherlands,True
+52.54375746149351,-0.2681476679808328,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+52.546901847463886,12.986647497610704,True,Temperate Broadleaf & Mixed Forests,Germany,True
+52.614144979386325,10.051622459054926,True,Temperate Broadleaf & Mixed Forests,Germany,True
+52.6437767125241,-2.450527841846827,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+52.69925468351756,-2.463541810646235,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+52.730843437275375,-2.472461523097256,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+53.13141183314529,18.060127384268405,True,Temperate Broadleaf & Mixed Forests,Poland,True
+53.1706523529145,6.968643510737607,True,Temperate Broadleaf & Mixed Forests,Netherlands,True
+53.35076653023364,-6.36307679454287,True,Temperate Broadleaf & Mixed Forests,Ireland,True
+53.41855754247459,20.5040193160514,True,Temperate Broadleaf & Mixed Forests,Poland,True
+53.499777811767615,9.985341854446707,True,Temperate Broadleaf & Mixed Forests,Germany,True
+53.54888181427991,-7.82821588539727,True,Temperate Broadleaf & Mixed Forests,Ireland,True
+53.57092217552956,8.605127510932828,True,Temperate Broadleaf & Mixed Forests,Germany,True
+53.71845950923054,16.682018622429013,True,Temperate Broadleaf & Mixed Forests,Poland,True
+53.73614991176997,-2.6837727333578383,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+53.77933412232188,-0.2641606288522702,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+53.79243696246745,-1.54290257997431,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+53.92031950229895,10.72591798241681,True,Temperate Broadleaf & Mixed Forests,Germany,True
+53.94205627177257,-8.259612647027126,True,Temperate Broadleaf & Mixed Forests,Ireland,True
+54.06587654942504,75.08628324299096,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+54.117643085978976,12.054684555306324,True,,Germany,True
+54.408912653771736,-2.214618999262683,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+54.54290801105999,18.498751854992648,True,Temperate Broadleaf & Mixed Forests,Poland,True
+54.60376213517686,52.45196025906396,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+54.84764919861925,-6.229320678897807,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+54.96250327439628,-1.608419008062242,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+55.04988946581668,82.85962468453391,True,"Temperate Grasslands, Savannas & Shrublands",Russian Federation,True
+55.21324949320282,11.2848934201875,True,Temperate Broadleaf & Mixed Forests,Denmark,True
+55.2146480364176,38.76800990781578,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+55.27519262757902,-1.9562636709012224,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+55.665598598789046,12.62811808579618,True,,,True
+55.710328571248944,13.1884584325055,True,Temperate Broadleaf & Mixed Forests,Sweden,True
+55.738562565120304,12.411533566505746,True,Temperate Broadleaf & Mixed Forests,Denmark,True
+55.74715496141036,38.12003255153405,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+55.74814778326011,37.93869529643516,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+55.77299621442435,38.47173315534563,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+55.83135619737925,37.1609693142868,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+55.86310950517021,38.45612176608147,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+55.88583160116444,37.111814831058695,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+56.13031709829665,40.39153322525006,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+56.32556852082232,38.13265643298359,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+56.38309841764985,-3.462286675524969,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+56.44706460037392,47.83669879719858,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+56.45085167596905,21.09601260564142,True,Temperate Broadleaf & Mixed Forests,Latvia,True
+56.54614558708444,60.88736656909677,True,Boreal Forests/Taiga,Russian Federation,True
+56.67720352241401,124.64292816065355,True,Tundra,Russian Federation,True
+56.88951684081232,15.193809333550576,True,Temperate Broadleaf & Mixed Forests,Sweden,True
+56.99685600472385,40.98806731045454,True,Boreal Forests/Taiga,Russian Federation,True
+57.00549053256572,26.434071477370253,True,Temperate Broadleaf & Mixed Forests,Latvia,True
+57.0215804926929,40.96291281283746,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+57.06534106952843,63.71021770132468,True,Boreal Forests/Taiga,Russian Federation,True
+57.32390036591532,24.741796288713488,True,Temperate Broadleaf & Mixed Forests,Latvia,True
+57.35708251322849,-2.474594690475243,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+57.51156356352128,24.69323654236095,True,Temperate Broadleaf & Mixed Forests,Latvia,True
+57.59693622562017,-2.17951014283355,True,Temperate Broadleaf & Mixed Forests,U.K. of Great Britain and Northern Ireland,True
+58.22083830205611,27.192152856663967,True,Temperate Broadleaf & Mixed Forests,Estonia,True
+58.28042348965327,25.512345725096537,True,Temperate Broadleaf & Mixed Forests,Estonia,True
+58.40279321139104,31.6422825147734,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+58.42553936318882,26.81127306888624,True,Temperate Broadleaf & Mixed Forests,Estonia,True
+58.428744560902025,15.580193105954438,True,Temperate Broadleaf & Mixed Forests,Sweden,True
+58.493503126311566,41.54938926378367,True,Boreal Forests/Taiga,Russian Federation,True
+58.83709530519337,22.801445989192672,True,Temperate Broadleaf & Mixed Forests,Estonia,True
+58.94796404247776,16.32341157690402,True,Temperate Broadleaf & Mixed Forests,Sweden,True
+58.95563084467116,36.51420020445661,True,Boreal Forests/Taiga,Russian Federation,True
+59.24249265846109,39.905992399738935,True,Boreal Forests/Taiga,Russian Federation,True
+59.62127593885299,60.70422505930622,True,Boreal Forests/Taiga,Russian Federation,True
+59.62727211550538,30.012682378030604,True,Temperate Broadleaf & Mixed Forests,Russian Federation,True
+59.732936946475576,16.8832952504348,True,Temperate Broadleaf & Mixed Forests,Sweden,True
+6.462265404956284,80.62596084176602,True,Tropical & Subtropical Moist Broadleaf Forests,Sri Lanka,True
+6.486257621785364,7.519212213112794,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Nigeria,True
+6.707388848601028,80.29053230880146,True,Tropical & Subtropical Moist Broadleaf Forests,Sri Lanka,True
+60.156107290185815,64.66328270630562,True,Boreal Forests/Taiga,Russian Federation,True
+60.16708069137994,11.10903538826022,True,Boreal Forests/Taiga,Norway,True
+60.269139249511824,10.474085846209618,True,Boreal Forests/Taiga,Norway,True
+60.29060869325716,25.0316850420782,True,Boreal Forests/Taiga,Finland,True
+60.30743228057618,5.316223507426969,True,Temperate Conifer Forests,Norway,True
+60.95900919630488,30.18840818995633,True,Boreal Forests/Taiga,Russian Federation,True
+61.08219928985992,62.15095411744053,True,Boreal Forests/Taiga,Russian Federation,True
+61.18846595243205,-149.91601103771862,True,Boreal Forests/Taiga,United States of America,True
+61.20985555399562,-149.88287667062843,True,Boreal Forests/Taiga,United States of America,True
+61.47806286968286,21.84247258634011,True,Boreal Forests/Taiga,Finland,True
+61.628228390635485,152.27031582569845,True,Boreal Forests/Taiga,Russian Federation,True
+61.81752794991856,50.71157692000605,True,Boreal Forests/Taiga,Russian Federation,True
+61.97975179139392,11.107374069712025,True,Boreal Forests/Taiga,Norway,True
+63.20377611569589,14.816963354640675,True,Boreal Forests/Taiga,Sweden,True
+64.91222978493178,25.469942118721445,True,Boreal Forests/Taiga,Finland,True
+65.05418115955135,13.303720473921771,True,Boreal Forests/Taiga,Norway,True
+66.25833354219404,17.199935214138605,True,Boreal Forests/Taiga,Sweden,True
+8.41303762641742,6.944511635274466,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Nigeria,True
+8.502487443614472,4.532646677226922,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Nigeria,True
+9.068714512593534,7.45759412099108,True,"Tropical & Subtropical Grasslands, Savannas & Shrublands",Nigeria,True
+9.284710833096469,78.42009886765277,True,Deserts & Xeric Shrublands,India,True
