@@ -11,7 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
-import geofindcountry
+import Roy.Helper_Functions.geofindcountry as geofindcountry
 
 # Maybe always delete first try to free up space and reduce computation time
 
