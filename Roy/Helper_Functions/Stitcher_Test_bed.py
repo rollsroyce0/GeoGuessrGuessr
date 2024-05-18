@@ -1,24 +1,39 @@
-import requests 
-import numpy as np
 import os
-import selenium
 from PIL import Image
-from selenium.webdriver.common.by import By
-import json
-import urllib.request as urllib
-import re
 from rich.progress import track
+
+# if there are not 1 and 2 images, remove it
+for image in track(os.listdir("Roy/images_first_try/")):
+    img = str(image).split("_",3)
+    ind = img[-1]
+    ind = ind[0]
+    img = img[0]+"_"+img[1]+"_"+img[2]+"_"
+    if not os.path.exists("Roy/images_first_try/"+img+str(ind)+"_1.png") or not os.path.exists("Roy/images_first_try/"+img+str(ind)+"_2.png"):
+        print("Removing", image)
+        os.remove("Roy/images_first_try/"+image)
+
 
 zoom =3
 path_to_folder = "Roy/images_first_try/"
 path_to_combined_folder = "Roy/combined_images/"
-for image in os.listdir(path_to_folder):
+for image in track(os.listdir(path_to_folder)):
+    #print(image)
     img = Image.open(path_to_folder+image)
-    width, height = img.size
-    left = width/2 -256
-    top = height/2 -256
-    right = width/2 +256
-    bottom = height/2 +256
+    if img.size[0] > 512 and img.size[1] > 512:
+        #print("Cropping", image)
+        width, height = img.size
+        left = width/2 -256
+        top = height/2 -256
+        right = width/2 +256
+        bottom = height/2 +256
+    elif img.size[0] == 512 and img.size[1] == 512:
+        continue
+    
+    else:
+        print("Removing", image)
+        os.remove(path_to_folder+image)
+        continue
+        
     
     
     img = img.crop((left, top, right, bottom))
@@ -27,13 +42,13 @@ for image in os.listdir(path_to_folder):
 
 path_to_combined_folder = "Roy/combined_images/"
 # combine 4 images into 1
-for image in os.listdir(path_to_folder):
+for image in track(os.listdir(path_to_folder)):
     img = image.split("_",3)
     ind = img[-1]
     ind = ind[0]
     img = img[0]+"_"+img[1]+"_"+img[2]+"_"
-    print(img)
-    print(ind)
+    #print(img)
+    #print(ind)
     new_image = Image.new("RGB", (1024, 1024))
     x = int(ind)
     for y in [1,2]:

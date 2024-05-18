@@ -11,7 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 import warnings
 import geoidentocean
-import geofindurban
+import geoidenturban 
 
 # delete all images in the folder
 for image in os.listdir("Roy/images_first_try/"):
@@ -25,8 +25,8 @@ lon_track = []
 
 for i in track(range(100000)):
     # generate random latitude and longitude within street view limits
-    lat = np.random.uniform(36.6,36.8)
-    lon = np.random.uniform(24.1,24.8)
+    lat = np.random.uniform(35, 70)
+    lon = np.random.uniform(0,35)
     
     # rule out China
     if lat >29 and lat <42 and lon > 85 and lon < 120:
@@ -37,17 +37,17 @@ for i in track(range(100000)):
 
     
     # check if the coordinates are on land
-    if not (geoidentocean.is_in_ocean((lon, lat))):
+    if not (globe.is_land(lat, lon)):
         #print("Not on land")
         lat_track.append([lat, 0])
         lon_track.append([lon, 0])
         continue
     #print(lat, lon)
     
-    if geofindurban.is_in_urban_area(lat, lon):
+    if geoidenturban.is_urban([lat, lon]):
         #print("Urban")
-        lat_track.append([lat, 0])
-        lon_track.append([lon, 0])
+        lat_track.append([lat, 2])
+        lon_track.append([lon, 2])
         continue
     
     lat_track.append([lat, 1])
@@ -59,7 +59,7 @@ for i in track(range(100000)):
 lat_track = np.array(lat_track)
 lon_track = np.array(lon_track)
 
-plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="white", label="On land", s=1)
+plt.scatter(lon_track[lon_track[:,1]==1][:,0], lat_track[lon_track[:,1]==1][:,0], c="black", label="On land", s=1)
 plt.scatter(lon_track[lon_track[:,1]==0][:,0], lat_track[lon_track[:,1]==0][:,0], c="blue", label="Not on land", s=1)
 plt.scatter(lon_track[lon_track[:,1]==2][:,0], lat_track[lon_track[:,1]==2][:,0], c="red", label="Urban", s=1)
 
