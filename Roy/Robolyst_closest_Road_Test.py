@@ -46,7 +46,7 @@ dist_track = []
 
 for i in track(range(300)):
     # generate random latitude and longitude within street view limits
-    code = geofindcountry.generate_random_country_code("oceania")
+    code = geofindcountry.generate_random_country_code("africa")
     lat, lon = geofindcountry.generate_random_point_in_country(code)
     
     latlon, dist = findclosestroad.find_closest_road(lat, lon)
