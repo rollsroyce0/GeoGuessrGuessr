@@ -49,11 +49,12 @@ for i in track(range(1000)):
     urban = True
     counter = 0
     while urban:
-        code = geofindcountry.generate_random_country_code("europe")
+        code = geofindcountry.generate_random_country_code()
         lat, lon = geofindcountry.generate_random_point_in_country(code)
         urban = Helper_Functions.geoidenturban.is_urban([lat, lon])
         counter += 1
-    print("Urban", counter)
+    if counter > 1:
+        print("Urban found after", counter, "tries")
     latlon, dist = findclosestroad.find_closest_road(lat, lon)
     print(dist)
     lat = latlon[0]
