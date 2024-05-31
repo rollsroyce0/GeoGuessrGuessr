@@ -1,0 +1,9 @@
+numpy
+geopandas
+geopy
+matplotlib
+global_land_mark
+streetview
+selenium
+rich
+Pillow
