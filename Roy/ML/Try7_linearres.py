@@ -40,7 +40,7 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# Custom Dataset
+# Custom Dataset with Image Variations
 class GeoDataset(Dataset):
     def __init__(self, image_paths, coordinates, transform=None):
         self.image_paths = image_paths
@@ -50,29 +50,51 @@ class GeoDataset(Dataset):
     def __len__(self):
         return len(self.image_paths)
 
+    def apply_variations(self, image):
+        variations = []
+
+        # Original image
+        variations.append(image)
+
+        # Downsize image
+        downsized_image = image.resize((image.size[0] // 2, image.size[1] // 2), Image.ANTIALIAS)
+        variations.append(downsized_image)
+
+        # Zoom-in (crop center and resize)
+        width, height = image.size
+        zoomed_image = image.crop((width // 4, height // 4, 3 * width // 4, 3 * height // 4))
+        zoomed_image = zoomed_image.resize((width, height), Image.ANTIALIAS)
+        variations.append(zoomed_image)
+
+        # Mirrored image
+        mirrored_image = image.transpose(Image.FLIP_LEFT_RIGHT)
+        variations.append(mirrored_image)
+
+        # Grayscale image
+        grayscale_image = image.convert('L').convert('RGB')  # Convert to grayscale then back to RGB
+        variations.append(grayscale_image)
+
+        # Warped image (affine transformation)
+        warp_matrix = np.float32([[1, 0.2, 0], [0.2, 1, 0]])
+        warped_image = image.transform(image.size, Image.AFFINE, warp_matrix.flatten()[:6])
+        variations.append(warped_image)
+
+        return variations
+
     def __getitem__(self, idx):
         image = Image.open(self.image_paths[idx]).convert('RGB')
-        if self.transform:
-            image = self.transform(image)
         coords = self.coordinates[idx]
-        return image, coords
 
-# Custom Model
-class GeoEmbeddingModel(nn.Module):
-    def __init__(self):
-        super(GeoEmbeddingModel, self).__init__()
-        self.backbone = models.resnet152(pretrained=True)
-        self.backbone = nn.Sequential(*list(self.backbone.children())[:-1])  # Remove final classification layer
-        #self.fc = nn.Linear(2048, 4096)  # Add a fully connected layer
-        #nn.init.identity_(self.fc.weight)  # Initialize the weights to the identity matrix
+        # Apply variations
+        images = self.apply_variations(image)
+        
+        # Apply transformations
+        if self.transform:
+            images = [self.transform(img) for img in images]
 
-    def forward(self, x):
-        x = self.backbone(x)
-        x = x.view(x.size(0), -1)
-        #x = self.fc(x)
-        return x
+        return images, coords
 
-# Load or generate embeddings
+# Load or generate embeddings with variations
 if os.path.exists('Roy/ML/embeddings.npy'):
     embeddings = np.load('Roy/ML/embeddings.npy').astype(np.float64)  # Ensure embeddings are float64
     image_paths = np.load('Roy/ML/image_paths.npy')
@@ -86,19 +108,19 @@ else:
     
     # Dataset and DataLoader
     dataset = GeoDataset(image_paths=image_paths, coordinates=coordinates, transform=transform)
-    dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)  # Reduce batch size due to increased computation
 
     # Load the pre-trained model if available
     if os.path.exists('Roy/ML/Saved_Models/geo_embedding_model.pth'):
         model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model.pth'))
 
     # Generate embeddings
-    print("Generating custom embeddings...")
+    print("Generating custom embeddings with variations...")
     embeddings = []
     model.eval()  # Set the model to evaluation mode
     with torch.no_grad():  # Disable gradient computation
         for images, _ in track(dataloader, description="Processing images..."):
-            images = images.to(device)
+            images = torch.cat(images, 0).to(device)  # Concatenate the images (batch_size * num_variations)
             output = model(images)
             embeddings.append(output.cpu().numpy().astype(np.float64))  # Move to CPU and convert to float64
     embeddings = np.vstack(embeddings)
@@ -107,11 +129,12 @@ else:
     np.save('Roy/ML/embeddings.npy', embeddings)
     np.save('Roy/ML/image_paths.npy', np.array(image_paths))
     
-    # save the model
+    # Save the model
     torch.save(model.state_dict(), 'Roy/ML/Saved_Models/geo_embedding_model.pth')
 
 print(f"Number of images: {len(image_paths)}")
 print(f"Embeddings shape: {embeddings.shape}")
+
 
 # Extract the latitude and longitude from each image path
 coordinates = np.array([extract_coordinates(path) for path in image_paths])
@@ -141,8 +164,11 @@ X_train, X_test, y_train, y_test, train_labels, test_labels = train_test_split(e
 
 # Step 1: Train a Classifier to Predict Continents
 print("Training RandomForestClassifier on continent labels...")
-dt_classifier = RandomForestClassifier(n_estimators=200, n_jobs=-1, verbose=2)
+dt_classifier = RandomForestClassifier(n_estimators=300, n_jobs=-1, verbose=2)
 dt_classifier.fit(X_train, train_labels)
+
+# print the accuracy
+print(f"Training Accuracy: {dt_classifier.score(X_train, train_labels)}")
 
 # Save the trained RandomForestClassifier
 joblib.dump(dt_classifier, 'Roy/ML/Saved_Models/random_forest_classifier.pkl')
@@ -150,7 +176,7 @@ joblib.dump(dt_classifier, 'Roy/ML/Saved_Models/random_forest_classifier.pkl')
 # Function to train sub-cluster models using Kernelized Lasso-like regression
 def train_sub_cluster_model(sub_cluster_data, sub_cluster_coordinates):
     # Kernelized Lasso-like regressor using Lasso
-    kr_regressor = Lasso(alpha=0.1)
+    kr_regressor = Lasso(alpha=0.001)
     kr_regressor.fit(sub_cluster_data, sub_cluster_coordinates)
     return kr_regressor
 
@@ -166,7 +192,8 @@ for continent in track(np.unique(train_labels), description="Processing continen
     continent_coordinates = y_train[train_labels == continent]
 
     # Sub-cluster using KMeans
-    cluster_n = 25  
+    cluster_n = 6*int(np.sqrt(np.sqrt(len(continent_data))))
+    print(f"Sub-clustering into {cluster_n} sub-clusters...")
     sub_kmeans = KMeans(n_clusters=cluster_n)
     sub_labels = sub_kmeans.fit_predict(continent_data)
 
@@ -227,13 +254,15 @@ def evaluate_model(X_test, y_test, dt_classifier, sub_cluster_models, sub_cluste
     print(f"Max Distance Error: {np.max(distances)} km")
     print(f"Min Distance Error: {np.min(distances)} km")
     print(f"Standard Deviation: {np.std(distances)} km")
+    print(f"25th Percentile: {np.percentile(distances, 25)} km")
+    print(f"50th Percentile: {np.percentile(distances, 50)} km")
     print(f"75th Percentile: {np.percentile(distances, 75)} km")
     print(f"90th Percentile: {np.percentile(distances, 90)} km")
     print(f"Index of the minimum distance: {np.argmin(distances)} with name {image_paths[np.argmin(distances)]}")
     
     # Generate a histogram of the distance errors
     plt.figure(figsize=(10, 6))
-    plt.hist(distances, bins=20, color='skyblue', edgecolor='black', linewidth=1.2)
+    plt.hist(distances, bins=50, color='skyblue', edgecolor='black', linewidth=1.2)
     plt.title('Histogram of Distance Errors')
     plt.xlabel('Distance Error (km)')
     plt.ylabel('Frequency')
@@ -253,15 +282,16 @@ world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
 world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
 
 # Plot true coordinates
-plt.scatter(y_test[:, 1], y_test[:, 0], color='blue', label='True')
+plt.scatter(y_test[:100, 1], y_test[:100, 0], color='blue', label='True')
 
 # Plot predicted coordinates
 y_pred = np.array([predict_coordinates(embedding, dt_classifier, sub_cluster_models, sub_clusters) for embedding in track(X_test, description="Visualizing predictions...")])
-plt.scatter(y_pred[:, 1], y_pred[:, 0], color='red', label='Predicted')
+plt.scatter(y_pred[:100, 1], y_pred[:100, 0], color='red', label='Predicted')
 
 # Draw lines between true and predicted coordinates
 for i in range(len(y_test)):
-    plt.plot([y_test[i, 1], y_pred[i, 1]], [y_test[i, 0], y_pred[i, 0]], color='gray', alpha=0.5)
+    if i%100 == 99:
+        plt.plot([y_test[i, 1], y_pred[i, 1]], [y_test[i, 0], y_pred[i, 0]], color='gray', alpha=0.5)
 
 plt.title('True vs Predicted Coordinates')
 plt.xlabel('Longitude')

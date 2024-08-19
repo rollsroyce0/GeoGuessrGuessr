@@ -21,7 +21,7 @@ def load_models():
         sub_kmeans = joblib.load(f'Roy/ML/Saved_Models/kmeans_continent_{continent}.pkl')
         sub_clusters[continent] = sub_kmeans
 
-        for sub_label in range(25):  # Assuming 25 sub-clusters per continent
+        for sub_label in range(sub_kmeans.n_clusters):
             try:
                 kr_regressor = joblib.load(f'Roy/ML/Saved_Models/kernel_ridge_continent_{continent}_subcluster_{sub_label}.pkl')
                 sub_cluster_models[(continent, sub_label)] = kr_regressor
@@ -82,10 +82,7 @@ model.eval()  # Set the model to evaluation mode
 model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model.pth'))
 
 # Example Usage
-image_folder = "Roy/Test_Images"
-
-# Select a random image from the folder
-image_path = os.path.join(image_folder, np.random.choice(os.listdir(image_folder)))
+image_path = 'Roy/Test_Images/Game_Test5.jpg'
 predicted_coords = predict_from_image(image_path, model, dt_classifier, sub_cluster_models, sub_clusters)
 print(f"Predicted Coordinates: {predicted_coords}")
 
