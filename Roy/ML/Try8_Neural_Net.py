@@ -74,7 +74,7 @@ class GeoEmbeddingModel(nn.Module):
 
 # Load or generate embeddings
 if os.path.exists('Roy/ML/embeddings.npy'):
-    embeddings = np.load('Roy/ML/embeddings.npy').astype(np.float64)  # Ensure embeddings are float64
+    embeddings = np.load('Roy/ML/embeddings.npy').astype(np.float32)  # Ensure embeddings are float64
     image_paths = np.load('Roy/ML/image_paths.npy')
 else:
     # Load image paths and extract coordinates
@@ -100,7 +100,7 @@ else:
         for images, _ in track(dataloader, description="Processing images..."):
             images = images.to(device)
             output = model(images)
-            embeddings.append(output.cpu().numpy().astype(np.float64))  # Move to CPU and convert to float64
+            embeddings.append(output.cpu().numpy().astype(np.float32))  # Move to CPU and convert to float64
     embeddings = np.vstack(embeddings)
 
     # Save the embeddings and image paths
@@ -139,88 +139,118 @@ continent_labels = np.array([assign_continent(lat, lon) for lat, lon in coordina
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test, train_labels, test_labels = train_test_split(embeddings, coordinates, continent_labels, test_size=5000/embeddings.shape[0])
 
-# Step 1: Train a Classifier to Predict Continents
-print("Training RandomForestClassifier on continent labels...")
-dt_classifier = RandomForestClassifier(n_estimators=300, n_jobs=-1, verbose=2)
-dt_classifier.fit(X_train, train_labels)
+class GeoPredictorNN(nn.Module):
+    def __init__(self):
+        super(GeoPredictorNN, self).__init__()
+        self.fc1 = nn.Linear(2048, 1024)  # Fully connected layer
+        self.relu1 = nn.ReLU()
+        self.dropout1 = nn.Dropout(0.1)   # Dropout layer to prevent overfitting
 
-# print the accuracy
-print(f"Training Accuracy: {dt_classifier.score(X_train, train_labels)}")
+        self.fc2 = nn.Linear(1024, 256)
+        self.gelu2 = nn.GELU()
+        self.dropout2 = nn.Dropout(0.1)
 
-# Save the trained RandomForestClassifier
-joblib.dump(dt_classifier, 'Roy/ML/Saved_Models/random_forest_classifier.pkl')
+        self.fc3 = nn.Linear(256, 2)  # Output layer for latitude and longitude
+        # Removed the sigmoid activation function
 
-# Function to train sub-cluster models using Kernelized Lasso-like regression
-def train_sub_cluster_model(sub_cluster_data, sub_cluster_coordinates):
-    # Kernelized Lasso-like regressor using Lasso
-    kr_regressor = Lasso(alpha=0.001)
-    kr_regressor.fit(sub_cluster_data, sub_cluster_coordinates)
-    return kr_regressor
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.relu1(x)
+        x = self.dropout1(x)
 
-# Step 2: Sub-Clustering and Training Regressors
-sub_clusters = {}
-sub_cluster_models = {}
+        x = self.fc2(x)
+        x = self.gelu2(x)
+        x = self.dropout2(x)
 
-print("Sub-clustering within each continent and training models...")
-for continent in track(np.unique(train_labels), description="Processing continents..."):
-    print(f"Processing continent {continent} with {np.sum(train_labels == continent)} samples...")
-    # Filter the data for this continent
-    continent_data = X_train[train_labels == continent]
-    continent_coordinates = y_train[train_labels == continent]
 
-    # Sub-cluster using KMeans
-    cluster_n = 6*int(np.sqrt(np.sqrt(len(continent_data))))
-    print(f"Sub-clustering into {cluster_n} sub-clusters...")
-    sub_kmeans = KMeans(n_clusters=cluster_n)
-    sub_labels = sub_kmeans.fit_predict(continent_data)
+        x = self.fc3(x)  # No activation function here
+        return x
 
-    # Store the sub-cluster information
-    sub_clusters[continent] = sub_kmeans
+# Initialize the model
+geo_predictor = GeoPredictorNN().to(device)
 
-    # Save the KMeans model for each continent
-    joblib.dump(sub_kmeans, f'Roy/ML/Saved_Models/kmeans_continent_{continent}.pkl')
-
-    # Train a regression model for each sub-cluster
-    for sub_label in range(cluster_n):
-        sub_cluster_data = continent_data[sub_labels == sub_label]
-        sub_cluster_coordinates = continent_coordinates[sub_labels == sub_label]
-
-        kr_regressor = train_sub_cluster_model(sub_cluster_data, sub_cluster_coordinates)
-        
-        # Store the model for later prediction
-        sub_cluster_models[(continent, sub_label)] = kr_regressor
-
-        # Save the trained KernelRidge model for each sub-cluster
-        joblib.dump(kr_regressor, f'Roy/ML/Saved_Models/kernel_ridge_continent_{continent}_subcluster_{sub_label}.pkl')
-
-print("All models saved successfully.")
+def degrees_to_radians(deg):
+    pi_on_180 = 0.017453292519943295
+    return deg * pi_on_180
 
 
 # Haversine distance calculation
+def haversine_loss(coords1, coords2):
+    lat1, lon1 = coords1[:, 0], coords1[:, 1]
+    lat2, lon2 = coords2[:, 0], coords2[:, 1]
+
+    lat1, lon1, lat2, lon2 = map(degrees_to_radians, [lat1, lon1, lat2, lon2])
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = torch.sin(dlat/2)**2 + torch.cos(lat1) * torch.cos(lat2) * torch.sin(dlon/2)**2
+    c = 2 * torch.arcsin(torch.sqrt(a))
+
+    distance = 6371.01 * c  # Earth's radius is approximately 6371.01 km
+    return distance.mean()
+
+# Define the loss function and optimizer
+criterion = haversine_loss
+optimizer = optim.AdamW(geo_predictor.parameters())
+
+# Prepare DataLoader for training
+train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=16, shuffle=True)
+
+# Training loop
+epochs = 750  # You can adjust the number of epochs
+losses = []
+for epoch in track(range(epochs), description="Training the model..."):
+    geo_predictor.train()
+    running_loss = 0.0
+    for batch in train_loader:
+        embeddings_batch, coords_batch = batch
+        embeddings_batch, coords_batch = embeddings_batch.float().to(device), coords_batch.float().to(device)
+
+        optimizer.zero_grad()
+        outputs = geo_predictor(embeddings_batch)
+        loss = criterion(outputs, coords_batch)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+
+    losses.append(running_loss/len(train_loader))
+    print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss/len(train_loader):.4f}")
+
+# Save the trained model
+torch.save(geo_predictor.state_dict(), 'Roy/ML/Saved_Models/geo_predictor_nn.pth')
+
+# Plot the training loss
+plt.figure(figsize=(10, 6))
+plt.plot(losses, color='skyblue')
+plt.title('Training Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.show()
+
 def haversine_distance(coords1, coords2):
     return geopy.distance.geodesic(coords1, coords2).kilometers
 
+
 # Step 3: Evaluation Function
-def predict_coordinates(embedding, dt_classifier, sub_cluster_models, sub_clusters):
-    """Predict the coordinates for a given image embedding."""
-    # Predict the continent
-    dt_classifier.n_jobs = 1  # Workaround for pickling the classifier with n_jobs=-1
-    dt_classifier.verbose = 0
-    continent = dt_classifier.predict([embedding])[0]
-
-    # Predict the sub-cluster within the continent
-    sub_kmeans = sub_clusters[continent]
-    sub_label = sub_kmeans.predict([embedding])[0]
-
-    # Final prediction using the regression model
-    predicted_coords = sub_cluster_models[(continent, sub_label)].predict([embedding])[0]
-
+def predict_coordinates_nn(embedding, geo_predictor):
+    """Predict coordinates using the trained neural network model."""
+    geo_predictor.eval()
+    with torch.no_grad():
+        embedding = torch.tensor(embedding).float().unsqueeze(0).to(device)
+        predicted_coords = geo_predictor(embedding).cpu().numpy()[0]
+        
+        # Convert the predicted coordinates to the correct range
+        predicted_coords[0] = (predicted_coords[0] + 90) % 180 - 90
+        predicted_coords[1] = (predicted_coords[1] + 180) % 360 - 180
+        
     return predicted_coords
 
-def evaluate_model(X_test, y_test, dt_classifier, sub_cluster_models, sub_clusters):
-    """Evaluate the overall model on a test set using Haversine distance."""
-    print("Evaluating the model...")
-    y_pred = np.array([predict_coordinates(embedding, dt_classifier, sub_cluster_models, sub_clusters) for embedding in track(X_test, description="Predicting coordinates...")])
+def evaluate_nn_model(X_test, y_test, geo_predictor):
+    """Evaluate the neural network model using Haversine distance."""
+    print("Evaluating the neural network model...")
+    y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in track(X_test, description="Predicting coordinates...")])
 
     # Calculate Haversine distances
     distances = np.array([haversine_distance(y_test[i], y_pred[i]) for i in range(len(y_test))])
@@ -240,16 +270,19 @@ def evaluate_model(X_test, y_test, dt_classifier, sub_cluster_models, sub_cluste
     # Generate a histogram of the distance errors
     plt.figure(figsize=(10, 6))
     plt.hist(distances, bins=50, color='skyblue', edgecolor='black', linewidth=1.2)
-    plt.title('Histogram of Distance Errors')
+    plt.title('Histogram of Distance Errors (NN)')
     plt.xlabel('Distance Error (km)')
     plt.ylabel('Frequency')
     plt.show()
 
     return np.mean(distances)
 
-# Step 4: Evaluate the Model with Haversine Distance
-mean_haversine_distance = evaluate_model(X_test, y_test, dt_classifier, sub_cluster_models, sub_clusters)
-print(f"Mean Haversine Distance: {mean_haversine_distance} km")
+# Load the trained neural network model
+geo_predictor.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn.pth'))
+
+# Evaluate the model
+mean_haversine_distance_nn = evaluate_nn_model(X_test, y_test, geo_predictor)
+print(f"Mean Haversine Distance with NN: {mean_haversine_distance_nn} km")
 
 # Visualization: True vs Predicted Coordinates
 plt.figure(figsize=(10, 8))
@@ -262,13 +295,12 @@ world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
 plt.scatter(y_test[:100, 1], y_test[:100, 0], color='blue', label='True')
 
 # Plot predicted coordinates
-y_pred = np.array([predict_coordinates(embedding, dt_classifier, sub_cluster_models, sub_clusters) for embedding in track(X_test, description="Visualizing predictions...")])
+y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test[:100]])
 plt.scatter(y_pred[:100, 1], y_pred[:100, 0], color='red', label='Predicted')
 
 # Draw lines between true and predicted coordinates
-for i in range(len(y_test)):
-    if i%100 == 99:
-        plt.plot([y_test[i, 1], y_pred[i, 1]], [y_test[i, 0], y_pred[i, 0]], color='gray', alpha=0.5)
+for i in range(100):
+    plt.plot([y_test[i, 1], y_pred[i, 1]], [y_test[i, 0], y_pred[i, 0]], color='green', alpha=0.5)
 
 plt.title('True vs Predicted Coordinates')
 plt.xlabel('Longitude')
