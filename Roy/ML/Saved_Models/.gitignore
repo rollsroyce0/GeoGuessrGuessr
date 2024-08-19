@@ -1,1 +1,2 @@
 *.pth
+**/random_forest_classifier.pkl
