@@ -93,8 +93,6 @@ print(f"Predicted Coordinates: {predicted_coords}")
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
-
-
 # open google maps with the predicted coordinates
 import webbrowser
 
@@ -107,10 +105,6 @@ webbrowser.open_new_tab(url)
 from PIL import Image
 image = Image.open(image_path)
 image.show()
-
-
-
-
 
 print(f"Image: {image_path}")
 
