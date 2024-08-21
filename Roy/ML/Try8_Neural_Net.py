@@ -58,13 +58,10 @@ class GeoEmbeddingModel(nn.Module):
         super(GeoEmbeddingModel, self).__init__()
         self.backbone = models.resnet152(pretrained=True)
         self.backbone = nn.Sequential(*list(self.backbone.children())[:-1])  # Remove final classification layer
-        #self.fc = nn.Linear(2048, 4096)  # Add a fully connected layer
-        #nn.init.identity_(self.fc.weight)  # Initialize the weights to the identity matrix
 
     def forward(self, x):
         x = self.backbone(x)
         x = x.view(x.size(0), -1)
-        #x = self.fc(x)
         return x
 
 # Load or generate embeddings
@@ -108,56 +105,61 @@ else:
 print(f"Number of images: {len(image_paths)}")
 print(f"Embeddings shape: {embeddings.shape}")
 
+# generate a pareto chart of the embeddings
+plt.figure(figsize=(10, 6))
+plt.scatter(embeddings[:, 0], embeddings[:, 1], color='skyblue', alpha=0.5)
+plt.title('Embeddings Pareto Chart')
+plt.xlabel('Embedding Dimension 1')
+plt.ylabel('Embedding Dimension 2')
+plt.show()
+
 # Extract the latitude and longitude from each image path
 coordinates = np.array([extract_coordinates(path) for path in image_paths])
 
-# Function to assign continent labels based on coordinates
-def assign_continent(lat, lon):
-    if lat < 30 and -30 <= lon <= 60:
-        return 0  # Africa
-    elif lat > -13 and lon > 45:
-        return 1  # Asia
-    elif -50 < lat < -13 and 110 <= lon <= 180:
-        return 2  # Australia
-    elif lat > 12 and -130 <= lon <= -30:
-        return 3  # North America
-    elif lat < 12 and -90 <= lon <= -30:
-        return 4  # South America
-    elif lat > 30 and -30 <= lon <= 45:
-        return 5  # Europe
-    else:
-        return 6  # Others (e.g., Pacific islands, Antarctica)
-
-# Assign continent labels to coordinates
-continent_labels = np.array([assign_continent(lat, lon) for lat, lon in coordinates])
-
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test, train_labels, test_labels = train_test_split(embeddings, coordinates, continent_labels, test_size=5000/embeddings.shape[0])
+X_train, X_test, y_train, y_test = train_test_split(embeddings, coordinates, test_size=5000/embeddings.shape[0])
 
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
-        self.fc1 = nn.Linear(2048, 512)  # Fully connected layer
-        self.batch_norm1 = nn.BatchNorm1d(512)  # Batch normalization layer
+        self.fc1 = nn.Linear(2048, 1024)  # Fully connected layer
+        self.dropout0 = nn.Dropout(0.05)   # Dropout layer to prevent overfitting
+        self.batch_norm1 = nn.BatchNorm1d(1024)  # Batch normalization layer
         self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.1)   # Dropout layer to prevent overfitting
+        self.dropout1 = nn.Dropout(0.05)   # Dropout layer to prevent overfitting
 
-        self.fc2 = nn.Linear(512, 128)
-        self.batch_norm2 = nn.BatchNorm1d(128)
+        self.fc2 = nn.Linear(1024, 512)
+        self.batch_norm2 = nn.BatchNorm1d(512)
         self.gelu2 = nn.GELU()
         self.dropout2 = nn.Dropout(0.1)
         
-        self.fc3 = nn.Linear(128, 32)
-        self.batch_norm3 = nn.BatchNorm1d(32)
+        self.fc3 = nn.Linear(512, 1024)
+        self.batch_norm3 = nn.BatchNorm1d(1024)
         self.gelu3 = nn.GELU()
         self.dropout3 = nn.Dropout(0.1)
         
+        self.fc4 = nn.Linear(1024, 256)
+        self.batch_norm4 = nn.BatchNorm1d(256)
+        self.gelu4 = nn.GELU()
+        self.dropout4 = nn.Dropout(0.1)
+        
+        self.fc5 = nn.Linear(256, 64)
+        self.batch_norm5 = nn.BatchNorm1d(64)
+        self.gelu5 = nn.GELU()
+        self.dropout5 = nn.Dropout(0.1)
+        
+        self.fc6 = nn.Linear(64, 32)
+        self.batch_norm6 = nn.BatchNorm1d(32)
+        self.gelu6 = nn.GELU()
+        self.dropout6 = nn.Dropout(0.1)
+        
 
-        self.fc4 = nn.Linear(32, 2)
+        self.fc7 = nn.Linear(32, 2)
 
 
     def forward(self, x):
         x = self.fc1(x)
+        x = self.dropout0(x)
         x = self.batch_norm1(x)
         x = self.gelu1(x)
         x = self.dropout1(x)
@@ -173,6 +175,22 @@ class GeoPredictorNN(nn.Module):
         x = self.dropout3(x)
         
         x = self.fc4(x)
+        x = self.batch_norm4(x)
+        x = self.gelu4(x)
+        x = self.dropout4(x)
+        
+        x = self.fc5(x)  
+        x = self.batch_norm5(x)
+        x = self.gelu5(x)
+        x = self.dropout5(x)
+            
+        x = self.fc6(x)
+        x = self.batch_norm6(x)
+        x = self.gelu6(x)
+        x = self.dropout6(x)
+        
+        x = self.fc7(x)    
+        
         return x
 
 # Initialize the model
@@ -204,10 +222,10 @@ criterion = haversine_loss
 optimizer = optim.AdamW(geo_predictor.parameters())
 
 # Prepare DataLoader for training
-train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=8, shuffle=True)
+train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=64, shuffle=True)
 
 # Training loop
-epochs = 20  # You can adjust the number of epochs
+epochs = 20 # You can adjust the number of epochs
 losses = []
 val_losses = []
 for epoch in track(range(epochs), description="Training the model..."):
@@ -235,6 +253,17 @@ for epoch in track(range(epochs), description="Training the model..."):
         print(f"Validation Loss: {val_loss.item():.4f}")
     
     val_losses.append(val_loss.item())
+    
+    # Save the model checkpoint every 10 epochs
+    if (epoch+1) % 3 == 0:
+        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/Checkpoint_Models_NN/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
+        
+    # if after 50 epochs the validation loss is above 1650, reset the model
+    if (epoch+1) % 100 == 0 and val_loss.item() > 1350:
+        geo_predictor = GeoPredictorNN().to(device)
+        optimizer = optim.AdamW(geo_predictor.parameters())
+        print("Resetting the model...")
+    
     
 
 # Save the trained model

@@ -60,13 +60,13 @@ class GeoEmbeddingModel(nn.Module):
         super(GeoEmbeddingModel, self).__init__()
         self.backbone = models.resnet152(pretrained=True)
         self.backbone = nn.Sequential(*list(self.backbone.children())[:-1])  # Remove final classification layer
-        self.fc = nn.Linear(2048, 4096)  # Add a fully connected layer
+        #self.fc = nn.Linear(2048, 4096)  # Add a fully connected layer
         
 
     def forward(self, x):
         x = self.backbone(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        #x = self.fc(x)
         return x
 
 # Load or generate embeddings

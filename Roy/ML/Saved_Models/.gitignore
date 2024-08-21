@@ -1,2 +1,4 @@
 *.pth
 *.pkl
+
+**/Checkpoint_Models_NN/
