@@ -35,13 +35,16 @@ def remove_half_black_images(image, counter, folder):
 
 
 counter = 0
-folder = "D:/GeoGuessrGuessr/geoguesst/"
+folder = "Roy/combined_images/"
 for image in track(os.listdir(folder)):
+    if image.endswith("2.png") or image.endswith("3.png") or image.endswith("4.png") or image.endswith("5.png") or image.endswith("6.png") or image.endswith("7.png"):
+        continue
+        
     previous_counter = counter
-    counter += remove_half_black_images(image, counter, folder)
+    counter = remove_half_black_images(image, counter, folder)
     if previous_counter != counter:
         continue
-    counter += remove_black_images(image, counter, folder)
+    counter = remove_black_images(image, counter, folder)
     
             
 print("removed", counter, "images")

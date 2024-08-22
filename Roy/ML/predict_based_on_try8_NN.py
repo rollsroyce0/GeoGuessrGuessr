@@ -164,7 +164,7 @@ if __name__ == "__main__":
         
         image_path = f"Roy/Test_Images/{image_path}"
         
-        #image_path = "Roy/Test_Images/test9.jpeg"
+        image_path = "Roy/Test_Images/test10.png"
         
         # Predict the coordinates
         predicted_coords = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
