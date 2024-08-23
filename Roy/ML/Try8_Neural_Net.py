@@ -105,13 +105,6 @@ else:
 print(f"Number of images: {len(image_paths)}")
 print(f"Embeddings shape: {embeddings.shape}")
 
-# generate a pareto chart of the embeddings
-plt.figure(figsize=(10, 6))
-plt.scatter(embeddings[:, 0], embeddings[:, 1], color='skyblue', alpha=0.5)
-plt.title('Embeddings Pareto Chart')
-plt.xlabel('Embedding Dimension 1')
-plt.ylabel('Embedding Dimension 2')
-plt.show()
 
 # Extract the latitude and longitude from each image path
 coordinates = np.array([extract_coordinates(path) for path in image_paths])
@@ -133,17 +126,17 @@ class GeoPredictorNN(nn.Module):
         self.gelu2 = nn.GELU()
         self.dropout2 = nn.Dropout(0.1)
         
-        self.fc3 = nn.Linear(512, 1024)
-        self.batch_norm3 = nn.BatchNorm1d(1024)
+        self.fc3 = nn.Linear(512, 256)
+        self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
         self.dropout3 = nn.Dropout(0.1)
         
-        self.fc4 = nn.Linear(1024, 256)
-        self.batch_norm4 = nn.BatchNorm1d(256)
+        self.fc4 = nn.Linear(256, 128)
+        self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
         self.dropout4 = nn.Dropout(0.1)
         
-        self.fc5 = nn.Linear(256, 64)
+        self.fc5 = nn.Linear(128, 64)
         self.batch_norm5 = nn.BatchNorm1d(64)
         self.gelu5 = nn.GELU()
         self.dropout5 = nn.Dropout(0.1)
@@ -222,10 +215,10 @@ criterion = haversine_loss
 optimizer = optim.AdamW(geo_predictor.parameters())
 
 # Prepare DataLoader for training
-train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=64, shuffle=True)
+train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=64, shuffle=True) # You can adjust the batch size, optimal is 64 or 128
 
 # Training loop
-epochs = 20 # You can adjust the number of epochs
+epochs = 300 # You can adjust the number of epochs
 losses = []
 val_losses = []
 for epoch in track(range(epochs), description="Training the model..."):
@@ -255,11 +248,11 @@ for epoch in track(range(epochs), description="Training the model..."):
     val_losses.append(val_loss.item())
     
     # Save the model checkpoint every 10 epochs
-    if (epoch+1) % 3 == 0:
+    if (epoch+1) % 3 == 0 and val_loss.item() < 1.2* np.min(val_losses):
         torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/Checkpoint_Models_NN/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
         
     # if after 50 epochs the validation loss is above 1650, reset the model
-    if (epoch+1) % 100 == 0 and val_loss.item() > 1350:
+    if (epoch+1) % 20 == 0 and val_loss.item() > 1.3* np.min(val_losses):
         geo_predictor = GeoPredictorNN().to(device)
         optimizer = optim.AdamW(geo_predictor.parameters())
         print("Resetting the model...")

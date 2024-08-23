@@ -38,17 +38,17 @@ class GeoPredictorNN(nn.Module):
         self.gelu2 = nn.GELU()
         self.dropout2 = nn.Dropout(0.1)
         
-        self.fc3 = nn.Linear(512, 1024)
-        self.batch_norm3 = nn.BatchNorm1d(1024)
+        self.fc3 = nn.Linear(512, 256)
+        self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
         self.dropout3 = nn.Dropout(0.1)
         
-        self.fc4 = nn.Linear(1024, 256)
-        self.batch_norm4 = nn.BatchNorm1d(256)
+        self.fc4 = nn.Linear(256, 128)
+        self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
         self.dropout4 = nn.Dropout(0.1)
         
-        self.fc5 = nn.Linear(256, 64)
+        self.fc5 = nn.Linear(128, 64)
         self.batch_norm5 = nn.BatchNorm1d(64)
         self.gelu5 = nn.GELU()
         self.dropout5 = nn.Dropout(0.1)
@@ -164,7 +164,7 @@ if __name__ == "__main__":
         
         image_path = f"Roy/Test_Images/{image_path}"
         
-        image_path = "Roy/Test_Images/test10.png"
+        #image_path = "Roy/Test_Images/test10.png"
         
         # Predict the coordinates
         predicted_coords = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
