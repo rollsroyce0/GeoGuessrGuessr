@@ -12,8 +12,10 @@ import torch.nn as nn
 import torch.optim as optim
 import geopandas as gpd
 import warnings
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+import time
 
+
+start_time = time.time()
 
 warnings.filterwarnings("ignore")
 
@@ -21,7 +23,9 @@ warnings.filterwarnings("ignore")
 def extract_coordinates(image_path):
     lat = float(image_path.split('_')[0].replace('D:/GeoGuessrGuessr/geoguesst\\', ''))
     lon = float(image_path.split('_')[1])
-    return lat, lon
+    pos = float(image_path.split('_')[-1].replace('.png', ''))  # Extract the position number
+    #print(f"Latitude: {lat}, Longitude: {lon}, Position: {pos}")
+    return lat, lon, pos
 
 # Check if GPU is available and set the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -34,7 +38,8 @@ location = "D:/GeoGuessrGuessr/geoguesst"
 transform = transforms.Compose([
     transforms.Resize((1024, 1024)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    
 ])
 
 # Custom Dataset
@@ -58,7 +63,7 @@ class GeoDataset(Dataset):
 class GeoEmbeddingModel(nn.Module):
     def __init__(self):
         super(GeoEmbeddingModel, self).__init__()
-        self.backbone = models.resnet152(pretrained=True)
+        self.backbone = models.resnet18(pretrained=True)
         self.backbone = nn.Sequential(*list(self.backbone.children())[:-1])  # Remove final classification layer
 
     def forward(self, x):
@@ -110,83 +115,30 @@ print(f"Embeddings shape: {embeddings.shape}")
 
 # Extract the latitude and longitude from each image path
 coordinates = np.array([extract_coordinates(path) for path in image_paths])
+print(f"Coordinates shape: {coordinates.shape}")
+
+coordinates_with_pos = coordinates.copy()
+coordinates = coordinates[:, :2]
+
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(embeddings, coordinates, test_size=4000/embeddings.shape[0], shuffle=True, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(embeddings, coordinates, test_size=5000/embeddings.shape[0])
 
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
-        self.fc1 = nn.Linear(2048, 1024)  # Fully connected layer
-        self.dropout0 = nn.Dropout(0.2)   # Dropout layer to prevent overfitting
-        self.batch_norm1 = nn.BatchNorm1d(1024)  # Batch normalization layer
-        self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.2)   # Dropout layer to prevent overfitting
-
-        self.fc2 = nn.Linear(1024, 512)
-        self.batch_norm2 = nn.BatchNorm1d(512)
-        self.gelu2 = nn.GELU()
-        self.dropout2 = nn.Dropout(0.2)
-        
-        self.fc3 = nn.Linear(512, 256)
-        self.batch_norm3 = nn.BatchNorm1d(256)
-        self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.2)
-        
-        
-        self.fc4 = nn.Linear(256, 128)
-        self.batch_norm4 = nn.BatchNorm1d(128)
-        self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.2)
-        
-        self.fc5 = nn.Linear(128, 32)
-        self.batch_norm5 = nn.BatchNorm1d(32)
-        self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.2)
-        
-        self.fc6 = nn.Linear(32, 16)
-        self.batch_norm6 = nn.BatchNorm1d(16)
-        self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.1)
-        
-
-        self.fc7 = nn.Linear(16, 2)
+        self.fc = nn.Sequential(
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, 2)
+        )
 
 
     def forward(self, x):
-        x = self.fc1(x)
-        x = self.dropout0(x)
-        x = self.batch_norm1(x)
-        x = self.gelu1(x)
-        x = self.dropout1(x)
-
-        x = self.fc2(x)
-        x = self.batch_norm2(x)
-        x = self.gelu2(x)
-        x = self.dropout2(x)
         
-        x = self.fc3(x)
-        x = self.batch_norm3(x)
-        x = self.gelu3(x)
-        x = self.dropout3(x)
-        
-        
-        x = self.fc4(x)
-        x = self.batch_norm4(x)
-        x = self.gelu4(x)
-        x = self.dropout4(x)
-        
-        x = self.fc5(x)  
-        x = self.batch_norm5(x)
-        x = self.gelu5(x)
-        x = self.dropout5(x)
-            
-        x = self.fc6(x)
-        x = self.batch_norm6(x)
-        x = self.gelu6(x)
-        x = self.dropout6(x)
-        
-        x = self.fc7(x)    
+        x = self.fc(x)
         
         return x
 
@@ -216,23 +168,23 @@ def haversine_loss(coords1, coords2):
 
 # Define the loss function and optimizer
 criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-3)  # You can adjust the learning rate, optimal is 1e-3
-#scheduler = ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.5, verbose=True)
+optimizer = optim.AdamW(geo_predictor.parameters())
 
 # Prepare DataLoader for training
-train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=64) # You can adjust the batch size, optimal is 64 or 128
+batch_size = 1024
+train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size, shuffle=True) # You can adjust the batch size, optimal is 64 or 128
 
 # Training loop
-epochs = 300
+epochs = 50 # You can adjust the number of epochs
 running_avg = 0
 losses = []
 val_losses = []
-min_val_loss = 10000000
-counter = 0
+factor = 1.06
+factor2 = 0
+last_down = 0
 for epoch in track(range(epochs), description="Training the model..."):
     geo_predictor.train()
     running_loss = 0.0
-    #counting = 0
     for batch in train_loader:
         embeddings_batch, coords_batch = batch
         embeddings_batch, coords_batch = embeddings_batch.float().to(device), coords_batch.float().to(device)
@@ -244,50 +196,45 @@ for epoch in track(range(epochs), description="Training the model..."):
         optimizer.step()
 
         running_loss += loss.item()
-        #counting += 1
-        #if np.random.rand() < 0.001:
-            #print(f"loss: {loss.item()}, running_loss: {running_loss/counting}, counting: {counting} out of {len(train_loader)}")
 
-    losses.append(running_loss / len(train_loader))
+    losses.append(running_loss/len(train_loader))
     
-    # Adjust the learning rate using the scheduler
-    #scheduler.step(loss)
-
     # Calculate the validation loss
     geo_predictor.eval()
     with torch.no_grad():
         val_loss = haversine_loss(geo_predictor(torch.tensor(X_test).float().to(device)), torch.tensor(y_test).float().to(device))
-        val_losses.append(val_loss.item())
-        print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss/len(train_loader):.4f}, Validation Loss: {val_loss.item():.4f}, Running Average: {running_avg:.4f} and lowest validation loss: {np.min(val_losses)} with ratio: {running_avg/np.min(val_losses)}")
+        #print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss/len(train_loader):.4f}, Validation Loss: {val_loss.item():.4f}")
     
-    if val_loss.item() < min_val_loss:
-        min_val_loss = val_loss.item()
-    else:
-        counter += 1
+    val_losses.append(val_loss.item())
     running_avg = np.mean(val_losses[-10:])
     
-    if (epoch + 1) % 10 == 0:
-        print(f"Running average of last 10 validation losses: {running_avg:.4f} with learning rate: {optimizer.param_groups[0]['lr']} with counter: {counter}")
-    
-    # if the lowest validation loss stays the same for 25 epochs, reduce the learning rate (may need to increase lr)
-    if counter == 25:
-        counter = 0
-        optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] * 0.75
-        print(f"Reducing learning rate to: {optimizer.param_groups[0]['lr']}")
-        
-
+    if (epoch+1) % 10 == 0:
+        print(f"Running average of last 10 validation losses: {running_avg:.4f}, minimum validation loss: {np.min(val_losses):.4f}, ratio: {running_avg/np.min(val_losses):.4f} and distance since last down: {epoch+1-last_down}")
     
     # Save the model checkpoint every 10 epochs
-    if (epoch + 1) % 3 == 0 and val_loss.item() < 1.1 * np.min(val_losses) and val_loss.item() < 1000:
+    if (epoch+1) % 3 == 0 and val_loss.item() < 1.2* np.min(val_losses):
         torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/Checkpoint_Models_NN/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
         
-    # Reset the model if validation loss is too high
-    #if (epoch + 1) % 20 == 0 and running_avg > 1.2 * np.min(val_losses):
+    # if after 50 epochs the validation loss is above 1650, reset the model
+    #if ((epoch+1) % 20 == 0 and val_loss.item() > 1.3* np.min(val_losses)):
         #geo_predictor = GeoPredictorNN().to(device)
-        #optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-3)  # Reset the optimizer with the initial learning rate
-        #scheduler = ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.5, verbose=True)
+        #optimizer = optim.AdamW(geo_predictor.parameters())
         #print("Resetting the model...")
-
+        
+    # if the model is stagnating, reset the dataloader with half the batch size
+    
+    if ((epoch+1) % 20 == 0 and running_avg > factor* np.min(val_losses) and epoch > last_down+factor2):
+        batch_size = int(batch_size/2)
+        factor += 0.02
+        factor2 += 14
+        train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size, shuffle=True)
+        print(f"Resetting the dataloader with new batch size {batch_size} and new factors {factor} and {factor2}...")
+        last_down = epoch+1
+        
+    if time.time() - start_time > 3600:
+        print("Time limit reached, stopping the training...")
+        break
+    
 print('Finished Training')
 
 # Save the trained model
@@ -300,8 +247,6 @@ plt.plot(val_losses, color='orange')
 plt.title('Training Loss vs Validation Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
-plt.grid()
-plt.legend(['Training Loss', 'Validation Loss'])
 plt.show()
 
 def haversine_distance(coords1, coords2):
@@ -340,8 +285,7 @@ def evaluate_nn_model(X_test, y_test, geo_predictor):
     print(f"50th Percentile: {np.percentile(distances, 50)} km")
     print(f"75th Percentile: {np.percentile(distances, 75)} km")
     print(f"90th Percentile: {np.percentile(distances, 90)} km")
-    print(f"Index of the minimum distance: {np.argmin(distances)} with name {image_paths[np.argmin(distances)]} and distance {np.min(distances)} km")
-    print(f"Index of the maximum distance: {np.argmax(distances)} with name {image_paths[np.argmax(distances)]} and distance {np.max(distances)} km")
+    print(f"Index of the minimum distance: {np.argmin(distances)} with name {image_paths[np.argmin(distances)]}")
     
     # Generate a histogram of the distance errors
     plt.figure(figsize=(10, 6))
@@ -351,13 +295,13 @@ def evaluate_nn_model(X_test, y_test, geo_predictor):
     plt.ylabel('Frequency')
     plt.show()
 
-    return np.mean(distances), distances
+    return np.mean(distances)
 
 # Load the trained neural network model
 geo_predictor.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn.pth'))
 
 # Evaluate the model
-mean_haversine_distance_nn, haversine_distances = evaluate_nn_model(X_test, y_test, geo_predictor)
+mean_haversine_distance_nn = evaluate_nn_model(X_test, y_test, geo_predictor)
 print(f"Mean Haversine Distance with NN: {mean_haversine_distance_nn} km")
 
 # Visualization: True vs Predicted Coordinates
@@ -383,46 +327,3 @@ plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
 plt.show()
-
-
-
-# get the 100 smallest distances from haversine_distances and plot them on a world map
-
-# Get the indices of the 100 smallest distances
-#print(f"100 smallest distances: {np.sort(haversine_distances)[:100]}")
-indices = np.argsort(haversine_distances)[:100]
-
-# Get the image paths for the 100 smallest distances
-image_paths_smallest = [image_paths[i] for i in indices]
-
-# Get the true coordinates for the 100 smallest distances
-true_coords_smallest = y_test[indices]
-
-# Get the predicted coordinates for the 100 smallest distances
-predicted_coords_smallest = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test[indices]])
-
-# Plot the 100 smallest distances on a world map
-plt.figure(figsize=(10, 8))
-
-# World map
-world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
-
-# Plot true coordinates
-plt.scatter(true_coords_smallest[:, 1], true_coords_smallest[:, 0], color='blue', label='True')
-
-# Plot predicted coordinates
-plt.scatter(predicted_coords_smallest[:, 1], predicted_coords_smallest[:, 0], color='red', label='Predicted')
-
-# Draw lines between true and predicted coordinates
-for i in range(100):
-    plt.plot([true_coords_smallest[i, 1], predicted_coords_smallest[i, 1]], [true_coords_smallest[i, 0], predicted_coords_smallest[i, 0]], color='green', alpha=0.5)
-    
-plt.title('100 Smallest Haversine Distances: True vs Predicted Coordinates')
-plt.xlabel('Longitude')
-plt.ylabel('Latitude')
-plt.legend()
-plt.show()
-
-
-
