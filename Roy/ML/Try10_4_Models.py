@@ -1,3 +1,6 @@
+print("doesn't work due to googles way of ordering images")
+quit()
+
 import os
 import torch
 import numpy as np # Import joblib for saving and loading models
