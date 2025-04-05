@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 class GeoEmbeddingModel(nn.Module):
     def __init__(self):
         super(GeoEmbeddingModel, self).__init__()
-        self.backbone = models.resnet152(pretrained=True)
+        self.backbone = models.resnet18(pretrained=True)
         self.backbone = nn.Sequential(*list(self.backbone.children())[:-1])  # Remove final classification layer
 
     def forward(self, x):
@@ -28,38 +28,39 @@ class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
         self.fc1 = nn.Linear(2048, 1024)  # Fully connected layer
-        self.dropout0 = nn.Dropout(0.05)   # Dropout layer to prevent overfitting
+        self.dropout0 = nn.Dropout(0.2)   # Dropout layer to prevent overfitting
         self.batch_norm1 = nn.BatchNorm1d(1024)  # Batch normalization layer
         self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.05)   # Dropout layer to prevent overfitting
+        self.dropout1 = nn.Dropout(0.2)   # Dropout layer to prevent overfitting
 
         self.fc2 = nn.Linear(1024, 512)
         self.batch_norm2 = nn.BatchNorm1d(512)
         self.gelu2 = nn.GELU()
-        self.dropout2 = nn.Dropout(0.1)
+        self.dropout2 = nn.Dropout(0.2)
         
         self.fc3 = nn.Linear(512, 256)
         self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.1)
+        self.dropout3 = nn.Dropout(0.2)
+        
         
         self.fc4 = nn.Linear(256, 128)
         self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.1)
+        self.dropout4 = nn.Dropout(0.2)
         
-        self.fc5 = nn.Linear(128, 64)
-        self.batch_norm5 = nn.BatchNorm1d(64)
+        self.fc5 = nn.Linear(128, 32)
+        self.batch_norm5 = nn.BatchNorm1d(32)
         self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.1)
+        self.dropout5 = nn.Dropout(0.2)
         
-        self.fc6 = nn.Linear(64, 32)
-        self.batch_norm6 = nn.BatchNorm1d(32)
+        self.fc6 = nn.Linear(32, 16)
+        self.batch_norm6 = nn.BatchNorm1d(16)
         self.gelu6 = nn.GELU()
         self.dropout6 = nn.Dropout(0.1)
         
 
-        self.fc7 = nn.Linear(32, 2)
+        self.fc7 = nn.Linear(16, 2)
 
 
     def forward(self, x):
@@ -78,6 +79,7 @@ class GeoPredictorNN(nn.Module):
         x = self.batch_norm3(x)
         x = self.gelu3(x)
         x = self.dropout3(x)
+        
         
         x = self.fc4(x)
         x = self.batch_norm4(x)

@@ -112,8 +112,11 @@ print(f"Embeddings shape: {embeddings.shape}")
 coordinates = np.array([extract_coordinates(path) for path in image_paths])
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(embeddings, coordinates, test_size=4000/embeddings.shape[0], shuffle=True, random_state=0)
-
+X_train, X_test, y_train, y_test = train_test_split(embeddings,
+                                                    coordinates,
+                                                    test_size=4000/embeddings.shape[0],
+                                                    shuffle=True,
+                                                    random_state=42)
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
@@ -217,13 +220,20 @@ def haversine_loss(coords1, coords2):
 # Define the loss function and optimizer
 criterion = haversine_loss
 optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-3)  # You can adjust the learning rate, optimal is 1e-3
-#scheduler = ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.5, verbose=True)
-
+scheduler = ReduceLROnPlateau(
+    optimizer,
+    mode='min',
+    patience=5,
+    factor=0.9,
+    threshold=0.01,
+    threshold_mode='rel', 
+    verbose=True
+)
 # Prepare DataLoader for training
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=64) # You can adjust the batch size, optimal is 64 or 128
 
 # Training loop
-epochs = 300
+epochs = 100
 running_avg = 0
 losses = []
 val_losses = []
@@ -258,10 +268,16 @@ for epoch in track(range(epochs), description="Training the model..."):
     with torch.no_grad():
         val_loss = haversine_loss(geo_predictor(torch.tensor(X_test).float().to(device)), torch.tensor(y_test).float().to(device))
         val_losses.append(val_loss.item())
-        print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss/len(train_loader):.4f}, Validation Loss: {val_loss.item():.4f}, Running Average: {running_avg:.4f} and lowest validation loss: {np.min(val_losses)} with ratio: {running_avg/np.min(val_losses)}")
+        if epoch%(epochs//20) == 0:
+            print(f"Epoch [{epoch+1}/{epochs}], Loss: {losses[-1]:.4f}, Validation Loss: {val_loss.item():.4f}")
     
     if val_loss.item() < min_val_loss:
         min_val_loss = val_loss.item()
+        
+        # save the model if the validation loss is lower than the previous minimum
+        torch.save(geo_predictor.state_dict(), 'Roy/ML/Saved_Models/low_geo_predictor_nn_lowest.pth')
+        #print(f"Saved model from epoch {epoch} with validation loss: {val_loss.item()}")
+        
     else:
         counter += 1
     running_avg = np.mean(val_losses[-10:])
@@ -269,11 +285,16 @@ for epoch in track(range(epochs), description="Training the model..."):
     if (epoch + 1) % 10 == 0:
         print(f"Running average of last 10 validation losses: {running_avg:.4f} with learning rate: {optimizer.param_groups[0]['lr']} with counter: {counter}")
     
-    # if the lowest validation loss stays the same for 25 epochs, reduce the learning rate (may need to increase lr)
-    if counter == 25:
-        counter = 0
-        optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] * 0.75
-        print(f"Reducing learning rate to: {optimizer.param_groups[0]['lr']}")
+    scheduler.step(val_loss.item())  # Step the scheduler with the validation loss
+    
+    # if the lowest validation loss stays the same for too long, reduce the learning rate (may need to increase lr)
+    #if counter == epochs // 10:
+        #counter = 0
+        #optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] * 0.75
+        #print(f"Reducing learning rate to: {optimizer.param_groups[0]['lr']}")
+        
+        # load the model with the lowest validation loss
+        #geo_predictor.load_state_dict(torch.load('Roy/ML/Saved_Models/low_geo_predictor_nn_lowest.pth'))
         
 
     
@@ -344,8 +365,8 @@ def evaluate_nn_model(X_test, y_test, geo_predictor):
     print(f"Index of the maximum distance: {np.argmax(distances)} with name {image_paths[np.argmax(distances)]} and distance {np.max(distances)} km")
     
     # Generate a histogram of the distance errors
-    plt.figure(figsize=(10, 6))
-    plt.hist(distances, bins=50, color='skyblue', edgecolor='black', linewidth=1.2)
+    plt.figure(figsize=(20,9))
+    plt.hist(distances, bins=100, color='skyblue', edgecolor='black', linewidth=1)
     plt.title('Histogram of Distance Errors (NN)')
     plt.xlabel('Distance Error (km)')
     plt.ylabel('Frequency')
