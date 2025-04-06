@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 class GeoEmbeddingModel(nn.Module):
     def __init__(self):
         super(GeoEmbeddingModel, self).__init__()
-        self.backbone = models.resnet18(pretrained=True)
+        self.backbone = models.resnet152(pretrained=True)
         self.backbone = nn.Sequential(*list(self.backbone.children())[:-1])  # Remove final classification layer
 
     def forward(self, x):
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     geo_predictor_nn = GeoPredictorNN().to(device)
 
     # Load the saved model weights
-    geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model.pth', map_location=device))
+    geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_backup.pth', map_location=device))
     geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn.pth', map_location=device))
     
     for image_path in os.listdir('Roy/Test_Images'):
