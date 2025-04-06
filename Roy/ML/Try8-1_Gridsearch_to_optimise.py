@@ -149,7 +149,7 @@ net = NeuralNetRegressor(
     max_epochs=150,
     lr=1e-3,
     optimizer=optim.AdamW,
-    batch_size=128,
+    batch_size=4096,
     device=device_str,
     # Uncomment the following line to see training progress per epoch:
     # verbose=1,
@@ -157,9 +157,16 @@ net = NeuralNetRegressor(
 
 # Define a wide hyperparameter grid
 param_grid = {
-    'lr': [1e-3, 1e-4],
-    'batch_size': [16, 64, 256, 1024, 4096],
-    'optimizer__weight_decay': [0, 1e-4],
+    'lr': [1e-3, 1e-4, 5e-5, 1e-5],
+    'optimizer__weight_decay': [0, 1e-4, 1e-5, 1e-6],
+    'batch_size': [1024, 2048, 4096, 8192],
+    'module__dropout0': [0.1, 0.2, 0.3],
+    'module__dropout1': [0.1, 0.2, 0.3],
+    'module__dropout2': [0.1, 0.2, 0.3],
+    'module__dropout3': [0.1, 0.2, 0.3],
+    'module__dropout4': [0.1, 0.2, 0.3],
+    'module__dropout5': [0.1, 0.2, 0.3],
+    'module__dropout6': [0.05, 0.1, 0.2],
 }
 
 gs = GridSearchCV(net, param_grid, refit=True, cv=2, scoring='neg_mean_absolute_error', verbose=2)

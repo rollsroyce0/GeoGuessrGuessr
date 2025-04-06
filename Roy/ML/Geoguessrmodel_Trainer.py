@@ -28,12 +28,12 @@ def create_loss_window():
     root = tk.Tk()
     root.title("Latest Validation Loss")
     large_font = font.Font(family="Helvetica", size=72, weight="bold")
-    loss_label = tk.Label(root, text="Epoch: N/A\nVal Loss: N/A", font=large_font, bg="white", fg="black")
+    loss_label = tk.Label(root, text="Epoch: N/A\nVal Loss: N/A\nLowest Loss: N/A", font=large_font, bg="white", fg="black")
     loss_label.pack(padx=20, pady=20)
     return root, loss_label
 
-def update_loss_label(loss_label, epoch, new_loss):
-    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.4f}")
+def update_loss_label(loss_label, epoch, new_loss, min_val_loss):
+    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.4f}\nLowest Loss: {min_val_loss:.4f}")
     loss_label.update_idletasks()
 
 def launch_loss_window(window_ready_event):
@@ -162,7 +162,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     embeddings, coordinates,
     test_size=4000/embeddings.shape[0],
     shuffle=True,
-    random_state=42
+    random_state=0
 )
 
 #######################################
@@ -260,12 +260,12 @@ def haversine_loss(coords1, coords2):
     return distance.mean()
 
 criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1.5e-4, weight_decay=1e-4)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
     patience=5,
-    factor=0.97,
+    factor=0.95,
     threshold=0.01,
     threshold_mode='rel', 
     verbose=True
@@ -274,8 +274,8 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=100)
-epochs = 1000
+train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=128, shuffle=True)
+epochs = 300
 losses = []
 val_losses = []
 min_val_loss = 1e10
@@ -285,7 +285,7 @@ for epoch in track(range(epochs), description="Training the model..."):
     
     
     #if at the halfway point of the training the loss is significantly larger than the minimum, reset the model
-    if epoch == epochs // 2 and np.mean(losses) > 1.5 * min_val_loss:
+    if epoch == epochs // 2 and np.mean(val_losses[-10:]) > 1.25 * min_val_loss:
         print("Resetting model due to high loss...")
         geo_predictor = GeoPredictorNN().to(device)
         optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4)
@@ -293,7 +293,7 @@ for epoch in track(range(epochs), description="Training the model..."):
             optimizer,
             mode='min',
             patience=5,
-            factor=0.97,
+            factor=0.95,
             threshold=0.01,
             threshold_mode='rel', 
             verbose=True
@@ -322,7 +322,7 @@ for epoch in track(range(epochs), description="Training the model..."):
         val_losses.append(val_loss.item())
     
     # Update the popout window with the latest epoch and validation loss
-    update_loss_label(loss_label, epoch + 1, val_loss.item())
+    update_loss_label(loss_label, epoch + 1, val_loss.item(), min_val_loss)
     
     if epoch % (epochs//20) == 0:
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {losses[-1]:.4f}, Validation Loss: {val_loss.item():.4f}")
