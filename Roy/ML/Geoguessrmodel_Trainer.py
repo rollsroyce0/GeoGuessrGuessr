@@ -264,7 +264,7 @@ optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
-    patience=5,
+    patience=8,
     factor=0.95,
     threshold=0.01,
     threshold_mode='rel', 
@@ -274,8 +274,8 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=128, shuffle=True)
-epochs = 300
+train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=64, shuffle=True)
+epochs = 500
 losses = []
 val_losses = []
 min_val_loss = 1e10
