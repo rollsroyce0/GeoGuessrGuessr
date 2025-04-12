@@ -173,44 +173,52 @@ def plot_coordinates_on_map(predicted_coords, image_path):
 
 if __name__ == "__main__":
     # Set the device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-    # Load the models
-    geo_embedding_model = GeoEmbeddingModel().to(device)
-    geo_predictor_nn = GeoPredictorNN().to(device)
-
-    # Load the saved model weights
-    geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
-    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_926k.pth', map_location=device))
-    # currently best model: geo_predictor_nn_500e_64b_926k.pth at 14987 points
-    
-
-    counter = 0
-    errors = []
-    for image_path in os.listdir('Roy/Test_Images'):
-        
-        if not image_path.endswith('.jpg'):
+    for name in os.listdir('Roy/ML/Saved_Models'):
+        if name.__contains__("embedding"):
             continue
-        if not image_path.__contains__("Game"):
-            continue    
-        
-        image_path = f"Roy/Test_Images/{image_path}"
-        
-        #image_path = "Roy/Test_Images/test10.png"
-        
-        # Predict the coordinates
-        predicted_coords = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
-        print(f"Predicted Coordinates: Latitude: {predicted_coords[0]}, Longitude: {predicted_coords[1]}")
-        
+        if name.endswith('.pth'):
+            print(name)
+        else:
+            continue
 
-        counter += 1
-        # Open the location in Google Maps
-        url = f"https://www.google.com/maps/@{predicted_coords[0]},{predicted_coords[1]},9z"
-        webbrowser.open_new_tab(url)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
-        # Plot the predicted coordinates on the world map
-        plot_coordinates_on_map(predicted_coords, image_path)
+        # Load the models
+        geo_embedding_model = GeoEmbeddingModel().to(device)
+        geo_predictor_nn = GeoPredictorNN().to(device)
 
-    
+        # Load the saved model weights
+        geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
+        geo_predictor_nn.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{name}', map_location=device))
+        # currently best model: geo_predictor_nn_500e_64b_926k.pth at 14987 points
+        
+        real_coordinates = np.array([[59.2641988, 10.4276279],
+                                    [1.4855156, 103.8675691],
+                                    [54.9926562, -1.6732242],
+                                    [19.4744679, -99.1973953],
+                                    [58.6133469, 49.6274857]])
+        counter = 0
+        errors = []
+        for image_path in os.listdir('Roy/Test_Images'):
+            
+            if not image_path.endswith('.jpg'):
+                continue
+            if not image_path.__contains__("Game"):
+                continue    
+            
+            image_path = f"Roy/Test_Images/{image_path}"
+                        
+            # Predict the coordinates
+            predicted_coords = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
 
-    
+            # Calculate the error
+            error = haversine(real_coordinates[counter], predicted_coords)
+            errors.append(error)
+            counter += 1
+
+        # points
+        total = 0
+        for x in errors:
+            points = geoguessr_points_formula(x)
+            total += points
+        print(f"Total Points for model {name}: {total}")

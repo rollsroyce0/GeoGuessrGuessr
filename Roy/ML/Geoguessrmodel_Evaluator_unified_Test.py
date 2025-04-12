@@ -181,10 +181,14 @@ if __name__ == "__main__":
 
     # Load the saved model weights
     geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
-    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_926k.pth', map_location=device))
+    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_952k.pth', map_location=device))
     # currently best model: geo_predictor_nn_500e_64b_926k.pth at 14987 points
     
-
+    real_coordinates = np.array([[59.2641988, 10.4276279],
+                                  [1.4855156, 103.8675691],
+                                  [54.9926562, -1.6732242],
+                                  [19.4744679, -99.1973953],
+                                  [58.6133469, 49.6274857]])
     counter = 0
     errors = []
     for image_path in os.listdir('Roy/Test_Images'):
@@ -202,15 +206,29 @@ if __name__ == "__main__":
         predicted_coords = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
         print(f"Predicted Coordinates: Latitude: {predicted_coords[0]}, Longitude: {predicted_coords[1]}")
         
-
+        # Calculate the error
+        error = haversine(real_coordinates[counter], predicted_coords)
+        errors.append(error)
+        print(f"Error: {error} km")
         counter += 1
         # Open the location in Google Maps
         url = f"https://www.google.com/maps/@{predicted_coords[0]},{predicted_coords[1]},9z"
-        webbrowser.open_new_tab(url)
+        #webbrowser.open_new_tab(url)
         
         # Plot the predicted coordinates on the world map
         plot_coordinates_on_map(predicted_coords, image_path)
 
     
-
+    # Print the average error
+    avg_error = np.mean(errors)
+    print(f"Average Error: {avg_error} km")
+    # Print the maximum error
+    max_error = np.max(errors)
     
+    # points
+    total = 0
+    for x in errors:
+        points = geoguessr_points_formula(x)
+        print(f"Points: {points}")
+        total += points
+    print(f"Total Points: {total}")

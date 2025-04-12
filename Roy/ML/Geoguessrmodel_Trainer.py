@@ -260,7 +260,7 @@ def haversine_loss(coords1, coords2):
     return distance.mean()
 
 criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4, amsgrad=True)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
@@ -274,7 +274,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=64, shuffle=True)
+train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=1024, shuffle=True)
 epochs = 500
 losses = []
 val_losses = []
@@ -329,6 +329,7 @@ for epoch in track(range(epochs), description="Training the model..."):
     
     if val_loss.item() < min_val_loss:
         min_val_loss = val_loss.item()
+        # this is simply for backup reasons, usually not the best model
         torch.save(geo_predictor.state_dict(), 'Roy/ML/Saved_Models/low_geo_predictor_nn_lowest.pth')
     else:
         counter += 1
@@ -342,7 +343,11 @@ for epoch in track(range(epochs), description="Training the model..."):
         torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/Checkpoint_Models_NN/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
 
 print('Finished Training')
-torch.save(geo_predictor.state_dict(), 'Roy/ML/Saved_Models/geo_predictor_nn.pth')
+final_val_loss = val_losses[-1]
+final_val_loss = int(np.round(final_val_loss, 0))
+name = f'geo_predictor_nn_{epochs}e_{len(train_loader)}b_{final_val_loss}k.pth'
+print(f"Saving model as {name}")
+torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/{name}.pth')
 
 #######################################
 # Plot Training and Validation Losses   #
