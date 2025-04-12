@@ -3,7 +3,6 @@ import threading
 import tkinter as tk
 from tkinter import font
 import time
-
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,15 +18,17 @@ import geopandas as gpd
 import warnings
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-warnings.filterwarnings("ignore")
 
+warnings.filterwarnings("ignore")
+start_time = time.time()
+print("Starting the script...")
 #######################################
 # Tkinter Popout Window for Val Loss  #
 #######################################
 def create_loss_window():
     root = tk.Tk()
     root.title("Latest Validation Loss")
-    large_font = font.Font(family="Helvetica", size=72, weight="bold")
+    large_font = font.Font(family="Helvetica", size=2, weight="bold")
     loss_label = tk.Label(root, text="Epoch: N/A\nVal Loss: N/A\nLowest Loss: N/A", font=large_font, bg="white", fg="black")
     loss_label.pack(padx=20, pady=20)
     return root, loss_label
@@ -47,7 +48,8 @@ def launch_loss_window(window_ready_event):
 window_ready_event = threading.Event()
 threading.Thread(target=launch_loss_window, args=(window_ready_event,), daemon=True).start()
 window_ready_event.wait()  # Wait until the window is ready
-
+print("Popout window is ready after", time.time() - start_time, "seconds. Time taken: ", time.time() - start_time, "seconds")
+checking_time = time.time() - start_time
 #######################################
 # Utility: Extract Coordinates        #
 #######################################
@@ -155,6 +157,9 @@ else:
 print(f"Number of images: {len(image_paths)}")
 print(f"Embeddings shape: {embeddings.shape}")
 
+print("Embeddings loaded successfully.")
+print(f"Time taken to load embeddings: {time.time() - start_time} seconds total. Time taken to load embeddings: {time.time() - checking_time} seconds")
+checking_time = time.time() 
 #######################################
 # Prepare Coordinates and Data Split    #
 #######################################
@@ -171,6 +176,8 @@ X_test = torch.tensor(X_test).float().to(device)
 y_train = torch.tensor(y_train).float().to(device)
 y_test = torch.tensor(y_test).float().to(device)
 
+print(f"Time taken to split data: {time.time() - checking_time} seconds")
+checking_time = time.time()
 #######################################
 # Define the GeoPredictorNN Model       #
 #######################################
@@ -248,6 +255,9 @@ class GeoPredictorNN(nn.Module):
 # Initialize the predictor model
 geo_predictor = GeoPredictorNN().to(device)
 
+print("Time taken to initialize the model: ", time.time() - checking_time, " seconds")
+checking_time = time.time()
+
 #######################################
 # Define Haversine Loss and Optimizer   #
 #######################################
@@ -280,14 +290,19 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 64
+batch_size_data = 69
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 800
+epochs = 2
 losses = []
 val_losses = []
-min_val_loss = 1e8
+min_val_loss = 1e10
 counter = 0
 
+print("Time taken to prepare data: ", time.time() - checking_time, " seconds")
+checking_time = time.time() 
+print("Starting training...")
+
+checking_time = time.time() 
 for epoch in track(range(epochs), description="Training the model..."):
 
     #if at the halfway point of the training the loss is significantly larger than the minimum, reset the model
@@ -307,15 +322,18 @@ for epoch in track(range(epochs), description="Training the model..."):
     geo_predictor.train()
     running_loss = 0.0
     for embeddings_batch, coords_batch in train_loader:
-        embeddings_batch = embeddings_batch.float().to(device)
-        coords_batch = coords_batch.float().to(device)
-        optimizer.zero_grad()
+        embeddings_batch = embeddings_batch.to(device, non_blocking=True)
+        coords_batch = coords_batch.to(device, non_blocking=True)
+        optimizer.zero_grad(set_to_none=True)  # Use set_to_none for faster zeroing
         outputs = geo_predictor(embeddings_batch)
         loss = criterion(outputs, coords_batch)
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
     losses.append(running_loss / len(train_loader))
+    
+    print(f"time taken to train the model: {time.time() - checking_time} seconds")
+    checking_time = time.time()
     
     # Validation
     geo_predictor.eval()
@@ -335,7 +353,7 @@ for epoch in track(range(epochs), description="Training the model..."):
     scheduler.step(val_loss.item())
     
     if (epoch + 1) % 20 == 0 and val_loss.item() < 1.1 * np.min(val_losses) and val_loss.item() < 1000:
-        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/Checkpoint_Models_NN/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
+        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/TMP/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
 
 
 print('Finished Training')
@@ -343,7 +361,10 @@ final_val_loss = val_losses[-1]
 final_val_loss = int(np.round(final_val_loss, 0))
 name = f'geo_predictor_nn_{epochs}e_{batch_size_data}b_{final_val_loss}k'
 print(f"Saving model as {name}")
-torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/{name}.pth')
+torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/TMP/{name}.pth')
+
+print(f"Time taken to train the model: ", time.time() - checking_time, " seconds")
+checking_time = time.time()
 
 #######################################
 # Plot Training and Validation Losses   #
@@ -356,7 +377,9 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.grid()
 plt.legend(['Training Loss', 'Validation Loss'])
-plt.show()
+plt.show(block=False)
+plt.pause(0.01)
+plt.close()
 
 #######################################
 # Evaluation and Visualization          #
@@ -394,10 +417,12 @@ def evaluate_nn_model(X_test, y_test, geo_predictor):
     plt.title('Histogram of Distance Errors (NN)')
     plt.xlabel('Distance Error (km)')
     plt.ylabel('Frequency')
-    plt.show()
+    plt.show(block=False)
+    plt.pause(0.01)
+    plt.close()
     return np.mean(distances), distances
 
-geo_predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{name}.pth'))
+geo_predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/TMP/{name}.pth'))
 mean_haversine_distance_nn, haversine_distances = evaluate_nn_model(X_test, y_test, geo_predictor)
 print(f"Mean Haversine Distance with NN: {mean_haversine_distance_nn} km")
 
@@ -418,7 +443,9 @@ plt.title('True vs Predicted Coordinates')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
-plt.show()
+plt.show(block=False)
+plt.pause(0.01)
+plt.close()
 
 indices = np.argsort(haversine_distances)[:100]
 image_paths_smallest = [image_paths[i] for i in indices]
@@ -438,7 +465,12 @@ plt.title('100 Smallest Haversine Distances: True vs Predicted Coordinates')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
-plt.show()
+plt.show(block=False)
+plt.pause(0.01)
+plt.close()
 
 # Optionally, when everything is done, you can close the popout window:
 loss_root.quit()
+
+print("Script finished. Total time taken: ", time.time() - start_time, " seconds")
+print("Time taken to evaluate the model: ", time.time() - checking_time, " seconds")

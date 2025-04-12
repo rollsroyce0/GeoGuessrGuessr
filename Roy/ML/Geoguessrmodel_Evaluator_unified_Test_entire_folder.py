@@ -233,6 +233,14 @@ if __name__ == "__main__":
     for model in list_of_models:
         print(f"    ['{model[0]}', {int(model[1])}],")
     print("]")
+
+    # Save the leaderboard to a file
+    output_file = "Roy/ML/leaderboard.txt"  # Replace with the desired filename
+    with open(output_file, "w") as f:
+        f.write("[\n")
+        for model in list_of_models:
+            f.write(f"    ['{model[0]}', {int(model[1])}],\n")
+        f.write("]\n")
     
     print(f"Execution time: {time.time() - start_time} seconds")
     

@@ -1,0 +1,1 @@
+np.floor(5000 * math.e**(-1*error/2000))
