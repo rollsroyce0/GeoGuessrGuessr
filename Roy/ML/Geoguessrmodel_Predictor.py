@@ -181,9 +181,10 @@ if __name__ == "__main__":
 
     # Load the saved model weights
     geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
-    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_926k.pth', map_location=device))
-    # currently best model: geo_predictor_nn_500e_64b_926k.pth at 14987 points
+    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_952k.pth', map_location=device))
+    # currently best model: geo_predictor_nn_500e_64b_952k.pth at 16037 points
     
+    # Call the images to be tested Current_Test_ImagesX.jpg
 
     counter = 0
     errors = []
@@ -191,7 +192,7 @@ if __name__ == "__main__":
         
         if not image_path.endswith('.jpg'):
             continue
-        if not image_path.__contains__("Game"):
+        if not image_path.__contains__("Current"):
             continue    
         
         image_path = f"Roy/Test_Images/{image_path}"

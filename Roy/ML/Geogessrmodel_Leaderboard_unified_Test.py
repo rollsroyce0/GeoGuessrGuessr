@@ -34,7 +34,8 @@ leaderboard.sort(key=lambda x: x[1], reverse=True)
 print("Leaderboard:")
 for i, (model_name, points) in enumerate(leaderboard):
     print(f"{i + 1}. {model_name}: {points} points")
-    
+
+Human_scores.sort(key=lambda x: x[1], reverse=True)
 print("Human Leaderboard:")
 for i, (name, points) in enumerate(Human_scores):
     print(f"{i + 1}. {name}: {points} points")
