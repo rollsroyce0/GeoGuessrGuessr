@@ -9,8 +9,10 @@ import matplotlib.pyplot as plt
 import webbrowser
 import math
 import warnings
+import time
 
 warnings.filterwarnings("ignore")
+
 
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
@@ -172,6 +174,7 @@ def plot_coordinates_on_map(predicted_coords, image_path):
     plt.show()
 
 if __name__ == "__main__":
+    start_time = time.time()
     # Set the device
     list_of_models = []
     
@@ -230,6 +233,8 @@ if __name__ == "__main__":
     for model in list_of_models:
         print(f"    ['{model[0]}', {int(model[1])}],")
     print("]")
+    
+    print(f"Execution time: {time.time() - start_time} seconds")
     
         
     

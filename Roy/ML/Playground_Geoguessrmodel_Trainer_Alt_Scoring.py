@@ -3,7 +3,7 @@ import threading
 import tkinter as tk
 from tkinter import font
 import time
-
+import math
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,8 +33,7 @@ def create_loss_window():
     return root, loss_label
 
 def update_loss_label(loss_label, epoch, new_loss, min_val_loss):
-    points =np.floor(5000 * np.exp(-1*new_loss/2000))
-    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.4f} km\nLowest Loss: {min_val_loss:.4f} km\nGeoguessr Points: {int(points)}")
+    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.4f} km\nLowest Loss: {min_val_loss:.4f} km\nReal points: {5000 - new_loss:.4f} ")
     loss_label.update_idletasks()
 
 def launch_loss_window(window_ready_event):
@@ -263,7 +262,10 @@ def haversine_loss(coords1, coords2):
     a = torch.sin(dlat/2)**2 + torch.cos(lat1) * torch.cos(lat2) * torch.sin(dlon/2)**2
     c = 2 * torch.arcsin(torch.sqrt(a))
     distance = 6371.01 * c
-    return distance.mean()
+    
+    distance = torch.floor(5000 * torch.exp(-1*distance/2000))
+    #gotta offset it to make loss go down, otherwise it goes up
+    return 5000 - distance.mean()
 
 criterion = haversine_loss
 optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4, amsgrad=True)

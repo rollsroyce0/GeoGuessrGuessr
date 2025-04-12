@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 
 #separate test
 
-print(50//20)
+np.array_equal([1,2,3], [1,2,3])
+print(np.floor(np.random.uniform(0, 1, 10)))
 
 # Generate the dataset
 X, y = make_blobs(n_samples=300, centers=np.random.randint(25,50), n_features=2, random_state=42)
