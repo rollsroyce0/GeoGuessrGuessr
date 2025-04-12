@@ -165,6 +165,11 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=0
 )
 
+X_train = torch.tensor(X_train).float().to(device)
+X_test = torch.tensor(X_test).float().to(device)
+y_train = torch.tensor(y_train).float().to(device)
+y_test = torch.tensor(y_test).float().to(device)
+
 #######################################
 # Define the GeoPredictorNN Model       #
 #######################################
@@ -406,7 +411,7 @@ def evaluate_nn_model(X_test, y_test, geo_predictor):
     plt.show()
     return np.mean(distances), distances
 
-geo_predictor.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn.pth'))
+geo_predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{name}.pth'))
 mean_haversine_distance_nn, haversine_distances = evaluate_nn_model(X_test, y_test, geo_predictor)
 print(f"Mean Haversine Distance with NN: {mean_haversine_distance_nn} km")
 

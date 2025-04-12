@@ -178,9 +178,7 @@ if __name__ == "__main__":
     for name in os.listdir('Roy/ML/Saved_Models'):
         if name.__contains__("embedding") or name.__contains__("lowest"):
             continue
-        if name.endswith('.pth'):
-            print(name)
-        else:
+        if not name.endswith('.pth'):
             continue
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -223,14 +221,14 @@ if __name__ == "__main__":
         for x in errors:
             points = geoguessr_points_formula(x)
             total += points
-        print(f"Total Points for model {name}: {total}")
+        #print(f"Total Points for model {name}: {total}")
         list_of_models.append([name, total])
         
     # Output the list in a form that can be copy-pasted into Python list format
     print("List of models and their total points:")
-    print("[")
+    print("leaderboard = [")
     for model in list_of_models:
-        print(f"    ['{model[0]}', {model[1]}],")
+        print(f"    ['{model[0]}', {int(model[1])}],")
     print("]")
     
         
