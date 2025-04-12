@@ -210,3 +210,7 @@ if __name__ == "__main__":
         
         # Plot the predicted coordinates on the world map
         plot_coordinates_on_map(predicted_coords, image_path)
+
+    
+
+    

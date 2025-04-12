@@ -173,8 +173,10 @@ def plot_coordinates_on_map(predicted_coords, image_path):
 
 if __name__ == "__main__":
     # Set the device
+    list_of_models = []
+    
     for name in os.listdir('Roy/ML/Saved_Models'):
-        if name.__contains__("embedding"):
+        if name.__contains__("embedding") or name.__contains__("lowest"):
             continue
         if name.endswith('.pth'):
             print(name)
@@ -222,3 +224,14 @@ if __name__ == "__main__":
             points = geoguessr_points_formula(x)
             total += points
         print(f"Total Points for model {name}: {total}")
+        list_of_models.append([name, total])
+        
+    # Output the list in a form that can be copy-pasted into Python list format
+    print("List of models and their total points:")
+    print("[")
+    for model in list_of_models:
+        print(f"    ['{model[0]}', {model[1]}],")
+    print("]")
+    
+        
+    
