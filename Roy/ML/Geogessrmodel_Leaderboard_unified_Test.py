@@ -24,6 +24,7 @@ Human_scores = [
     ['Nic', 10171],
     ['Vikram', 12800],
     ['Sam', 10728],
+    ['Dan', 11155],
 ]
 
 # Remove Duplicates from the leaderboard list
