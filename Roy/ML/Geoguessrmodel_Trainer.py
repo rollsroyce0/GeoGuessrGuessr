@@ -34,7 +34,7 @@ def create_loss_window():
 
 def update_loss_label(loss_label, epoch, new_loss, min_val_loss):
     points =np.floor(5000 * np.exp(-1*new_loss/2000))
-    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.4f} km\nLowest Loss: {min_val_loss:.4f} km\nGeoguessr Points: {int(points)}")
+    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.1f} km\nLowest Loss: {min_val_loss:.1f} km\nGeoguessr Points: {int(points)}")
     loss_label.update_idletasks()
 
 def launch_loss_window(window_ready_event):
@@ -282,7 +282,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 batch_size_data = 64
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 800
+epochs = 500
 losses = []
 val_losses = []
 min_val_loss = 1e8

@@ -2,3 +2,5 @@
 *.pkl
 
 **/Checkpoint_Models_NN/
+**/TMP/
+**/Old_Naming_Style/
