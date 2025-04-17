@@ -135,8 +135,8 @@ else:
     dataset = DualResStreetviewDataset(image_paths=image_paths)
     dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
     
-    if os.path.exists('Roy/ML/Saved_Models/geo_embedding_model.pth'):
-        model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model.pth'))
+    if os.path.exists('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'):
+        model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'))
     
     print("Generating custom embeddings...")
     embeddings_list = []
