@@ -1,10 +1,12 @@
 [
+    ['geo_predictor_nn_3000e_64b_970k.pth', 16361],
     ['geo_predictor_nn_452e_64b_914k.pth', 11209],
     ['geo_predictor_nn_500e_100b_951k.pth', 12914],
     ['geo_predictor_nn_500e_1024b_1412k.pth', 11423],
     ['geo_predictor_nn_500e_16b_1436k.pth', 13371],
     ['geo_predictor_nn_500e_256b_899k.pth', 12234],
     ['geo_predictor_nn_500e_256b_914k.pth', 12091],
+    ['geo_predictor_nn_500e_512b_5789k.pth', 6492],
     ['geo_predictor_nn_500e_64b_926k.pth', 14987],
     ['geo_predictor_nn_500e_64b_952k.pth', 16037],
     ['geo_predictor_nn_500e_64b_953k.pth', 10024],
