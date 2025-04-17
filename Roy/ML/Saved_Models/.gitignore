@@ -1,4 +1,4 @@
-*.pth
+geo_embedding_model_r152_normal.pth
 *.pkl
 
 **/Checkpoint_Models_NN/
