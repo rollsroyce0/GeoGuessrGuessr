@@ -177,21 +177,23 @@ if __name__ == "__main__":
     start_time = time.time()
     # Set the device
     list_of_models = []
-    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    geo_embedding_model = GeoEmbeddingModel().to(device)
+    geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
     for name in os.listdir('Roy/ML/Saved_Models'):
         if name.__contains__("embedding") or name.__contains__("lowest"):
             continue
         if not name.endswith('.pth'):
             continue
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
         
         # Load the models
-        geo_embedding_model = GeoEmbeddingModel().to(device)
+        
         geo_predictor_nn = GeoPredictorNN().to(device)
 
         # Load the saved model weights
-        geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
+        
         geo_predictor_nn.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{name}', map_location=device))
         # currently best model: geo_predictor_nn_500e_64b_926k.pth at 14987 points
         
