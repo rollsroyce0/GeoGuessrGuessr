@@ -359,7 +359,9 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.grid()
 plt.legend(['Training Loss', 'Validation Loss'])
-plt.show()
+plt.show(block=False)
+plt.pause(4)
+plt.close()
 
 #######################################
 # Evaluation and Visualization          #
@@ -397,7 +399,9 @@ def evaluate_nn_model(X_test, y_test, geo_predictor):
     plt.title('Histogram of Distance Errors (NN)')
     plt.xlabel('Distance Error (km)')
     plt.ylabel('Frequency')
-    plt.show()
+    plt.show(block=False)
+    plt.pause(4)
+    plt.close()
     return np.mean(distances), distances
 
 geo_predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{name}.pth'))
@@ -421,7 +425,9 @@ plt.title('True vs Predicted Coordinates')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
-plt.show()
+plt.show(block=False)
+plt.pause(4)
+plt.close()
 
 indices = np.argsort(haversine_distances)[:100]
 image_paths_smallest = [image_paths[i] for i in indices]
@@ -441,7 +447,9 @@ plt.title('100 Smallest Haversine Distances: True vs Predicted Coordinates')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
-plt.show()
+plt.show(block=False)
+plt.pause(4)
+plt.close()
 
 # Optionally, when everything is done, you can close the popout window:
 loss_root.quit()

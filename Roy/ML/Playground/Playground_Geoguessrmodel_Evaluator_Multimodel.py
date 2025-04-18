@@ -90,7 +90,7 @@ def plot_coordinates_on_map(pred, real, backups, path):
     allc = np.vstack([*backups, pred, real])
     lat_min, lat_max = allc[:,0].min(), allc[:,0].max()
     lon_min, lon_max = allc[:,1].min(), allc[:,1].max()
-    mlat = (lat_max - lat_min)*0.1; mlon = (lon_max - lon_min)*0.1
+    mlat = (lat_max - lat_min)*0.5+2; mlon = (lon_max - lon_min)*0.5+2
     plt.xlim(lon_min-mlon, lon_max+mlon); plt.ylim(lat_min-mlat, lat_max+mlat)
     plt.title(f"Map: {os.path.basename(path)}"); plt.xlabel('Lon'); plt.ylabel('Lat')
     plt.legend(); plt.show()
@@ -99,18 +99,22 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load and preprocess images once
-    testtype = 'Valid' #'Valid' or 'Game'
+    testtype = 'Verification' #'Validation' or 'Game' or 'Verification'
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
 
     # Real coordinates
     real_coords_Game = np.array([[59.2642, 10.4276], [1.4855, 103.8676], [54.9927, -1.6732], [19.4745, -99.1974], [58.6133, 49.6275]])
     real_coords_Valid = np.array([[43.3219114, -5.5783907], [23.0376137, 72.5819308], [55.9300025, -3.2678762], [51.9187417, 4.4957128], [40.6000729, -74.3125485]])
-
+    real_coords_Verification = np.array([[48.1787242,16.4149478], [39.3544037,-76.4284282], [12.6545729,77.4269159], [53.5361597,-113.470894], [65.9408919,12.2171864]])
     if testtype == 'Game':
         real_coords = real_coords_Game
-    else:
+    elif testtype == 'Validation':
         real_coords = real_coords_Valid
+    elif testtype == 'Verification':
+        real_coords = real_coords_Verification
+    else:
+        raise ValueError("Invalid test type. Choose 'Game', 'Validation', or 'Verification'.")
     
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
@@ -121,6 +125,7 @@ if __name__ == '__main__':
         embeddings = embed_model(images).cpu()
 
     results = []
+    full_results = []
     start = time.time()
 
     # Loop over predictor weights
@@ -140,10 +145,12 @@ if __name__ == '__main__':
         pts = [geoguessr_points(e) for e in errs]
         total_pts = sum(pts)
 
-        if total_pts >= 14000:
-            results.append((fname, total_pts, preds.tolist()))
-
-        #print(f"{fname}: {total_pts} pts")
+        results.append((fname, total_pts, preds.tolist()))
+        full_results.append((fname, total_pts, preds.tolist()))
+        # Sort results by total points in descending order and keep the top 3 models
+        results = sorted(results, key=lambda x: x[1], reverse=True)[:3]
+        # TODO: Determine round difficulty based on deviation from real coordinates of all models
+        print(f"{fname}: {total_pts} pts")
 
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
