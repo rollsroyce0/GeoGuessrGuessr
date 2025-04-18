@@ -99,7 +99,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load and preprocess images once
-    testtype = 'Verification' #'Validation' or 'Game' or 'Verification'
+    testtype = 'Game' #'Validation' or 'Game' or 'Verification'
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
 
@@ -148,7 +148,7 @@ if __name__ == '__main__':
         results.append((fname, total_pts, preds.tolist()))
         full_results.append((fname, total_pts, preds.tolist()))
         # Sort results by total points in descending order and keep the top 3 models
-        results = sorted(results, key=lambda x: x[1], reverse=True)[:3]
+        results = sorted(results, key=lambda x: x[1], reverse=True)[:5]
         # TODO: Determine round difficulty based on deviation from real coordinates of all models
         print(f"{fname}: {total_pts} pts")
 
