@@ -91,16 +91,16 @@ X_train, X_test, y_train, y_test = train_test_split(embeddings, coords, test_siz
 X_train, X_test = map(lambda x: torch.tensor(x).float().to(device), (X_train, X_test))
 y_train, y_test = map(lambda x: torch.tensor(x).float().to(device), (y_train, y_test))
 
-for modelnumber in range(3):
+for modelnumber in range(1):
     print(f"Model number: {modelnumber}")
     geo_predictor = GeoPredictorNN().to(device)
 
     criterion = haversine_loss
     optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4, amsgrad=True)
     scheduler = ReduceLROnPlateau(optimizer, 'min', patience=8, factor=0.95, threshold=0.01, verbose=True)
-    batch_size = 64
+    batch_size = 1024
     train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size, shuffle=True)
-    max_epochs = 300
+    max_epochs = 50
     min_val_loss, val_losses, losses = 1e8, [], []
     for epoch in track(range(max_epochs), description="Training"):
         geo_predictor.train()

@@ -14,6 +14,7 @@
     ['geo_predictor_nn_500e_64b_988k.pth', 16042],
     ['geo_predictor_nn_500e_69b_951k.pth', 15384],
     ['geo_predictor_nn_500e_8192b_7551k.pth', 605],
+    ['geo_predictor_nn_600e_512b_896k.pth', 15418],
     ['geo_predictor_nn_800e_64b_1021k.pth', 13049],
     ['geo_predictor_nn_800e_64b_924k.pth', 14692],
 ]

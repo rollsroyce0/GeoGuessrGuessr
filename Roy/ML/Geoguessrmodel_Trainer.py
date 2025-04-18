@@ -280,9 +280,9 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 64
+batch_size_data = 512
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 3000
+epochs = 1800
 losses = []
 val_losses = []
 min_val_loss = 1e8
@@ -294,7 +294,7 @@ for epoch in track(range(epochs), description="Training the model..."):
     if epoch == epochs // 2 and np.mean(val_losses[-10:]) > 1.25 * min_val_loss:
         print("Resetting model due to high loss...")
         geo_predictor = GeoPredictorNN().to(device)
-        optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=1e-4)
+        optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=5e-5)
         scheduler = ReduceLROnPlateau(
             optimizer,
             mode='min',
@@ -312,6 +312,9 @@ for epoch in track(range(epochs), description="Training the model..."):
         optimizer.zero_grad()
         outputs = geo_predictor(embeddings_batch)
         loss = criterion(outputs, coords_batch)
+        if torch.isnan(loss):
+            print("Loss is NaN, skipping this batch...")
+            continue
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
