@@ -93,7 +93,7 @@ def plot_coordinates_on_map(pred, real, backups, path):
     mlat = (lat_max - lat_min)*0.5+2; mlon = (lon_max - lon_min)*0.5+2
     plt.xlim(lon_min-mlon, lon_max+mlon); plt.ylim(lat_min-mlat, lat_max+mlat)
     plt.title(f"Map: {os.path.basename(path)}"); plt.xlabel('Lon'); plt.ylabel('Lat')
-    plt.legend(); plt.show()
+    plt.legend(); plt.show(block=False); plt.pause(1); plt.close()
 
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -126,7 +126,11 @@ if __name__ == '__main__':
 
     results = []
     full_results = []
+    points_backup = []
+    errors = []
     start = time.time()
+    highest_points = [0,0,0,0,0]
+    total_points_backup = []
 
     # Loop over predictor weights
     for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
@@ -144,12 +148,19 @@ if __name__ == '__main__':
         errs = haversine_batch(real_coords, preds)
         pts = [geoguessr_points(e) for e in errs]
         total_pts = sum(pts)
-
+        total_points_backup.append(total_pts)
+        # for each picture, check if the points are higher than the previous highest points
+        for i, p in enumerate(pts):
+            if p > highest_points[i]:
+                highest_points[i] = p
+                
+        if total_pts > 10000:
+            points_backup.append(pts)
+            errors.append(errs)
         results.append((fname, total_pts, preds.tolist()))
         full_results.append((fname, total_pts, preds.tolist()))
         # Sort results by total points in descending order and keep the top 3 models
-        results = sorted(results, key=lambda x: x[1], reverse=True)[:5]
-        # TODO: Determine round difficulty based on deviation from real coordinates of all models
+        results = sorted(results, key=lambda x: x[1], reverse=True)[:3]
         print(f"{fname}: {total_pts} pts")
 
     backups = list(zip(*[r[2] for r in results]))
@@ -161,6 +172,37 @@ if __name__ == '__main__':
         print(f"Final error for {i}: {err} km")
     print("Final points for each image:", final_pts)
     print("Final total:", sum(final_pts))
+    print("Highest points for each image:", highest_points)
+    print("Highest total:", sum(highest_points))
+    
+    # Calculate a Difficulty score for each image based on the standard deviation of the predictions
+    errors = np.sort(errors, axis=0)[:-10] # Remove the 10 highest errors or each individual image disregarding model order
+    points_backup = np.sort(points_backup, axis=0)[:10]
+    difficulty_scores = np.std(errors, axis=0) + 0.4*np.mean(errors, axis=0) # Add the mean to the std to get a more accurate score
+    print("Errors:", errors)
+    print("Difficulty scores:", difficulty_scores)
+    # Normalize these on a scale 0-10, where an std dev of 2500 would be a difficulty of 10 and 0 would be 0. However this is not a linear scale, so we will use a logarithmic scale.
+    # We will use a base of 10, so that 10^0 = 1 and 10^1 = 10. This means that a difficulty of 0 would be 0 and a difficulty of 10 would be 10.
+    # We will also use a minimum difficulty of 1, so that we don't get negative scores.
+    # A Difficulty of 10 means the std is 4500km or above
+    
+    
+    difficulty_scores = np.log10(difficulty_scores/1000 + 1) * 13
+    difficulty_scores = np.clip(difficulty_scores, 0, 10)
+    difficulty_scores = np.round(difficulty_scores, 3)
+    print("Difficulty scores normalized:", difficulty_scores)
+    print("Difficulty scores for each image:", difficulty_scores)
+    print("Average difficulty score of this round:", np.round(np.mean(difficulty_scores), 3))
+    # add the average difficutly score for the test type to a file
+    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'a') as f:
+        f.write(f"{testtype}: {np.round(np.mean(difficulty_scores), 3)}, Highest: {np.round(np.max(difficulty_scores), 3)}, Lowest: {np.round(np.min(difficulty_scores), 3)}\n")
+        
+        # remove any duplicate lines (it is a duplicate, if the first 5 characters are the same)
+    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'r') as f:
+        lines = f.readlines()
+    lines = list(dict.fromkeys(lines)) # remove duplicates
+    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'w') as f:
+        f.writelines(lines)
 
     for i, path in enumerate(img_paths):
         plot_coordinates_on_map(avg_preds[i], real_coords[i], backups[i], path)

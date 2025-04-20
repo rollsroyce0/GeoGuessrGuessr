@@ -1,0 +1,3 @@
+Verification: 3.238, Highest: 6.485, Lowest: 1.437
+Validation: 3.746, Highest: 9.031, Lowest: 1.259
+Game: 3.407, Highest: 6.889, Lowest: 1.383

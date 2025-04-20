@@ -35,6 +35,12 @@ def create_loss_window():
 
 def update_loss_label(loss_label, epoch, new_loss, min_val_loss):
     points = np.floor(5000 * np.exp(-1 * new_loss / 2000))
+    
+    # if points is nan, quit
+    if np.isnan(points):
+        print("Points is NaN, quitting...")
+        quit()
+    
     loss_label.config(
         text=f"Epoch: {epoch}\nVal Loss: {new_loss:.1f} km\nLowest Loss: {min_val_loss:.1f} km\nGeoguessr Points: {int(points)}"
     )
@@ -105,35 +111,35 @@ class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
         self.fc1 = nn.Linear(2048, 1024)
-        self.dropout0 = nn.Dropout(0.2)
+        self.dropout0 = nn.Dropout(0.1)
         self.batch_norm1 = nn.BatchNorm1d(1024)
         self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.2)
+        self.dropout1 = nn.Dropout(0.25)
 
         self.fc2 = nn.Linear(1024, 512)
         self.batch_norm2 = nn.BatchNorm1d(512)
         self.gelu2 = nn.GELU()
-        self.dropout2 = nn.Dropout(0.2)
+        self.dropout2 = nn.Dropout(0.25)
         
         self.fc3 = nn.Linear(512, 256)
         self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.2)
+        self.dropout3 = nn.Dropout(0.25)
         
         self.fc4 = nn.Linear(256, 128)
         self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.2)
+        self.dropout4 = nn.Dropout(0.25)
         
         self.fc5 = nn.Linear(128, 32)
         self.batch_norm5 = nn.BatchNorm1d(32)
         self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.2)
+        self.dropout5 = nn.Dropout(0.25)
         
         self.fc6 = nn.Linear(32, 16)
         self.batch_norm6 = nn.BatchNorm1d(16)
         self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.05)
+        self.dropout6 = nn.Dropout(0.1)
         
         self.fc7 = nn.Linear(16, 2)
 
@@ -257,9 +263,9 @@ def main():
     )
 
     # Training loop
-    batch_size_data = 96
+    batch_size_data = 444
     train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-    epochs = 900
+    epochs = 750
     val_losses = []
     min_val_loss = float('inf')
 
@@ -284,6 +290,8 @@ def main():
 
         update_loss_label(loss_label, epoch + 1, val_loss.item(), min_val_loss)
         if val_loss.item() < min_val_loss:
+            if torch.isnan(val_loss):
+                quit()
             min_val_loss = val_loss.item()
         scheduler.step(val_loss.item())
 
