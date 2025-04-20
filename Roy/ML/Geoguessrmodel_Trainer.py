@@ -271,7 +271,7 @@ scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
     patience=8,
-    factor=0.5,
+    factor=0.95,
     threshold=0.01,
     threshold_mode='rel', 
     verbose=True
@@ -280,9 +280,9 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 512
+batch_size_data = 16
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 1000
+epochs = 200
 losses = []
 val_losses = []
 min_val_loss = 1e8
@@ -345,6 +345,11 @@ print('Finished Training')
 final_val_loss = val_losses[-1]
 final_val_loss = int(np.round(final_val_loss, 0))
 name = f'geo_predictor_nn_{epochs}e_{batch_size_data}b_{final_val_loss}k'
+#check if the model already exists
+if os.path.exists(f'Roy/ML/Saved_Models/{name}.pth'):
+    name = f'geo_predictor_nn_{epochs}e_{batch_size_data}b_{final_val_loss}k_{int(time.time())}'
+    print(f"Model {name} already exists, saving with a timestamp.")
+
 print(f"Saving model as {name}")
 torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/{name}.pth')
 
