@@ -266,12 +266,12 @@ def haversine_loss(coords1, coords2):
     return distance.mean()
 
 criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=8e-5, amsgrad=True)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=5e-5, amsgrad=True)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
-    patience=8,
-    factor=0.9,
+    patience=5,
+    factor=0.95,
     threshold=0.01,
     threshold_mode='rel', 
     verbose=True
@@ -282,7 +282,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 501
+epochs = 1000
 losses = []
 val_losses = []
 min_val_loss = 1e8
