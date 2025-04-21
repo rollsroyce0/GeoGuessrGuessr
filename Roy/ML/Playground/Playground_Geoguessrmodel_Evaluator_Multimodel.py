@@ -99,7 +99,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load and preprocess images once
-    testtype = 'Game' #'Validation' or 'Game' or 'Verification'
+    testtype = 'Verification' #'Validation' or 'Game' or 'Verification' or 'Super'
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
 
@@ -107,14 +107,18 @@ if __name__ == '__main__':
     real_coords_Game = np.array([[59.2642, 10.4276], [1.4855, 103.8676], [54.9927, -1.6732], [19.4745, -99.1974], [58.6133, 49.6275]])
     real_coords_Valid = np.array([[43.3219114, -5.5783907], [23.0376137, 72.5819308], [55.9300025, -3.2678762], [51.9187417, 4.4957128], [40.6000729, -74.3125485]])
     real_coords_Verification = np.array([[48.1787242,16.4149478], [39.3544037,-76.4284282], [12.6545729,77.4269159], [53.5361597,-113.470894], [65.9408919,12.2171864]])
+    real_coords_Super = np.array([[47.0676173,12.5318788], [45.8186432,-63.4844332], [41.8610051,12.5368213], [-6.3320979,106.8518361], [35.6061998,-77.3731937]])
+    
     if testtype == 'Game':
         real_coords = real_coords_Game
     elif testtype == 'Validation':
         real_coords = real_coords_Valid
     elif testtype == 'Verification':
         real_coords = real_coords_Verification
+    elif testtype == 'Super':
+        real_coords = real_coords_Super
     else:
-        raise ValueError("Invalid test type. Choose 'Game', 'Validation', or 'Verification'.")
+        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification'.")
     
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
@@ -163,6 +167,19 @@ if __name__ == '__main__':
         results = sorted(results, key=lambda x: x[1], reverse=True)[:3]
         print(f"{fname}: {total_pts} pts")
 
+    print("Top 3 models:")
+    for i, (fname, total_pts, preds) in enumerate(results):
+        print(f"{i+1}: {fname} - {total_pts} pts")
+        #print(preds)
+    # Save the testtype and the best three models to a file
+    # Check if the file exists, if not create it
+    if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}.txt'):
+        with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'w') as f:
+            f.write("Best models for each test type:\n")
+    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'a') as f:
+        
+        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}\n")
+    
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
 
@@ -179,7 +196,7 @@ if __name__ == '__main__':
     errors = np.sort(errors, axis=0)[:-10] # Remove the 10 highest errors or each individual image disregarding model order
     points_backup = np.sort(points_backup, axis=0)[:10]
     difficulty_scores = np.std(errors, axis=0) + 0.4*np.mean(errors, axis=0) # Add the mean to the std to get a more accurate score
-    print("Errors:", errors)
+    #print("Errors:", errors)
     print("Difficulty scores:", difficulty_scores)
     # Normalize these on a scale 0-10, where an std dev of 2500 would be a difficulty of 10 and 0 would be 0. However this is not a linear scale, so we will use a logarithmic scale.
     # We will use a base of 10, so that 10^0 = 1 and 10^1 = 10. This means that a difficulty of 0 would be 0 and a difficulty of 10 would be 10.
@@ -200,7 +217,13 @@ if __name__ == '__main__':
         # remove any duplicate lines (it is a duplicate, if the first 5 characters are the same)
     with open(f'Roy/Test_Images/Difficulty_scores.txt', 'r') as f:
         lines = f.readlines()
-    lines = list(dict.fromkeys(lines)) # remove duplicates
+    
+    # remove duplicates by checking the first 5 characters of each line
+    seen = set()
+    lines = [line for line in lines if not (line[:5] in seen or seen.add(line[:5]))]
+    
+    # write the lines back to the file
+    
     with open(f'Roy/Test_Images/Difficulty_scores.txt', 'w') as f:
         f.writelines(lines)
 
