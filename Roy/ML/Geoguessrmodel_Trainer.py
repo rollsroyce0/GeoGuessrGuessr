@@ -263,10 +263,11 @@ def haversine_loss(coords1, coords2):
     a = torch.sin(dlat/2)**2 + torch.cos(lat1) * torch.cos(lat2) * torch.sin(dlon/2)**2
     c = 2 * torch.arcsin(torch.sqrt(a))
     distance = 6371.01 * c
+    distance = distance
     return distance.mean()
 
 criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=5e-5, amsgrad=True)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=4e-5, amsgrad=True)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
@@ -280,7 +281,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 256
+batch_size_data = 64
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
 epochs = 1000
 losses = []

@@ -1,2 +1,3 @@
 Best models for each test type:
 Verification: geo_predictor_nn_500e_64b_988k.pth, geo_predictor_nn_1000e_256b_916k.pth, geo_predictor_nn_1000e_256b_878k.pth
+Verification: geo_predictor_nn_500e_64b_988k.pth, geo_predictor_nn_1000e_256b_916k.pth, geo_predictor_nn_1000e_300b_988k.pth

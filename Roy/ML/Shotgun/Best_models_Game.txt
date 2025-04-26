@@ -1,0 +1,2 @@
+Best models for each test type:
+Game: geo_predictor_nn_100e_256b_1126k.pth, geo_predictor_nn_100e_256b_1132k.pth, geo_predictor_nn_100e_256b_1190k.pth

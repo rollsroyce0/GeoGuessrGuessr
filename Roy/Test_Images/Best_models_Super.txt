@@ -1,3 +1,6 @@
 Best models for each test type:
 Super: geo_predictor_nn_1111e_256b_870k.pth, geo_predictor_nn_1200e_64b_947k.pth, geo_predictor_nn_750e_444b_860k.pth
 Super: geo_predictor_nn_1111e_256b_870k.pth, geo_predictor_nn_1200e_64b_947k.pth, geo_predictor_nn_750e_444b_860k.pth
+Super: geo_predictor_nn_1111e_256b_870k.pth, geo_predictor_nn_1200e_64b_947k.pth, geo_predictor_nn_750e_444b_860k.pth
+Super: geo_predictor_nn_1111e_256b_870k.pth, geo_predictor_nn_1200e_64b_947k.pth, geo_predictor_nn_750e_444b_860k.pth
+Super: geo_predictor_nn_1111e_256b_870k.pth, geo_predictor_nn_1200e_64b_947k.pth, geo_predictor_nn_750e_444b_860k.pth

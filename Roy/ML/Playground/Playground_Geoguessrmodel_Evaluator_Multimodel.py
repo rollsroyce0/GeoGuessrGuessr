@@ -93,13 +93,13 @@ def plot_coordinates_on_map(pred, real, backups, path):
     mlat = (lat_max - lat_min)*0.5+2; mlon = (lon_max - lon_min)*0.5+2
     plt.xlim(lon_min-mlon, lon_max+mlon); plt.ylim(lat_min-mlat, lat_max+mlat)
     plt.title(f"Map: {os.path.basename(path)}"); plt.xlabel('Lon'); plt.ylabel('Lat')
-    plt.legend(); plt.show(block=False); plt.pause(1); plt.close()
+    plt.legend(); plt.show()
 
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load and preprocess images once
-    testtype = 'Verification' #'Validation' or 'Game' or 'Verification' or 'Super'
+    testtype = 'Super' #'Validation' or 'Game' or 'Verification' or 'Super'
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
 
