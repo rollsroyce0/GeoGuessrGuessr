@@ -161,7 +161,7 @@ print(f"Embeddings shape: {embeddings.shape}")
 coordinates = np.array([extract_coordinates(path) for path in image_paths])
 X_train, X_test, y_train, y_test = train_test_split(
     embeddings, coordinates,
-    test_size=4000/embeddings.shape[0],
+    test_size=6000/embeddings.shape[0],
     shuffle=True,
     random_state=0
 )
@@ -267,7 +267,7 @@ def haversine_loss(coords1, coords2):
     return distance.mean()
 
 criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=4e-5, amsgrad=True)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=5e-5, amsgrad=True)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
@@ -281,9 +281,9 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 64
+batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 1000
+epochs = 2000
 losses = []
 val_losses = []
 min_val_loss = 1e8

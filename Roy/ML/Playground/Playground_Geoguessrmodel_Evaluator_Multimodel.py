@@ -93,13 +93,17 @@ def plot_coordinates_on_map(pred, real, backups, path):
     mlat = (lat_max - lat_min)*0.5+2; mlon = (lon_max - lon_min)*0.5+2
     plt.xlim(lon_min-mlon, lon_max+mlon); plt.ylim(lat_min-mlat, lat_max+mlat)
     plt.title(f"Map: {os.path.basename(path)}"); plt.xlabel('Lon'); plt.ylabel('Lat')
-    plt.legend(); plt.show()
+    plt.legend(); plt.show(block=False); plt.pause(0.1)
+    plt.close()
 
-if __name__ == '__main__':
+def main(testtype=None):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load and preprocess images once
-    testtype = 'Super' #'Validation' or 'Game' or 'Verification' or 'Super'
+    if testtype is None:
+        testtype = input("Enter test type (Game, Validation, Super, Verification): ")
+    if testtype not in ['Game', 'Validation', 'Super', 'Verification']:
+        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification'.")
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
 
@@ -165,7 +169,7 @@ if __name__ == '__main__':
         full_results.append((fname, total_pts, preds.tolist()))
         # Sort results by total points in descending order and keep the top 3 models
         results = sorted(results, key=lambda x: x[1], reverse=True)[:3]
-        print(f"{fname}: {total_pts} pts")
+        #print(f"{fname}: {total_pts} pts")
 
     print("Top 3 models:")
     for i, (fname, total_pts, preds) in enumerate(results):
@@ -174,10 +178,22 @@ if __name__ == '__main__':
     # Save the testtype and the best three models to a file
     # Check if the file exists, if not create it
     if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}.txt'):
-        with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'w') as f:
-            f.write("Best models for each test type:\n")
-    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'a') as f:
+        # Throw an error if the file does not exist
+        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}.txt does not exist")
+    # remove all text from the file
+    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'r+') as f:
+        #one=1
+        # remove everything from the file
+        f.truncate(0)
+    
         
+    
+    
+    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'a') as f:
+        #one=1
+        # remove everything from the file
+        
+        f.write("Best models for each test type:\n")
         f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}\n")
     
     backups = list(zip(*[r[2] for r in results]))
@@ -185,8 +201,6 @@ if __name__ == '__main__':
 
     final_errs = haversine_batch(real_coords, avg_preds)
     final_pts = [geoguessr_points(e) for e in final_errs]
-    for i, err in enumerate(final_errs):
-        print(f"Final error for {i}: {err} km")
     print("Final points for each image:", final_pts)
     print("Final total:", sum(final_pts))
     print("Highest points for each image:", highest_points)
@@ -231,3 +245,15 @@ if __name__ == '__main__':
         plot_coordinates_on_map(avg_preds[i], real_coords[i], backups[i], path)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
+
+
+if __name__ == "__main__":
+    start_time = time.time()
+    testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    if testtype == 'All':
+        for testtype in ['Game', 'Validation', 'Super', 'Verification']:
+            main(testtype)
+    else:
+        main(testtype)
+        #main() # Uncomment this line to run the main function without any arguments and accept user input
+    print(f"Execution time: {time.time() - start_time} seconds")
