@@ -1,34 +1,43 @@
 import os
-from collections import Counter
+from collections import defaultdict
 
 # Path to the folder containing .txt files
 folder_path = 'Roy/Test_Images'
 
-# Initialize a Counter to count model occurrences
-model_counter = Counter()
+# Initialize a dictionary to accumulate model scores
+model_scores = defaultdict(int)
 
 # Iterate through all files in the folder
 for file_name in os.listdir(folder_path):
     if file_name.endswith('.txt') and not file_name.startswith('Difficulty'):
         file_path = os.path.join(folder_path, file_name)
         with open(file_path, 'r') as file:
-            # Read each line and update the counter
-            unique_models = set()
             for line in file:
-                # Extract models from the line
                 models = line.split(':')[1].strip().split(', ')
-                # Add models to the set to remove duplicates within the file
-                # remove the : entry from the list of models
-                models = [model for model in models if model != '']
+                models = [model for model in models if model]  # remove empty entries
                 
-                unique_models.update(models)
-            # Update the counter with unique models
-            for model in unique_models:
-                model_counter[model] += 1
-# Print the count of each model
-highest_count = max(model_counter.values())
+                for idx, model in enumerate(models):
+                    if idx == 0:
+                        model_scores[model] += 10
+                    elif idx == 1:
+                        model_scores[model] += 8
+                    elif idx == 2:
+                        model_scores[model] += 5
+                    elif idx == 3:
+                        model_scores[model] += 3
+                    elif idx == 4:
+                        model_scores[model] += 2
+                    else:
+                        model_scores[model] += 1
 
-print("Models with the highest count:")
-for model, count in model_counter.items():
-    if count == highest_count:
-        print(f"{model}: {count} times")
+# Find the 3 highest scores
+highest_scores = sorted(model_scores.values(), reverse=True)[:3]
+print("Top 3 scores:")
+print(highest_scores)
+
+print("Models with the highest score:")
+print("leaderboard = [")
+for model, score in model_scores.items():
+    if score in highest_scores:
+        print(f"    ['{model}', {score}],")
+print("]")

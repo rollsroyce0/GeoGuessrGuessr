@@ -101,9 +101,9 @@ def main(testtype=None):
 
     # Load and preprocess images once
     if testtype is None:
-        testtype = input("Enter test type (Game, Validation, Super, Verification): ")
-    if testtype not in ['Game', 'Validation', 'Super', 'Verification']:
-        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification'.")
+        testtype = input("Enter test type (Game, Validation, Super, Verification, Ultra, Extreme, Chrome): ")
+    if testtype not in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task']:
+        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', 'Ultra', or any other.")
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
 
@@ -112,6 +112,11 @@ def main(testtype=None):
     real_coords_Valid = np.array([[43.3219114, -5.5783907], [23.0376137, 72.5819308], [55.9300025, -3.2678762], [51.9187417, 4.4957128], [40.6000729, -74.3125485]])
     real_coords_Verification = np.array([[48.1787242,16.4149478], [39.3544037,-76.4284282], [12.6545729,77.4269159], [53.5361597,-113.470894], [65.9408919,12.2171864]])
     real_coords_Super = np.array([[47.0676173,12.5318788], [45.8186432,-63.4844332], [41.8610051,12.5368213], [-6.3320979,106.8518361], [35.6061998,-77.3731937]])
+    real_coords_Ultra = np.array([[45.5097937,27.8273201], [41.71066,-93.7363551], [-31.387591,-57.9646316], [-37.8980561,144.626041], [54.3667423,-6.7718667]])
+    real_coords_Extreme = np.array([[8.6521503,81.0067919], [46.2477428,-80.4337085], [60.3055298,56.971439], [40.8337969,-74.0825815], [43.1914376,17.3801763]])
+    real_coords_Chrome = np.array([[34.5230872,-86.9699949], [52.2929603,4.6668573], [52.585936,-0.2501907], [32.5221938,-82.9127378], [39.7692443,30.5314142]])
+    real_coords_World = np.array([[-6.8146562,-38.6533882], [12.1391977,-68.9490383], [59.4227739,15.8038038], [51.5529906,-0.4758671], [14.3329551,99.6477487]])
+    real_coords_Task = np.array([[34.2468633,-82.2092303], [49.935202,5.4581067], [43.9435807,12.4477353], [48.08332,-0.6451421], [53.3559593,55.9645235]])
     
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -121,8 +126,18 @@ def main(testtype=None):
         real_coords = real_coords_Verification
     elif testtype == 'Super':
         real_coords = real_coords_Super
+    elif testtype == 'Ultra':
+        real_coords = real_coords_Ultra
+    elif testtype == 'Extreme':
+        real_coords = real_coords_Extreme
+    elif testtype == 'Chrome':
+        real_coords = real_coords_Chrome
+    elif testtype == 'World':
+        real_coords = real_coords_World
+    elif testtype == 'Task':
+        real_coords = real_coords_Task
     else:
-        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification'.")
+        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification', or 'Ultra', or 'Extreme', or 'Chrome', or 'World', or 'Task'.")
     
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
@@ -168,10 +183,10 @@ def main(testtype=None):
         results.append((fname, total_pts, preds.tolist()))
         full_results.append((fname, total_pts, preds.tolist()))
         # Sort results by total points in descending order and keep the top 3 models
-        results = sorted(results, key=lambda x: x[1], reverse=True)[:3]
+        results = sorted(results, key=lambda x: x[1], reverse=True)[:7]
         #print(f"{fname}: {total_pts} pts")
 
-    print("Top 3 models:")
+    print(f"Top 7 models for {testtype}:")
     for i, (fname, total_pts, preds) in enumerate(results):
         print(f"{i+1}: {fname} - {total_pts} pts")
         #print(preds)
@@ -193,8 +208,8 @@ def main(testtype=None):
         #one=1
         # remove everything from the file
         
-        f.write("Best models for each test type:\n")
-        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}\n")
+        f.write("Best 7 models for each test type:\n")
+        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}, {results[3][0]}, {results[4][0]}, {results[5][0]}, {results[6][0]}\n")
     
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
@@ -245,13 +260,15 @@ def main(testtype=None):
         plot_coordinates_on_map(avg_preds[i], real_coords[i], backups[i], path)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
+    return results, full_results, total_points_backup, errors, difficulty_scores
 
 
 if __name__ == "__main__":
     start_time = time.time()
     testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     if testtype == 'All':
-        for testtype in ['Game', 'Validation', 'Super', 'Verification']:
+        for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task']:
+            print("\n----------------------------------------------------------------------\n")
             main(testtype)
     else:
         main(testtype)
