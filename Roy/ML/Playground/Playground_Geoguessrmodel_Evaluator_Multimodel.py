@@ -235,6 +235,7 @@ def main(testtype=None):
     
     difficulty_scores = np.log10(difficulty_scores/1000 + 1) * 13
     difficulty_scores = np.clip(difficulty_scores, 0, 10)
+    difficulty_scores = difficulty_scores**2
     difficulty_scores = np.round(difficulty_scores, 3)
     print("Difficulty scores normalized:", difficulty_scores)
     print("Difficulty scores for each image:", difficulty_scores)

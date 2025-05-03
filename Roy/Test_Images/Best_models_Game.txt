@@ -1,2 +1,2 @@
 Best 7 models for each test type:
-Game: geo_predictor_nn_500e_64b_959k.pth, geo_predictor_nn_3000e_256b_932k.pth, geo_predictor_nn_1000e_256b_874k.pth, geo_predictor_nn_1000e_256b_916k.pth, geo_predictor_nn_3000e_256b_913k.pth, geo_predictor_nn_3000e_256b_939k.pth, geo_predictor_nn_3000e_64b_970k.pth
+Game: geo_predictor_nn_500e_64b_959k.pth, geo_predictor_nn_499e_256b_957k.pth, geo_predictor_nn_3000e_256b_932k.pth, geo_predictor_nn_1000e_256b_874k.pth, geo_predictor_nn_1000e_256b_916k.pth, geo_predictor_nn_3000e_256b_913k.pth, geo_predictor_nn_3000e_256b_939k.pth
