@@ -1,2 +1,2 @@
-Best 7 models for each test type:
-Chrome: geo_predictor_nn_1500e_256b_971k.pth, geo_predictor_nn_1000e_64b_1028k.pth, geo_predictor_nn_800e_64b_924k.pth, geo_predictor_nn_3000e_64b_970k.pth, geo_predictor_nn_750e_444b_869k.pth, geo_predictor_nn_499e_256b_975k.pth, geo_predictor_nn_1100e_256b_1492k.pth
+Best 10 models for each test type:
+Chrome: geo_predictor_nn_1500e_256b_971k.pth, geo_predictor_nn_1000e_64b_1028k.pth, geo_predictor_nn_800e_64b_924k.pth, geo_predictor_nn_3000e_64b_970k.pth, geo_predictor_nn_750e_444b_869k.pth, geo_predictor_nn_555e_64b_1012k.pth, geo_predictor_nn_601e_256b_931k.pth, geo_predictor_nn_499e_256b_975k.pth, geo_predictor_nn_1100e_256b_1492k.pth, geo_predictor_nn_500e_64b_973k.pth

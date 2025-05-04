@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Google: geo_predictor_nn_500e_64b_973k.pth, geo_predictor_nn_501e_256b_1525k.pth, geo_predictor_nn_1000e_256b_916k.pth, geo_predictor_nn_501e_256b_949k.pth, geo_predictor_nn_500e_69b_951k.pth, geo_predictor_nn_1000e_256b_1081k.pth, geo_predictor_nn_1000e_256b_874k.pth, geo_predictor_nn_499e_256b_957k.pth, geo_predictor_nn_500e_256b_936k.pth, geo_predictor_nn_555e_256b_991k.pth

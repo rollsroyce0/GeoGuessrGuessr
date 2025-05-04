@@ -102,7 +102,7 @@ def main(testtype=None):
     # Load and preprocess images once
     if testtype is None:
         testtype = input("Enter test type (Game, Validation, Super, Verification, Ultra, Extreme, Chrome): ")
-    if testtype not in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task', 'Enlarged', 'Exam']:
+    if testtype not in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
         raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', 'Ultra', or any other.")
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
@@ -119,6 +119,7 @@ def main(testtype=None):
     real_coords_Task = np.array([[34.2468633,-82.2092303], [49.935202,5.4581067], [43.9435807,12.4477353], [48.08332,-0.6451421], [53.3559593,55.9645235]])
     real_coords_Enlarged = np.array([[-34.8295223,-58.8707693], [40.4369798,-3.6859228], [-54.1257734,-68.0709486], [48.9828428,12.6387341], [45.9312686,-82.4707373]])
     real_coords_Exam = np.array([[-4.1237242,-38.3705862], [40.1161881,-75.1248975], [35.1362241,136.7419345], [41.6557297,-91.5466424], [-47.0777189,-72.1646972]])
+    real_coords_Google = np.array([[59.407269,15.415694], [52.5644145,-110.8206357], [-36.8700509,174.6481411], [37.9270951,-122.53026], [28.6397445,77.2929918]])
     
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -142,6 +143,8 @@ def main(testtype=None):
         real_coords = real_coords_Enlarged
     elif testtype == 'Exam':
         real_coords = real_coords_Exam
+    elif testtype == 'Google':
+        real_coords = real_coords_Google
     else:
         raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification', or 'Ultra', or 'Extreme', or 'Chrome', or 'World', or 'Task', or 'Enlarged', or 'Exam'.")
     
@@ -189,10 +192,10 @@ def main(testtype=None):
         results.append((fname, total_pts, preds.tolist()))
         full_results.append((fname, total_pts, preds.tolist()))
         # Sort results by total points in descending order and keep the top 3 models
-        results = sorted(results, key=lambda x: x[1], reverse=True)[:7]
+        results = sorted(results, key=lambda x: x[1], reverse=True)[:10]
         #print(f"{fname}: {total_pts} pts")
 
-    print(f"Top 7 models for {testtype}:")
+    print(f"Top 10 models for {testtype}:")
     for i, (fname, total_pts, preds) in enumerate(results):
         print(f"{i+1}: {fname} - {total_pts} pts")
         #print(preds)
@@ -206,16 +209,14 @@ def main(testtype=None):
         #one=1
         # remove everything from the file
         f.truncate(0)
-    
-        
-    
+
     
     with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'a') as f:
         #one=1
         # remove everything from the file
         
-        f.write("Best 7 models for each test type:\n")
-        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}, {results[3][0]}, {results[4][0]}, {results[5][0]}, {results[6][0]}\n")
+        f.write("Best 10 models for each test type:\n")
+        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}, {results[3][0]}, {results[4][0]}, {results[5][0]}, {results[6][0]}, {results[7][0]}, {results[8][0]}, {results[9][0]}\n")
     
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
@@ -247,6 +248,8 @@ def main(testtype=None):
     print("Difficulty scores for each image:", difficulty_scores)
     print("Average difficulty score of this round:", np.round(np.mean(difficulty_scores), 3))
     # add the average difficutly score for the test type to a file
+    if np.mean(difficulty_scores) == np.nan:
+        difficulty_scores = 100
     with open(f'Roy/Test_Images/Difficulty_scores.txt', 'a') as f:
         f.write(f"{testtype}: {np.round(np.mean(difficulty_scores), 3)}, Highest: {np.round(np.max(difficulty_scores), 3)}, Lowest: {np.round(np.min(difficulty_scores), 3)}\n")
         
@@ -274,7 +277,7 @@ if __name__ == "__main__":
     start_time = time.time()
     testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     if testtype == 'All':
-        for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task', 'Enlarged', 'Exam']:
+        for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
             print("\n----------------------------------------------------------------------\n")
             main(testtype)
     else:

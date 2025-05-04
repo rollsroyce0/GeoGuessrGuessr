@@ -1,2 +1,2 @@
-Best 7 models for each test type:
-Ultra: geo_predictor_nn_500e_256b_899k.pth, geo_predictor_nn_500e_64b_973k.pth, geo_predictor_nn_3000e_256b_913k.pth, geo_predictor_nn_1000e_256b_947k.pth, geo_predictor_nn_3000e_256b_932k.pth, geo_predictor_nn_800e_64b_1021k.pth, geo_predictor_nn_1111e_256b_876k.pth
+Best 10 models for each test type:
+Ultra: geo_predictor_nn_500e_256b_899k.pth, geo_predictor_nn_401e_256b_980k.pth, geo_predictor_nn_500e_64b_973k.pth, geo_predictor_nn_601e_256b_978k.pth, geo_predictor_nn_3000e_256b_913k.pth, geo_predictor_nn_1000e_256b_947k.pth, geo_predictor_nn_3000e_256b_932k.pth, geo_predictor_nn_800e_64b_1021k.pth, geo_predictor_nn_1111e_256b_876k.pth, geo_predictor_nn_666e_256b_965k.pth

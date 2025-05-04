@@ -206,7 +206,7 @@ class GeoPredictorNN(nn.Module):
         self.fc6 = nn.Linear(32, 16)
         self.batch_norm6 = nn.BatchNorm1d(16)
         self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.1)
+        #self.dropout6 = nn.Dropout(0.1)
         
         self.fc7 = nn.Linear(16, 2)
 
@@ -240,7 +240,7 @@ class GeoPredictorNN(nn.Module):
         x = self.fc6(x)
         x = self.batch_norm6(x)
         x = self.gelu6(x)
-        x = self.dropout6(x)
+        #x = self.dropout6(x)
         
         x = self.fc7(x)
         return x
@@ -267,7 +267,7 @@ def haversine_loss(coords1, coords2):
     return distance.mean()
 
 criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=5e-5, amsgrad=True)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=8e-5, amsgrad=True)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
@@ -281,12 +281,12 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 64
+batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 501
+epochs = 1200
 losses = []
 val_losses = []
-min_val_loss = 1e8
+min_val_loss = 1e5
 counter = 0
 
 for epoch in track(range(epochs), description="Training the model..."):
