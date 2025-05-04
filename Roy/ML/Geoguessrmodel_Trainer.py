@@ -178,7 +178,7 @@ class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
         self.fc1 = nn.Linear(2048, 1024)
-        self.dropout0 = nn.Dropout(0.2)
+        #self.dropout0 = nn.Dropout(0.2)
         self.batch_norm1 = nn.BatchNorm1d(1024)
         self.gelu1 = nn.GELU()
         self.dropout1 = nn.Dropout(0.2)
@@ -212,7 +212,7 @@ class GeoPredictorNN(nn.Module):
 
     def forward(self, x):
         x = self.fc1(x)
-        x = self.dropout0(x)
+        #x = self.dropout0(x)
         x = self.batch_norm1(x)
         x = self.gelu1(x)
         x = self.dropout1(x)
