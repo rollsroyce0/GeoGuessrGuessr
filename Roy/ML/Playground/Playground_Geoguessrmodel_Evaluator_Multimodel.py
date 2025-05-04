@@ -102,7 +102,7 @@ def main(testtype=None):
     # Load and preprocess images once
     if testtype is None:
         testtype = input("Enter test type (Game, Validation, Super, Verification, Ultra, Extreme, Chrome): ")
-    if testtype not in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task']:
+    if testtype not in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task', 'Enlarged', 'Exam']:
         raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', 'Ultra', or any other.")
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
@@ -117,6 +117,8 @@ def main(testtype=None):
     real_coords_Chrome = np.array([[34.5230872,-86.9699949], [52.2929603,4.6668573], [52.585936,-0.2501907], [32.5221938,-82.9127378], [39.7692443,30.5314142]])
     real_coords_World = np.array([[-6.8146562,-38.6533882], [12.1391977,-68.9490383], [59.4227739,15.8038038], [51.5529906,-0.4758671], [14.3329551,99.6477487]])
     real_coords_Task = np.array([[34.2468633,-82.2092303], [49.935202,5.4581067], [43.9435807,12.4477353], [48.08332,-0.6451421], [53.3559593,55.9645235]])
+    real_coords_Enlarged = np.array([[-34.8295223,-58.8707693], [40.4369798,-3.6859228], [-54.1257734,-68.0709486], [48.9828428,12.6387341], [45.9312686,-82.4707373]])
+    real_coords_Exam = np.array([[-4.1237242,-38.3705862], [40.1161881,-75.1248975], [35.1362241,136.7419345], [41.6557297,-91.5466424], [-47.0777189,-72.1646972]])
     
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -136,8 +138,12 @@ def main(testtype=None):
         real_coords = real_coords_World
     elif testtype == 'Task':
         real_coords = real_coords_Task
+    elif testtype == 'Enlarged':
+        real_coords = real_coords_Enlarged
+    elif testtype == 'Exam':
+        real_coords = real_coords_Exam
     else:
-        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification', or 'Ultra', or 'Extreme', or 'Chrome', or 'World', or 'Task'.")
+        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification', or 'Ultra', or 'Extreme', or 'Chrome', or 'World', or 'Task', or 'Enlarged', or 'Exam'.")
     
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
@@ -268,7 +274,7 @@ if __name__ == "__main__":
     start_time = time.time()
     testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     if testtype == 'All':
-        for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task']:
+        for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task', 'Enlarged', 'Exam']:
             print("\n----------------------------------------------------------------------\n")
             main(testtype)
     else:

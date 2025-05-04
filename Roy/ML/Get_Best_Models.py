@@ -18,9 +18,9 @@ for file_name in os.listdir(folder_path):
                 
                 for idx, model in enumerate(models):
                     if idx == 0:
-                        model_scores[model] += 6
+                        model_scores[model] += 10
                     elif idx == 1:
-                        model_scores[model] += 5
+                        model_scores[model] += 7
                     elif idx == 2:
                         model_scores[model] += 5
                     elif idx == 3:

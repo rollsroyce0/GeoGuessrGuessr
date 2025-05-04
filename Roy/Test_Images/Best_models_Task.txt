@@ -1,2 +1,2 @@
 Best 7 models for each test type:
-Task: geo_predictor_nn_1000e_256b_874k.pth, geo_predictor_nn_1200e_256b_881k.pth, geo_predictor_nn_1000e_300b_988k.pth, geo_predictor_nn_1000e_200b_983k.pth, geo_predictor_nn_1000e_512b_856k.pth, geo_predictor_nn_800e_64b_924k.pth, geo_predictor_nn_500e_64b_926k.pth
+Task: geo_predictor_nn_1000e_256b_874k.pth, geo_predictor_nn_1200e_256b_881k.pth, geo_predictor_nn_1000e_300b_988k.pth, geo_predictor_nn_1000e_200b_983k.pth, geo_predictor_nn_1000e_512b_856k.pth, geo_predictor_nn_501e_64b_1005k.pth, geo_predictor_nn_800e_64b_924k.pth

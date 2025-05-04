@@ -7,3 +7,5 @@ Ultra: 41.871, Highest: 100.0, Lowest: 2.966
 Extreme: 26.119, Highest: 60.151, Lowest: 2.768
 Chrome: 17.225, Highest: 41.515, Lowest: 1.774
 World: 38.091, Highest: 100.0, Lowest: 0.833
+Enlarged: nan, Highest: nan, Lowest: nan
+Exam: 26.719, Highest: 73.894, Lowest: 1.347
