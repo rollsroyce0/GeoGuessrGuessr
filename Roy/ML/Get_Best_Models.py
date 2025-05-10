@@ -10,15 +10,18 @@ model_scores = defaultdict(int)
 # Iterate through all files in the folder
 for file_name in os.listdir(folder_path):
     if file_name.endswith('.txt') and not file_name.startswith('Difficulty'):
-        if file_name == 'Best_overall_models.txt':
+        if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords.txt':
             continue
         file_path = os.path.join(folder_path, file_name)
         with open(file_path, 'r') as file:
             for line in file:
                 models = line.split(':')[1].strip().split(', ')
+                
                 models = [model for model in models if model]  # remove empty entries
                 
                 for idx, model in enumerate(models):
+                    if not model.startswith('geo'):
+                        continue
                     if idx == 0:
                         model_scores[model] += 25
                     elif idx == 1:
