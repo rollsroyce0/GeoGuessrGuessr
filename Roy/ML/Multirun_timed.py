@@ -33,3 +33,9 @@ for i in range(total_runs_possible):
         print("Time limit reached. Stopping the script after ", i, " runs.")
         break
     print("------------------------------------------------------------------------------")
+
+# Evaluation time
+with open('Roy/ML/Playground/Playground_Geoguessrmodel_Evaluator_Multimodel_silent.py') as f:
+        exec(f.read())
+with open('Roy/ML/Get_Best_Models.py') as f:
+        exec(f.read())
