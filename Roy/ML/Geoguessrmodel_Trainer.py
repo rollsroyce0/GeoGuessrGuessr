@@ -161,7 +161,7 @@ print(f"Embeddings shape: {embeddings.shape}")
 coordinates = np.array([extract_coordinates(path) for path in image_paths])
 X_train, X_test, y_train, y_test = train_test_split(
     embeddings, coordinates,
-    test_size=6000/embeddings.shape[0],
+    test_size=2000/embeddings.shape[0],
     shuffle=True,
     random_state=0
 )
@@ -281,9 +281,9 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 128
+batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 250
+epochs = 511
 losses = []
 val_losses = []
 min_val_loss = 1e5
@@ -314,7 +314,8 @@ for epoch in track(range(epochs), description="Training the model..."):
         outputs = geo_predictor(embeddings_batch)
         loss = criterion(outputs, coords_batch)
         if torch.isnan(loss):
-            print("Loss is NaN, skipping this batch...")
+            print(f"Loss is NaN, skipping this batch... at epoch {epoch}")
+            epoch = epochs-1
             continue
         loss.backward()
         optimizer.step()
@@ -366,7 +367,7 @@ plt.ylabel('Loss')
 plt.grid()
 plt.legend(['Training Loss', 'Validation Loss'])
 plt.show(block=False)
-plt.pause(4)
+plt.pause(2)
 plt.close()
 
 #######################################
@@ -406,7 +407,7 @@ def evaluate_nn_model(X_test, y_test, geo_predictor):
     plt.xlabel('Distance Error (km)')
     plt.ylabel('Frequency')
     plt.show(block=False)
-    plt.pause(4)
+    plt.pause(2)
     plt.close()
     return np.mean(distances), distances
 
@@ -432,7 +433,7 @@ plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
 plt.show(block=False)
-plt.pause(4)
+plt.pause(2)
 plt.close()
 
 indices = np.argsort(haversine_distances)[:100]
@@ -454,8 +455,10 @@ plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
 plt.show(block=False)
-plt.pause(4)
+plt.pause(2)
 plt.close()
 
 # Optionally, when everything is done, you can close the popout window:
-loss_root.quit()
+loss_root.destroy()
+# Note: The popout window will remain open until you close it manually or the script ends. 
+
