@@ -1,4 +1,4 @@
-for i in range(5):
+for i in range(2):
     with open('Roy/ML/Geoguessrmodel_Trainer_silent.py') as f:
         exec(f.read())
         print("------------------------------------------------------------------------------")

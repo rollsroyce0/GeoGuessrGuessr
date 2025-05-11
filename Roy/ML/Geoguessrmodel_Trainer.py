@@ -459,6 +459,6 @@ plt.pause(2)
 plt.close()
 
 # Optionally, when everything is done, you can close the popout window:
-loss_root.destroy()
+loss_root.quit()
 # Note: The popout window will remain open until you close it manually or the script ends. 
 
