@@ -7,7 +7,8 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import time
 import warnings
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import mean_squared_error
 import joblib
@@ -77,7 +78,10 @@ def main(testtype):
         'Extreme':    [[8.6522,81.0068],[46.2477,-80.4337],[60.3055,56.9714],[40.8338,-74.0826],[43.1914,17.3802]],
         'Chrome':     [[34.5231,-86.9700],[52.2930,4.6669],[52.5859,-0.2502],[32.5222,-82.9127],[39.7692,30.5314]],
         'World':      [[-6.8147,-38.6534],[12.1392,-68.9490],[59.4228,15.8038],[51.5530,-0.4759],[14.3330,99.6477]],
-        'Task':       [[34.2469,-82.2092],[49.9352,5.4581],[43.9436,12.4477],[48.0833,-0.6451],[53.3560,55.9645]]
+        'Task':       [[34.2469,-82.2092],[49.9352,5.4581],[43.9436,12.4477],[48.0833,-0.6451],[53.3560,55.9645]],
+        'Enlarged':   [[-34.8295223,-58.8707693], [40.4369798,-3.6859228], [-54.1257734,-68.0709486], [48.9828428,12.6387341], [45.9312686,-82.4707373]],
+        'Exam':       [[-4.1237242,-38.3705862], [40.1161881,-75.1248975], [35.1362241,136.7419345], [41.6557297,-91.5466424], [-47.0777189,-72.1646972]],
+        'Google':    [[59.407269,15.415694], [52.5644145,-110.8206357], [-36.8700509,174.6481411], [37.9270951,-122.53026], [28.6397445,77.2929918]]
     }
 
     real_coords = np.array(real_coords_dict[testtype])
@@ -100,12 +104,13 @@ def main(testtype):
         model_preds.append((fname, p))
     return real_coords, model_preds
 
-# -------- Meta Training --------
+# -------- Meta Training with Gaussian Process --------
 def train_meta_model():
     feats, targets, names = [], [], []
-    for tt in ['Game','Super','Verification','Ultra','Extreme','Chrome','World','Task']:
+    splits = ['Game','Super','Verification','Ultra','Extreme','Chrome','World','Task', 'Google', 'Enlarged', 'Exam']
+    for tt in splits:
         real_coords, preds = main(tt)
-        for mid, (fname,p) in enumerate(preds):
+        for mid, (fname, p) in enumerate(preds):
             for idx in range(len(real_coords)):
                 feats.append([p[idx,0], p[idx,1], mid, idx])
                 targets.append(real_coords[idx])
@@ -118,12 +123,15 @@ def train_meta_model():
     X = np.hstack([np.array(feats), name_enc])
     y = np.array(targets)
 
-    # Use Random Forests for non-linear meta-model
-    rf = RandomForestRegressor(n_estimators=100, random_state=0)
-    rf.fit(X, y)
-    joblib.dump((rf, enc), 'Roy/ML/Saved_Models/meta_model.pkl')
-    print("Meta-model (RF) trained and saved.")
-    return rf, enc
+    # Gaussian Process with RBF kernel
+    print("Training meta-model (Gaussian Process)...")
+    kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2))
+    gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=2, alpha=1e-2, normalize_y=True)
+    gp.fit(X, y)
+
+    joblib.dump((gp, enc), 'Roy/ML/Saved_Models/meta_model_gaussian.pkl')
+    print("Meta-model (Gaussian Process) trained and saved.")
+    return gp, enc
 
 # -------- Predict with Meta Model --------
 def predict_coords(meta, enc, model_preds):
@@ -153,7 +161,7 @@ if __name__ == "__main__":
     rf_meta, encoder = train_meta_model()
 
     # Evaluate on one split
-    testtype = 'Validation'  # Change this to 'Game', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', or 'Task'
+    testtype = 'Validation'  # Change this to 'Game', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task', 'Google', 'Enlarged', 'Exam'
     real_coords, preds = main(testtype)
     pred_coords = predict_coords(rf_meta, encoder, preds)
     
