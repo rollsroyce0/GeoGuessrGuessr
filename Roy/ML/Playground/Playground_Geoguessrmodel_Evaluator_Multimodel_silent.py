@@ -258,16 +258,23 @@ def main(testtype=None):
 
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return results, full_results, total_points_backup, errors, difficulty_scores
+    return sum(final_pts), sum(highest_points), sum(difficulty_scores)
 
 
 if __name__ == "__main__":
     start_time = time.time()
     testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    final_scores = []
     if testtype == 'All':
         for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
             print("\n----------------------------------------------------------------------\n")
-            main(testtype)
+            #print(f"Running test for {testtype}...")
+            final_score, highest_score, difficulty_score = main(testtype)
+            final_scores.append((testtype, final_score, highest_score, difficulty_score))
+        print("\nFinal scores for all test types:")
+        for testtype, final_score, highest_score, difficulty_score in final_scores:
+            print(f"{testtype}: {final_score}, Highest: {highest_score}, Difficulty: {difficulty_score}")
+            
     else:
         main(testtype)
         #main() # Uncomment this line to run the main function without any arguments and accept user input

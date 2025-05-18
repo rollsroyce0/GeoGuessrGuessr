@@ -29,12 +29,32 @@ OCEAN_BOXES = {
     "Indian_S": (-35.2, -30.0, 32.0, 114.0),
 
     # Polar seas
-    "Arctic": (70.0, 90.0, -180.0, 180.0),
-    "Southern": (-90.0, -60.0, -180.0, 180.0),
+    "Arctic": (70.0, 190.0, -180.0, 180.0),
+    "Southern": (-190.0, -60.0, -180.0, 180.0),
 }
 EXCEPTIONS = {
-    # Land exceptions to keep (e.g., islands)
-    "Hawaii": (18.9, 22.25, -160.25, -154.8),
+    # Only those island groups whose boxes overlap the current OCEAN_BOXES
+    "Hawaii": (18.9, 22.3, -160.3, -154.8),
+    "Galápagos Islands": (-1.6, 1.667, -92.0167, -89.2667),
+    "Pitcairn Islands": (-25.0667, -23.9267, -130.7372, -124.7864),
+    "Northern Mariana Islands": (14.9, 18.2, 145.6, 147.1),
+    "American Samoa": (-13.35, -11.0, -172.8, -169.19),
+    "Bonin Islands": (24.1, 27.1, 142.0, 142.3),
+    "Vanuatu": (-20.0, -13.0, 166.0, 171.0),
+    "Maldives": (-0.7, 7.2, 72.5, 73.7),
+    "British Indian Ocean Territory": (-7.3, -5.4, 71.3, 72.6),
+    "Azores": (36.9, 39.7, -31.5, -24.4),
+    "Madeira Islands": (32.4, 33.15, -17.3, -16.2),
+    "Canary Islands": (27.6, 29.5, -18.3, -13.3),
+    "South Georgia and the South Sandwich Islands": (-59.5, -53.0, -38.0, -26.0),
+    #"Greenland": (59.0, 83.0, -74.0, -11.0),
+    "Svalbard": (76.0, 81.0, 10.0, 35.0),
+    #"Japan (main islands & Ogasawara)": (24.0, 46.0, 122.0, 146.0),
+    "Cabo Verde": (14.8, 17.2, -25.4, -22.6),
+    "Bermuda": (32.2, 32.5, -64.9, -64.5),
+    "Seychelles": (-9.7, 4.6, 46.2, 55.4),
+    "Mauritius": (-20.8, -19.8, 56.8, 57.9),
+    "Réunion":(-21.5, -20.8, 55.0, 55.8),
 }
 
 # Margins in degrees
@@ -73,75 +93,76 @@ def is_in_ocean(lat, lon):
 
 def snap_point(lat, lon, depth=0):
     """
-    Find the closest point outside the ocean box by sampling
-    10 points on each edge plus four corners, and return it directly.
+    Snap (lat, lon) out of any ocean box by sampling:
+      - 10 points on each edge + 4 corners of its ocean box
+      - plus the 10-per-side samples + 4 corners of the three closest exception boxes
+    Returns the nearest candidate that's not in any ocean box.
     """
+    # helper to get box center
+    def center(box):
+        y0, y1, x0, x1 = box
+        return ((y0+y1)/2, (x0+x1)/2)
+
     ocean = is_in_ocean(lat, lon)
     if ocean is None:
         return lat, lon
+
+    # gather candidates from the ocean box
     y0, y1, x0, x1 = OCEAN_BOXES[ocean]
     candidates = []
-    # sample 10 points per edge
-    n_points = 3
+    n_points = 100
     for i in range(n_points):
-        t = i / (n_points)
-        # bottom, top, left, right
+        t = i / (n_points - 1)
+        # bottom, top, left, right edges
         candidates += [
-            (y0 - LAT_MARGIN, x0 + t*(x1-x0)+LON_MARGIN), # bottom
-            (y1 + LAT_MARGIN, x0 + t*(x1-x0)+LON_MARGIN), # top
-            (y0 + t*(y1-y0)+LAT_MARGIN, x0 - LON_MARGIN), # left
-            (y0 + t*(y1-y0)+LAT_MARGIN, x1 + LON_MARGIN), # right
+            (y0 - LAT_MARGIN, x0 + t*(x1-x0)),
+            (y1 + LAT_MARGIN, x0 + t*(x1-x0)),
+            (y0 + t*(y1-y0), x0 - LON_MARGIN),
+            (y0 + t*(y1-y0), x1 + LON_MARGIN),
         ]
-    # corners
+    # four corners
     candidates += [
-        (y0 - LAT_MARGIN, x0 - LON_MARGIN), # bottom left
-        (y0 - LAT_MARGIN, x1 + LON_MARGIN), # bottom right
-        (y1 + LAT_MARGIN, x0 - LON_MARGIN), # top left
-        (y1 + LAT_MARGIN, x1 + LON_MARGIN), # top right
+        (y0 - LAT_MARGIN, x0 - LON_MARGIN),
+        (y0 - LAT_MARGIN, x1 + LON_MARGIN),
+        (y1 + LAT_MARGIN, x0 - LON_MARGIN),
+        (y1 + LAT_MARGIN, x1 + LON_MARGIN),
     ]
-    # choose nearest
-    #print(f"Snapping depth {depth} for ({lat}, {lon})")
-    print(f"Candidates: {candidates}")
-    # sort the candidates by distance
+
+    # now include the three closest exception boxes
+    # compute distances to each exception center
+    ex_dists = []
+    for key, (ey0, ey1, ex0, ex1) in EXCEPTIONS.items():
+        cy, cx = center((ey0, ey1, ex0, ex1))
+        ex_dists.append(((ey0, ey1, ex0, ex1), (cy-lat)**2 + (cx-lon)**2))
+    ex_dists.sort(key=lambda e: e[1])
+    n_points = int(n_points /10)
+    #print(f"Exception distances: {ex_dists}")
+    for box, _ in ex_dists[:3]:
+        ey0, ey1, ex0, ex1 = box
+        # sample its edges + corners
+        
+        for i in range(n_points):
+            t = i / (n_points - 1)
+            candidates += [
+                (ey0 + LAT_MARGIN, ex0 + t*(ex1-ex0)), # bottom
+                (ey1 - LAT_MARGIN, ex0 + t*(ex1-ex0)), # top
+                (ey0 + t*(ey1-ey0), ex0 + LON_MARGIN), # left
+                (ey0 + t*(ey1-ey0), ex1 - LON_MARGIN), # right
+            ]
+        candidates += [
+            (ey0 + LAT_MARGIN, ex0 + LON_MARGIN), # bottom left
+            (ey0 + LAT_MARGIN, ex1 - LON_MARGIN), # bottom right
+            (ey1 - LAT_MARGIN, ex0 + LON_MARGIN), # top left
+            (ey1 - LAT_MARGIN, ex1 - LON_MARGIN), # top right
+        ]
+
+    # sort by distance from original lat/lon
     candidates.sort(key=lambda c: (c[0]-lat)**2 + (c[1]-lon)**2)
-    # find the first candidate that is not in ocean
-    for c in candidates:
-        if is_in_ocean(c[0], c[1]) is None:
-            new_lat, new_lon = c
-            break
-    
-    # plot all the candidates
-    fig = plt.figure(figsize=(14,7))
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_global()
-    ax.coastlines()
-    ax.add_feature(cfeature.LAND, facecolor='lightgray')
-    ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
-    # draw boxes
-    for y0, y1, x0, x1 in OCEAN_BOXES.values():
-        rect = patches.Rectangle((x0, y0), x1-x0, y1-y0,
-                                 transform=ccrs.PlateCarree(), alpha=0.3)
-        ax.add_patch(rect)
-    # draw exceptions
-    for ey0, ey1, ex0, ex1 in EXCEPTIONS.values():
-        rect = patches.Rectangle((ex0, ey0), ex1-ex0, ey1-ey0,
-                                 transform=ccrs.PlateCarree(), edgecolor='red', facecolor='red', alpha=0.3)
-        ax.add_patch(rect)
-    # plot snapping path
-    ax.plot(lon, lat, 'ro', transform=ccrs.PlateCarree())
-    ax.plot(new_lon, new_lat, 'go', transform=ccrs.PlateCarree())
-    for (olat, olon), (nlat, nlon) in zip(candidates, candidates[1:]):
-        nlat, nlon = lat, lon
-        ax.plot(olon, olat, 'ro', transform=ccrs.PlateCarree())
-        ax.arrow(olon, olat, nlon-olon, nlat-olat,
-                 transform=ccrs.PlateCarree(), head_width=1, length_includes_head=True)
-    # start and end markers
-    ax.plot(lon, lat, 'go', transform=ccrs.PlateCarree(), label='Start')
-    ax.plot(new_lon, new_lat, 'k*', transform=ccrs.PlateCarree(), label='End')
-    ax.legend()
-    plt.title('Ocean Snapper')
-    plt.show()
-    return new_lat, new_lon
+    for ny, nx in candidates:
+        if is_in_ocean(ny, nx) is None:
+            return ny, nx
+    return lat, lon
+
 
 
 def snap_progress(lat, lon, depth2=0):
@@ -165,37 +186,15 @@ def snap_progress(lat, lon, depth2=0):
 
 if __name__ == '__main__':
     # Example usage: visualize progress
-    start = (-35, -20)  # Example coordinates
+    import random
+    # Randomly generate a point in the ocean
+    lat = random.uniform(-90, 90)
+    lon = random.uniform(-180, 180)
+    start = (lat, lon)
+    start = (-14,72)
     path = snap_progress(*start)
     
     print("Snapping path:")
     for lat, lon in path:
         print(f"({lat}, {lon})")
 
-    fig = plt.figure(figsize=(14,7))
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_global()
-    ax.coastlines()
-    ax.add_feature(cfeature.LAND, facecolor='lightgray')
-    ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
-    # draw boxes
-    for y0, y1, x0, x1 in OCEAN_BOXES.values():
-        rect = patches.Rectangle((x0, y0), x1-x0, y1-y0,
-                                 transform=ccrs.PlateCarree(), alpha=0.3)
-        ax.add_patch(rect)
-    # draw exceptions
-    for ey0, ey1, ex0, ex1 in EXCEPTIONS.values():
-        rect = patches.Rectangle((ex0, ey0), ex1-ex0, ey1-ey0,
-                                 transform=ccrs.PlateCarree(), edgecolor='red', facecolor='red', alpha=0.3)
-        ax.add_patch(rect)
-    # plot snapping path
-    for (olat, olon), (nlat, nlon) in zip(path, path[1:]):
-        ax.plot(olon, olat, 'ro', transform=ccrs.PlateCarree())
-        ax.arrow(olon, olat, nlon-olon, nlat-olat,
-                 transform=ccrs.PlateCarree(), head_width=1, length_includes_head=True)
-    # start and end markers
-    ax.plot(start[1], start[0], 'go', transform=ccrs.PlateCarree(), label='Start')
-    ax.plot(path[-1][1], path[-1][0], 'k*', transform=ccrs.PlateCarree(), label='End')
-    ax.legend()
-    plt.title('Ocean Snapper Progress')
-    plt.show()
