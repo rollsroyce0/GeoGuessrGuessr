@@ -60,7 +60,7 @@ avg_epoch = 0
 avg_error = 0
 counter = 0
 for model, score in model_scores.items():
-    score= score**3
+    score= score**1.5
     #disect the model name
     model_names = model.split('_')
     model_name = model_names[0]+'_' + model_names[1]+'_' + model_names[2]
