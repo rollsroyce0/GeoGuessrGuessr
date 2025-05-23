@@ -93,7 +93,7 @@ def plot_coordinates_on_map(pred, real, backups, path):
     mlat = (lat_max - lat_min)*0.5+2; mlon = (lon_max - lon_min)*0.5+2
     plt.xlim(lon_min-mlon, lon_max+mlon); plt.ylim(lat_min-mlat, lat_max+mlat)
     plt.title(f"Map: {os.path.basename(path)}"); plt.xlabel('Lon'); plt.ylabel('Lat')
-    plt.legend(); plt.show(block=False); plt.pause(0.1)
+    plt.legend(); plt.show(block=False); plt.pause(10)
     plt.close()
 
 def main(testtype=None):
@@ -119,8 +119,7 @@ def main(testtype=None):
     real_coords_Task = np.array([[34.2468633,-82.2092303], [49.935202,5.4581067], [43.9435807,12.4477353], [48.08332,-0.6451421], [53.3559593,55.9645235]])
     real_coords_Enlarged = np.array([[-34.8295223,-58.8707693], [40.4369798,-3.6859228], [-54.1257734,-68.0709486], [48.9828428,12.6387341], [45.9312686,-82.4707373]])
     real_coords_Exam = np.array([[-4.1237242,-38.3705862], [40.1161881,-75.1248975], [35.1362241,136.7419345], [41.6557297,-91.5466424], [-47.0777189,-72.1646972]])
-    real_coords_Google = np.array([[59.407269,15.415694], [52.5644145,-110.8206357], [-36.8700509,174.6481411], [37.9270951,-122.53026], [28.6397445,77.2929918]])
-    
+    real_coords_Google = np.array([[59.407269,15.415694], [52.5644145,-110.8206357], [-36.8700509,174.6481411], [37.9270951,-122.53026], [28.6397445,77.2929918]])   
     if testtype == 'Game':
         real_coords = real_coords_Game
     elif testtype == 'Validation':
