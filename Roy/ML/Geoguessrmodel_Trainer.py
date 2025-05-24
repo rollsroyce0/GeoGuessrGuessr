@@ -283,7 +283,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 511
+epochs = 525
 losses = []
 val_losses = []
 min_val_loss = 1e5
@@ -459,6 +459,6 @@ plt.pause(2)
 plt.close()
 
 # Optionally, when everything is done, you can close the popout window:
-loss_root.destroy()
+loss_root.quit()
 # Note: The popout window will remain open until you close it manually or the script ends. 
 

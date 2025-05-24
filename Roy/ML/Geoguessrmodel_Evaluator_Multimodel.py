@@ -93,7 +93,7 @@ def plot_coordinates_on_map(pred, real, backups, path):
     mlat = (lat_max - lat_min)*0.5+2; mlon = (lon_max - lon_min)*0.5+2
     plt.xlim(lon_min-mlon, lon_max+mlon); plt.ylim(lat_min-mlat, lat_max+mlat)
     plt.title(f"Map: {os.path.basename(path)}"); plt.xlabel('Lon'); plt.ylabel('Lat')
-    plt.legend(); plt.show(block=False); plt.pause(0.1)
+    plt.legend(); plt.show(block=False); plt.pause(5)
     plt.close()
 
 def main(testtype=None):
@@ -283,7 +283,7 @@ def main(testtype=None):
 
 if __name__ == "__main__":
     start_time = time.time()
-    testtype = 'Google' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    testtype = 'Game' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     if testtype == 'All':
         for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
             print("\n----------------------------------------------------------------------\n")

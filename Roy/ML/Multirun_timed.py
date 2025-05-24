@@ -5,6 +5,14 @@ print("Starting the script...")
 print("How much time should the code run for?")
 timelmt = input("Enter the time limit in the following format 1h15m30s: ")
 
+# if any of the h/m/s are missing, add them as 0
+if 'h' not in timelmt:
+    timelmt = '0h' + timelmt
+if 'm' not in timelmt:
+    timelmt = timelmt.split('h')[0] + '0m' + timelmt.split('h')[1]
+if 's' not in timelmt:
+    timelmt = timelmt + '0s'
+
 timelmt = time.strptime(timelmt, '%Hh%Mm%Ss')
 print("Time limit in seconds: ", timelmt.tm_hour * 3600 + timelmt.tm_min * 60 + timelmt.tm_sec)
 timelmt = timelmt.tm_hour * 3600 + timelmt.tm_min * 60 + timelmt.tm_sec

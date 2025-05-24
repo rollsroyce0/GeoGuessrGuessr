@@ -10,6 +10,22 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
+global list_of_maps
+list_of_maps = ['Game',
+                'Validation',
+                'Super',
+                'Verification',
+                'Ultra',
+                'Extreme',
+                'Chrome',
+                'World',
+                'Task',
+                'Enlarged',
+                'Exam',
+                'Google',
+                'Zurich',
+                'Moscow']
+
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
     def __init__(self):
@@ -84,7 +100,7 @@ def main(testtype=None):
     # Load and preprocess images once
     if testtype is None:
         testtype = input("Enter test type (Game, Validation, Super, Verification, Ultra, Extreme, Chrome): ")
-    if testtype not in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
+    if testtype not in list_of_maps:
         raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', 'Ultra', or any other.")
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
@@ -102,6 +118,8 @@ def main(testtype=None):
     real_coords_Enlarged = np.array([[-34.8295223,-58.8707693], [40.4369798,-3.6859228], [-54.1257734,-68.0709486], [48.9828428,12.6387341], [45.9312686,-82.4707373]])
     real_coords_Exam = np.array([[-4.1237242,-38.3705862], [40.1161881,-75.1248975], [35.1362241,136.7419345], [41.6557297,-91.5466424], [-47.0777189,-72.1646972]])
     real_coords_Google = np.array([[59.407269,15.415694], [52.5644145,-110.8206357], [-36.8700509,174.6481411], [37.9270951,-122.53026], [28.6397445,77.2929918]])
+    real_coords_Zurich = np.array([[29.9590073,-95.3911924], [62.6314057,23.6289403], [34.9733313,-84.0203661], [4.3001312,117.8594655], [55.7862947,-3.9229578]])
+    real_coords_Moscow = np.array([[-34.5218991,-58.5366628], [51.2135105,45.9190967], [53.1024139,-6.0640463], [37.715336,126.7597928], [47.5224219,-111.2700033]])
     
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -127,8 +145,12 @@ def main(testtype=None):
         real_coords = real_coords_Exam
     elif testtype == 'Google':
         real_coords = real_coords_Google
+    elif testtype == 'Zurich':
+        real_coords = real_coords_Zurich
+    elif testtype == 'Moscow':
+        real_coords = real_coords_Moscow
     else:
-        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification', or 'Ultra', or 'Extreme', or 'Chrome', or 'World', or 'Task', or 'Enlarged', or 'Exam'.")
+        raise ValueError("Invalid test type. Choose a valid one from the list.")
     
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
@@ -258,16 +280,23 @@ def main(testtype=None):
 
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return results, full_results, total_points_backup, errors, difficulty_scores
+    return sum(final_pts), sum(highest_points), sum(difficulty_scores)
 
 
 if __name__ == "__main__":
     start_time = time.time()
     testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    final_scores = []
     if testtype == 'All':
-        for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
+        for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
-            main(testtype)
+            #print(f"Running test for {testtype}...")
+            final_score, highest_score, difficulty_score = main(testtype)
+            final_scores.append((testtype, final_score, highest_score, difficulty_score))
+        print("\nFinal scores for all test types:")
+        for testtype, final_score, highest_score, difficulty_score in final_scores:
+            print(f"{testtype}: {final_score}, Highest: {highest_score}, Difficulty: {difficulty_score}")
+            
     else:
         main(testtype)
         #main() # Uncomment this line to run the main function without any arguments and accept user input

@@ -159,12 +159,13 @@ def haversine(coord1, coord2):
     return R * c
 
 # Visualization: Plot predicted coordinates on the world map
-def plot_coordinates_on_map(predicted_coords, image_path):
+def plot_coordinates_on_map(predicted_coords, image_path, real_coords):
     plt.figure(figsize=(10, 8))
     world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
     world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
 
     plt.scatter(predicted_coords[1], predicted_coords[0], color='red', label='Predicted Location', s=100)
+    plt.scatter(real_coords[1], real_coords[0], color='blue', label='Real Location', s=100)
     plt.title(f'Predicted Coordinates on the World Map for the Image {image_path}')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
@@ -181,7 +182,7 @@ if __name__ == "__main__":
 
     # Load the saved model weights
     geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
-    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_952k.pth', map_location=device))
+    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_502e_232b_941k.pth', map_location=device))
     # currently best model: geo_predictor_nn_500e_64b_926k.pth at 14987 points
     
     real_coordinates = np.array([[59.2641988, 10.4276279],
@@ -191,6 +192,11 @@ if __name__ == "__main__":
                                   [58.6133469, 49.6274857]])
     counter = 0
     errors = []
+    preds = np.array([[59.2641988, 10.4276279],
+                                  [1.4855156, 103.8675691],
+                                  [54.9926562, -1.6732242],
+                                  [19.4744679, -99.1973953],
+                                  [58.6133469, 49.6274857]])
     for image_path in os.listdir('Roy/Test_Images'):
         
         if not image_path.endswith('.jpg'):
@@ -205,7 +211,7 @@ if __name__ == "__main__":
         # Predict the coordinates
         predicted_coords = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
         print(f"Predicted Coordinates: Latitude: {predicted_coords[0]}, Longitude: {predicted_coords[1]}")
-        
+        preds[counter] = predicted_coords
         # Calculate the error
         error = haversine(real_coordinates[counter], predicted_coords)
         errors.append(error)
@@ -216,14 +222,31 @@ if __name__ == "__main__":
         #webbrowser.open_new_tab(url)
         
         # Plot the predicted coordinates on the world map
-        plot_coordinates_on_map(predicted_coords, image_path)
+        plot_coordinates_on_map(predicted_coords, image_path, real_coordinates[counter-1])
 
-    
+    #print(preds)
+    preds = np.array(preds)
     # Print the average error
     avg_error = np.mean(errors)
     print(f"Average Error: {avg_error} km")
+    med_error = np.median(errors)
+    print(f"Median Error: {med_error} km")
     # Print the maximum error
     max_error = np.max(errors)
+    
+    # Plot all points with real points and predicted points and arrow between them
+    plt.figure(figsize=(10, 8))
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')   
+    for i in range(len(real_coordinates)):
+        plt.scatter(real_coordinates[i][1], real_coordinates[i][0], color='blue', label='Real Location', s=100)
+        plt.scatter(preds[i][1], preds[i][0], color='red', label='Predicted Location', s=100)
+        plt.plot([real_coordinates[i][1], preds[i][1]], [real_coordinates[i][0], preds[i][0]], color='green', linestyle='--')
+    plt.title('Predicted Coordinates on the World Map')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.legend()
+    plt.show()
     
     # points
     total = 0
