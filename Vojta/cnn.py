@@ -10,7 +10,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from rich.progress import track
+from torch.nn import L1Loss, MSELoss
 from torchvision import models, transforms
+from torchvision.transforms import v2
 from torchvision.io import decode_image
 from torchsummary import summary
 import geopy.distance
@@ -23,10 +25,13 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 warnings.filterwarnings("ignore")
 
+loss_label = None
+
 #######################################
 # Tkinter Popout Window for Val Loss  #
 #######################################
 def create_loss_window():
+    global loss_label
     root = tk.Tk()
     root.title("Latest Validation Loss")
     large_font = font.Font(family="Helvetica", size=72, weight="bold")
@@ -57,13 +62,14 @@ print(f"Using device: {device}")
 class StreetviewDataset(Dataset):
     def __init__(self, location):
         self.location = location
+
         # self.image_paths = [img_file for img_file in os.listdir(self.location)]
         # self.coordinates = torch.stack([self.extract_coordinates(path) for path in self.image_paths])
 
         # self.transform = transforms.Compose([
         #     transforms.Resize((256, 256)),
-        #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-        #                          std=[0.229, 0.224, 0.225])
+        #     # transforms.Normalize(mean=[0.485, 0.456, 0.406],
+        #     #                      std=[0.229, 0.224, 0.225])
         # ])
 
         # self.images = torch.stack([self.transform(decode_image(self.location + self.image_paths[idx]).float()) for idx in track(range(len(self.coordinates)), description="Loading images... ")])
@@ -89,28 +95,42 @@ class StreetviewDataset(Dataset):
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.c1 = torch.nn.Conv2d(3, 6, 9, 2)
-        self.c2 = torch.nn.Conv2d(6, 12, 7)
-        self.c3 = torch.nn.Conv2d(12, 24, 5)
-        self.c4 = torch.nn.Conv2d(24, 48, 3, 2)
+        self.c1 = torch.nn.Conv2d(3, 12, 9, 2)
+        self.c2 = torch.nn.Conv2d(12, 48, 7)
+        self.c3 = torch.nn.Conv2d(48, 96, 5)
 
-        self.batch_norm = torch.nn.BatchNorm2d(3)
+        self.b1 = torch.nn.BatchNorm2d(3)
+        self.b2 = torch.nn.BatchNorm2d(12)
+        self.b3 = torch.nn.BatchNorm2d(48)
+
+        self.d = torch.nn.Dropout(0.3)
+        self.d2 = torch.nn.Dropout2d(0.3)
 
         self.pool = torch.nn.MaxPool2d(2)
         
         self.r = torch.nn.ReLU()
+        self.sig = torch.nn.Sigmoid()
 
-        self.f = torch.nn.Linear(3*256*256, 2)
+        self.f1 = torch.nn.Linear(37632, 256)
+        self.f2 = torch.nn.Linear(256, 2)
 
     def forward(self, x):
-        # x = self.batch_norm(x)
+        x = self.b1(x)
 
-        # x = self.r(self.pool(self.c1(x)))
-        # x = self.r(self.pool(self.c2(x)))
+        x = self.pool(self.c1(x))
+        x = self.b2(x)
+        x = self.d2(x)
+        x = self.pool(self.c2(x))
+        x = self.b3(x)
+        x = self.d2(x)
         # x = self.r(self.pool(self.c3(x)))
         # x = self.r(self.pool(self.c4(x)))
+
+        x = self.f1(x.flatten(start_dim=1))
+        x = self.d(x)
+        x = self.f2(self.r(x))
         
-        return self.f(x.flatten(start_dim=1))
+        return x
 
 #######################################
 # Define Haversine Loss and Optimizer   #
@@ -141,24 +161,28 @@ geo_predictor.compile()
 location = "/home/TheSmilingTurtle/Downloads/Roy_Files/Pictures/"
 dataset = StreetviewDataset(location=location)
 
-train_dataset, test_dataset = torch.utils.data.random_split(dataset, [0.8, 0.2])
+train_dataset, test_dataset = torch.utils.data.random_split(dataset, [0.9, 0.1])
 
 haversine_loss = torch.compile(haversine_loss)
 geo_loss = torch.compile(geo_loss)
 
-batch_size_data = 2048
+transforms = v2.Compose([
+    v2.AutoAugment()
+])
+
+batch_size_data = 2000
 train_loader = DataLoader(train_dataset, batch_size=batch_size_data, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size_data, shuffle=True)
-criterion = haversine_loss
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=0.01, weight_decay=1e-4, amsgrad=True)
-# scheduler = ReduceLROnPlateau(
-#     optimizer,
-#     mode='min',
-#     patience=8,
-#     factor=0.97,
-#     threshold=0.01,
-#     threshold_mode='rel'
-# )
+criterion = MSELoss()
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1, weight_decay=1e-2, amsgrad=True)
+scheduler = ReduceLROnPlateau(
+    optimizer,
+    mode='min',
+    patience=8,
+    factor=0.98,
+    threshold=0.01,
+    threshold_mode='rel'
+)
 epochs = 10
 losses = []
 val_losses = []
@@ -172,7 +196,7 @@ for epoch in range(epochs):
     running_loss = 0.0
     for images, coords in track(train_loader, description="Training..."):
         optimizer.zero_grad()
-        outputs = geo_predictor(images)
+        outputs = geo_predictor(transforms(images))
         loss = criterion(outputs, coords)
         if loss.isnan:
             loss = criterion(outputs/1000, coords)
@@ -291,6 +315,19 @@ def evaluate_nn_model(geo_predictor):
     true_coords_smallest = y_test[indices]
     predicted_coords_smallest = y_pred[indices]
 
+    for X, y in test_loader:
+        plt.title(str(list(y[0].cpu().numpy())))
+        plt.imshow(X[0].cpu().numpy().transpose((1,2,0))/255)
+        plt.show()
+        plt.title(str(list(y[1].cpu().numpy())))
+        plt.imshow(X[1].cpu().numpy().transpose((1,2,0))/255)
+        plt.show()
+        plt.title(str(list(y[2].cpu().numpy())))
+        plt.imshow(X[2].cpu().numpy().transpose((1,2,0))/255)
+
+        break
+    plt.show()
+
     plt.figure(figsize=(10, 8))
     world = gpd.read_file(url)
     world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
@@ -307,6 +344,7 @@ def evaluate_nn_model(geo_predictor):
     plt.show()
 
     return np.mean(distances), distances
+
 
 geo_predictor.load_state_dict(torch.load(f'./Saved_Models/TMP/{name}.pth'))
 mean_haversine_distance_nn, haversine_distances = evaluate_nn_model(geo_predictor)
