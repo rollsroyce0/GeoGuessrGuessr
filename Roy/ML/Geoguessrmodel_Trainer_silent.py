@@ -222,6 +222,9 @@ class GeoPredictorNN(nn.Module):
 
 # Initialize the predictor model
 geo_predictor = GeoPredictorNN().to(device)
+# print a summary of the model
+from torchinfo import summary
+summary(geo_predictor, input_size=(1, 2048), device=device.type)
 
 #######################################
 # Define Haversine Loss and Optimizer   #

@@ -34,7 +34,7 @@ def create_loss_window():
 
 def update_loss_label(loss_label, epoch, new_loss, min_val_loss):
     points =np.floor(5000 * np.exp(-1*new_loss/2000))
-    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.4f} km\nLowest Loss: {min_val_loss:.4f} km\nGeoguessr Points: {int(points)}")
+    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.2f} km\nLowest Loss: {min_val_loss:.2f} km\nGeoguessr Points: {int(points)}")
     loss_label.update_idletasks()
 
 def launch_loss_window(window_ready_event):
@@ -174,110 +174,56 @@ y_test = torch.tensor(y_test).float().to(device)
 #######################################
 # Define the GeoPredictorNN Model       #
 #######################################
-class GeoPredictorNN(nn.Module):
-    def __init__(self):
-        super(GeoPredictorNN, self).__init__()
-        self.fc1 = nn.Linear(2048, 2048)
-        self.dropout0 = nn.Dropout(0.2)
-        self.batch_norm1 = nn.BatchNorm1d(2048)
-        self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.2)
-
-        self.fc2 = nn.Linear(2048, 1024)
-        self.batch_norm2 = nn.BatchNorm1d(1024)
-        self.gelu2 = nn.GELU()
-        self.dropout2 = nn.Dropout(0.2)
-
-        self.fc3 = nn.Linear(1024, 512)
-        self.batch_norm3 = nn.BatchNorm1d(512)
-        self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.2)
-
-        self.fc4 = nn.Linear(512, 256)
-        self.batch_norm4 = nn.BatchNorm1d(256)
-        self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.2)
-
-        self.fc5 = nn.Linear(256, 128)
-        self.batch_norm5 = nn.BatchNorm1d(128)
-        self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.2)
-
-        self.fc6 = nn.Linear(128, 64)
-        self.batch_norm6 = nn.BatchNorm1d(64)
-        self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.2)
-
-        self.fc7 = nn.Linear(64, 32)
-        self.batch_norm7 = nn.BatchNorm1d(32)
-        self.gelu7 = nn.GELU()
-        self.dropout7 = nn.Dropout(0.2)
-
-        self.fc8 = nn.Linear(32, 16)
-        self.batch_norm8 = nn.BatchNorm1d(16)
-        self.gelu8 = nn.GELU()
-        self.dropout8 = nn.Dropout(0.2)
-
-        self.fc9 = nn.Linear(16, 8)
-        self.batch_norm9 = nn.BatchNorm1d(8)
-        self.gelu9 = nn.GELU()
-        self.dropout9 = nn.Dropout(0.2)
-
-        self.fc10 = nn.Linear(8, 2)
+class ResidualMLPBlock(nn.Module):
+    """
+    A residual MLP block: Linear -> BatchNorm -> GELU -> Dropout
+    with optional identity or projection skip connection.
+    """
+    def __init__(self, in_features, out_features, dropout=0.2):
+        super().__init__()
+        self.linear = nn.Linear(in_features, out_features)
+        self.norm = nn.BatchNorm1d(out_features)
+        self.act = nn.GELU()
+        self.drop = nn.Dropout(dropout)
+        
+        # if dimensions differ, add projection for the residual
+        if in_features != out_features:
+            self.residual = nn.Linear(in_features, out_features)
+        else:
+            self.residual = nn.Identity()
 
     def forward(self, x):
-        x = self.fc1(x)
-        x = self.dropout0(x)
-        x = self.batch_norm1(x)
-        x = self.gelu1(x)
-        x = self.dropout1(x)
+        out = self.linear(x)
+        out = self.norm(out)
+        out = self.act(out)
+        out = self.drop(out)
+        # add skip connection
+        return out + self.residual(x)
 
-        x = self.fc2(x)
-        x = self.batch_norm2(x)
-        x = self.gelu2(x)
-        x = self.dropout2(x)
+class GeoPredictorNN(nn.Module):
+    def __init__(self, dims=None, dropout=0.2):
+        super().__init__()
+        # default layer dimensions if none provided
+        if dims is None:
+            dims = [2048, 1024, 1024, 768, 768, 512, 512, 256, 256, 128,
+                    128, 64, 64, 32, 32, 16, 16, 8, 8, 4, 2]
+        # build residual blocks
+        layers = []
+        for in_dim, out_dim in zip(dims[:-1], dims[1:]):
+            # final output layer: no norm/activation/dropout or residual
+            if out_dim == dims[-1]:
+                layers.append(nn.Linear(in_dim, out_dim))
+            else:
+                layers.append(ResidualMLPBlock(in_dim, out_dim, dropout))
+        self.model = nn.Sequential(*layers)
 
-        x = self.fc3(x)
-        x = self.batch_norm3(x)
-        x = self.gelu3(x)
-        x = self.dropout3(x)
-
-        x = self.fc4(x)
-        x = self.batch_norm4(x)
-        x = self.gelu4(x)
-        x = self.dropout4(x)
-
-        x = self.fc5(x)
-        x = self.batch_norm5(x)
-        x = self.gelu5(x)
-        x = self.dropout5(x)
-
-        x = self.fc6(x)
-        x = self.batch_norm6(x)
-        x = self.gelu6(x)
-        x = self.dropout6(x)
-
-        x = self.fc7(x)
-        x = self.batch_norm7(x)
-        x = self.gelu7(x)
-        x = self.dropout7(x)
-
-        x = self.fc8(x)
-        x = self.batch_norm8(x)
-        x = self.gelu8(x)
-        x = self.dropout8(x)
-
-        x = self.fc9(x)
-        x = self.batch_norm9(x)
-        x = self.gelu9(x)
-        x = self.dropout9(x)
-
-        x = self.fc10(x)
-
-        return x
-
+    def forward(self, x):
+        return self.model(x)
+    
 # Initialize the predictor model
 geo_predictor = GeoPredictorNN().to(device)
+from torchinfo import summary
+summary(geo_predictor, input_size=(1, 2048), device=device.type)
 
 #######################################
 # Define Haversine Loss and Optimizer   #
@@ -313,7 +259,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 batch_size_data = 64
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 500
+epochs = 20
 losses = []
 val_losses = []
 min_val_loss = 1e8
