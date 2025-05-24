@@ -174,7 +174,7 @@ batch_size_data = 2000
 train_loader = DataLoader(train_dataset, batch_size=batch_size_data, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size_data, shuffle=True)
 criterion = MSELoss()
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1, weight_decay=0.1, amsgrad=True)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1, weight_decay=1e-2, amsgrad=True)
 scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
