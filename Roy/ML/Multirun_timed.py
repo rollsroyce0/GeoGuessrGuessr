@@ -9,7 +9,7 @@ timelmt = input("Enter the time limit in the following format 1h15m30s: ")
 if 'h' not in timelmt:
     timelmt = '0h' + timelmt
 if 'm' not in timelmt:
-    timelmt = timelmt.split('h')[0] + '0m' + timelmt.split('h')[1]
+    timelmt = timelmt.split('h')[0] + 'h0m' + timelmt.split('h')[1]
 if 's' not in timelmt:
     timelmt = timelmt + '0s'
 
