@@ -19,3 +19,8 @@ combined_images
 
 #Nics gitignore
 **/temp_images/
+
+
+# Vojtas gitignore
+*.pth
+.idea/
