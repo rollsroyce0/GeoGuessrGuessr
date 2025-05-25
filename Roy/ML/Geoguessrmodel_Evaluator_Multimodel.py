@@ -11,6 +11,25 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
+global list_of_maps
+list_of_maps = ['Game',
+                'Validation',
+                'Super',
+                'Verification',
+                'Ultra',
+                'Extreme',
+                'Chrome',
+                'World',
+                'Task',
+                'Enlarged',
+                'Exam',
+                'Google',
+                'Zurich',
+                'Friends',
+                'Full',
+                'Entire',
+                'Moscow']
+
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
     def __init__(self):
@@ -102,7 +121,7 @@ def main(testtype=None):
     # Load and preprocess images once
     if testtype is None:
         testtype = input("Enter test type (Game, Validation, Super, Verification, Ultra, Extreme, Chrome): ")
-    if testtype not in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
+    if testtype not in list_of_maps:
         raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', 'Ultra', or any other.")
     images, img_paths = load_images('Roy/Test_Images', testtype)
     images = images.to(device)
@@ -120,6 +139,11 @@ def main(testtype=None):
     real_coords_Enlarged = np.array([[-34.8295223,-58.8707693], [40.4369798,-3.6859228], [-54.1257734,-68.0709486], [48.9828428,12.6387341], [45.9312686,-82.4707373]])
     real_coords_Exam = np.array([[-4.1237242,-38.3705862], [40.1161881,-75.1248975], [35.1362241,136.7419345], [41.6557297,-91.5466424], [-47.0777189,-72.1646972]])
     real_coords_Google = np.array([[59.407269,15.415694], [52.5644145,-110.8206357], [-36.8700509,174.6481411], [37.9270951,-122.53026], [28.6397445,77.2929918]])
+    real_coords_Zurich = np.array([[29.9590073,-95.3911924], [62.6314057,23.6289403], [34.9733313,-84.0203661], [4.3001312,117.8594655], [55.7862947,-3.9229578]])
+    real_coords_Moscow = np.array([[-34.5218991,-58.5366628], [51.2135105,45.9190967], [53.1024139,-6.0640463], [37.715336,126.7597928], [47.5224219,-111.2700033]])
+    real_coords_Friends = np.array([[38.9812844,-76.9781788], [59.871625,30.299387], [-1.5005364,29.621744], [59.0595843,-3.0761426], [1.7170285,103.4522982]])
+    real_coords_Full = np.array([[41.102985,40.7492832], [52.5649318,-0.2828335], [47.2318584,38.8684533], [41.8301262,-70.8728116], [23.11086,72.5172045]])
+    real_coords_Entire = np.array([[34.628853,136.5105634], [-22.1920816,-48.4043219], [51.073197,17.7593433], [36.575606,-79.8418298], [38.1897149,15.243788]])
     
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -145,9 +169,18 @@ def main(testtype=None):
         real_coords = real_coords_Exam
     elif testtype == 'Google':
         real_coords = real_coords_Google
+    elif testtype == 'Zurich':
+        real_coords = real_coords_Zurich
+    elif testtype == 'Moscow':
+        real_coords = real_coords_Moscow
+    elif testtype == 'Friends':
+        real_coords = real_coords_Friends
+    elif testtype == 'Full':
+        real_coords = real_coords_Full
+    elif testtype == 'Entire':
+        real_coords = real_coords_Entire
     else:
-        raise ValueError("Invalid test type. Choose 'Game', 'Validation', 'Super', or 'Verification', or 'Ultra', or 'Extreme', or 'Chrome', or 'World', or 'Task', or 'Enlarged', or 'Exam'.")
-    
+        raise ValueError("Invalid test type. Choose a valid one from the list.")
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
     embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
@@ -283,9 +316,9 @@ def main(testtype=None):
 
 if __name__ == "__main__":
     start_time = time.time()
-    testtype = 'Game' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    testtype = 'Full' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     if testtype == 'All':
-        for testtype in ['Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme','Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google']:
+        for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
             main(testtype)
     else:

@@ -26,6 +26,7 @@ list_of_maps = ['Game',
                 'Zurich',
                 'Friends',
                 'Full',
+                'Entire',
                 'Moscow']
 
 # Custom Model to generate embeddings
@@ -124,7 +125,7 @@ def main(testtype=None):
     real_coords_Moscow = np.array([[-34.5218991,-58.5366628], [51.2135105,45.9190967], [53.1024139,-6.0640463], [37.715336,126.7597928], [47.5224219,-111.2700033]])
     real_coords_Friends = np.array([[38.9812844,-76.9781788], [59.871625,30.299387], [-1.5005364,29.621744], [59.0595843,-3.0761426], [1.7170285,103.4522982]])
     real_coords_Full = np.array([[41.102985,40.7492832], [52.5649318,-0.2828335], [47.2318584,38.8684533], [41.8301262,-70.8728116], [23.11086,72.5172045]])
-    
+    real_coords_Entire = np.array([[34.628853,136.5105634], [-22.1920816,-48.4043219], [51.073197,17.7593433], [36.575606,-79.8418298], [38.1897149,15.243788]])
     
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -158,6 +159,8 @@ def main(testtype=None):
         real_coords = real_coords_Friends
     elif testtype == 'Full':
         real_coords = real_coords_Full
+    elif testtype == 'Entire':
+        real_coords = real_coords_Entire
     else:
         raise ValueError("Invalid test type. Choose a valid one from the list.")
     

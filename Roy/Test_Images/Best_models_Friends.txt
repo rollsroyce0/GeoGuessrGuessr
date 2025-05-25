@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Friends: geo_predictor_nn_402e_232b_1054k.pth, geo_predictor_nn_1000e_300b_988k.pth, geo_predictor_nn_505e_232b_970k.pth, geo_predictor_nn_500e_256b_908k.pth, geo_predictor_nn_501e_64b_994k.pth, geo_predictor_nn_601e_256b_999k.pth, geo_predictor_nn_502e_232b_955k.pth, geo_predictor_nn_302e_64b_1034k.pth, geo_predictor_nn_256e_256b_1080k.pth, geo_predictor_nn_400e_256b_984k.pth
