@@ -2,5 +2,4 @@ geo_embedding_model_r152_normal.pth
 *.pkl
 
 **/Checkpoint_Models_NN/
-**/TMP/
 **/Old_Naming_Style/
