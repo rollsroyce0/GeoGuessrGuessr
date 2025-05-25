@@ -96,41 +96,50 @@ class StreetviewDataset(Dataset):
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.c1 = torch.nn.Conv2d(3, 12, 9, 2)
-        self.c2 = torch.nn.Conv2d(12, 48, 7)
-        self.c3 = torch.nn.Conv2d(48, 96, 5)
+        # Four 3×3 conv blocks, doubling channels each time
+        self.features = nn.Sequential(
+            # Block 1: 3 → 32
+            nn.Conv2d(3, 32, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),          # 64×64 → 32×32
 
-        self.b1 = torch.nn.BatchNorm2d(3)
-        self.b2 = torch.nn.BatchNorm2d(12)
-        self.b3 = torch.nn.BatchNorm2d(48)
+            # Block 2: 32 → 64
+            nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),          # 32×32 → 16×16
 
-        self.d = torch.nn.Dropout(0.3)
-        self.d2 = torch.nn.Dropout2d(0.3)
+            # Block 3: 64 → 128
+            nn.Conv2d(64, 128, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),          # 16×16 → 8×8
 
-        self.pool = torch.nn.MaxPool2d(2)
-        
-        self.r = torch.nn.ReLU()
-        self.sig = torch.nn.Sigmoid()
+            # Block 4: 128 → 256
+            nn.Conv2d(128, 256, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),          # 8×8 → 4×4
+        )
 
-        self.f1 = torch.nn.Linear(768, 256)
-        self.f2 = torch.nn.Linear(256, 2)
+        # A little dropout to regularize
+        self.dropout = nn.Dropout(0.3)
+
+        # Two fully-connected layers for regression to (lat, lon)
+        # 256 channels × 4×4 spatial → 4096 features
+        self.regressor = nn.Sequential(
+            nn.Linear(256 * 4 * 4, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+            nn.Linear(512, 2)
+        )
 
     def forward(self, x):
-        x = self.b1(x)
-
-        x = self.pool(self.c1(x))
-        x = self.b2(x)
-        x = self.d2(x)
-        x = self.pool(self.c2(x))
-        x = self.b3(x)
-        x = self.d2(x)
-        # x = self.r(self.pool(self.c3(x)))
-        # x = self.r(self.pool(self.c4(x)))
-
-        x = self.f1(x.flatten(start_dim=1))
-        x = self.d(x)
-        x = self.f2(self.r(x))
-        
+        x = self.features(x)                     # → [B,256,4,4]
+        x = x.view(x.size(0), -1)                # → [B, 256*4*4]
+        x = self.dropout(x)
+        x = self.regressor(x)                    # → [B,2]
         return x
 
 #######################################
@@ -138,6 +147,9 @@ class GeoPredictorNN(nn.Module):
 #######################################
 def degrees_to_radians(deg):
     return deg * 0.017453292519943295
+
+def haversine_distance(coords1, coords2):
+    return geopy.distance.geodesic(coords1, coords2).kilometers
 
 def haversine_loss(coords1, coords2):
     lat1, lon1 = coords1[:, 0], coords1[:, 1]
@@ -153,6 +165,43 @@ def haversine_loss(coords1, coords2):
 def geo_loss(coords1, coords2):
     return torch.exp(-haversine_loss(coords1, coords2))
 
+def evaluate_nn_model_light(geo_predictor):
+
+    geo_predictor.eval()
+    y_pred = np.array([[]]).reshape(0,2)
+    y_test = np.array([[]]).reshape(0,2)
+    distances = np.array([]).reshape(0)
+    with torch.no_grad():
+        for X, y in test_loader:
+            predicted_coords = geo_predictor(X).cpu().numpy()
+
+            predicted_coords[:, 0] = (predicted_coords[:, 0] + 90) % 180 - 90
+            predicted_coords[:, 1] = (predicted_coords[:, 1] + 180) % 360 - 180
+
+            y_pred = np.append(y_pred, predicted_coords, axis=0)
+            y_test = np.append(y_test, y.cpu().numpy(), axis=0)
+
+            distances = np.append(distances, np.array([haversine_distance(y[i].cpu().numpy(), predicted_coords[i]) for i in range(y.shape[0])]))
+
+
+    url = "https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip"
+
+    plt.figure(figsize=(10, 8))
+    world = gpd.read_file(url)
+    world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
+
+    plt.scatter(y_test[:100, 1], y_test[:100, 0], color='blue', label='True')
+    plt.scatter(y_pred[:100, 1], y_pred[:100, 0], color='red', label='Predicted')
+    for i in range(100):
+        plt.plot([y_test[i, 1], y_pred[i, 1]], [y_test[i, 0], y_pred[i, 0]], color='green', alpha=0.5)
+    plt.title('True vs Predicted Coordinates')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.legend()
+    plt.show(block =False); plt.pause(2)
+    plt.close()
+
+    return np.mean(distances), distances
 
 # Initialize the predictor model
 geo_predictor = GeoPredictorNN().to(device)
@@ -171,18 +220,19 @@ transforms = v2.Compose([
     v2.AutoAugment()
 ])
 
-batch_size_data = 2000
-train_loader = DataLoader(train_dataset, batch_size=batch_size_data, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=batch_size_data, shuffle=True)
+batch_size_data = 512
+train_loader = DataLoader(train_dataset, batch_size=batch_size_data)
+test_loader = DataLoader(test_dataset, batch_size=batch_size_data)
 criterion = MSELoss()
-optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-1, weight_decay=8e-2, amsgrad=True)
+optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-5, weight_decay=4e-6, amsgrad=True)
 
 epochs = 20
 losses = []
 val_losses = []
 min_val_loss = 1e8
 counter = 0
-
+def clip_grads():
+    nn.utils.clip_grad_norm_(geo_predictor.parameters(), max_norm=5.0)
 
 for epoch in track(range(epochs)):
 
@@ -195,6 +245,7 @@ for epoch in track(range(epochs)):
         if loss.isnan:
             loss = criterion(outputs/1000, coords)
         loss.backward()
+        clip_grads()
         optimizer.step()
         running_loss += loss.item()
 
@@ -223,6 +274,8 @@ for epoch in track(range(epochs)):
     
     if (epoch + 1) % 20 == 0 and val_losses[-1].item() < 1.1 * np.min(val_losses) and val_losses[-1].item() < 1000:
         torch.save(geo_predictor.state_dict(), f"Vojta/Temp/TMP/geo_predictor_nn_{epoch + 1}e_{batch_size_data}b_time{time.time()}.pth")
+        
+    evaluate_nn_model_light(geo_predictor)
 
 
 print('Finished Training')
@@ -248,8 +301,7 @@ plt.show()
 #######################################
 # Evaluation and Visualization          #
 #######################################
-def haversine_distance(coords1, coords2):
-    return geopy.distance.geodesic(coords1, coords2).kilometers
+
 
 def evaluate_nn_model(geo_predictor):
     print("Evaluating the neural network model...")

@@ -223,8 +223,8 @@ class GeoPredictorNN(nn.Module):
 # Initialize the predictor model
 geo_predictor = GeoPredictorNN().to(device)
 # print a summary of the model
-from torchinfo import summary
-summary(geo_predictor, input_size=(1, 2048), device=device.type)
+#from torchinfo import summary
+#summary(geo_predictor, input_size=(1, 2048), device=device.type)
 
 #######################################
 # Define Haversine Loss and Optimizer   #
@@ -261,7 +261,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 400
+epochs = 601
 losses = []
 val_losses = []
 min_val_loss = 1e5
@@ -279,8 +279,8 @@ for epoch in track(range(epochs), description="Training the model..."):
         loss = criterion(outputs, coords_batch)
         if torch.isnan(loss):
             print(f"Loss is NaN, skipping this batch... at epoch {epoch}")
-            epoch = epochs-1
-            continue
+            
+            break
         loss.backward()
         optimizer.step()
         running_loss += loss.item()

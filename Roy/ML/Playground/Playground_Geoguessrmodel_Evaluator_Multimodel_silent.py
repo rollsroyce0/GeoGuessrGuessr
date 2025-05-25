@@ -24,6 +24,8 @@ list_of_maps = ['Game',
                 'Exam',
                 'Google',
                 'Zurich',
+                'Friends',
+                'Full',
                 'Moscow']
 
 # Custom Model to generate embeddings
@@ -120,6 +122,9 @@ def main(testtype=None):
     real_coords_Google = np.array([[59.407269,15.415694], [52.5644145,-110.8206357], [-36.8700509,174.6481411], [37.9270951,-122.53026], [28.6397445,77.2929918]])
     real_coords_Zurich = np.array([[29.9590073,-95.3911924], [62.6314057,23.6289403], [34.9733313,-84.0203661], [4.3001312,117.8594655], [55.7862947,-3.9229578]])
     real_coords_Moscow = np.array([[-34.5218991,-58.5366628], [51.2135105,45.9190967], [53.1024139,-6.0640463], [37.715336,126.7597928], [47.5224219,-111.2700033]])
+    real_coords_Friends = np.array([[38.9812844,-76.9781788], [59.871625,30.299387], [-1.5005364,29.621744], [59.0595843,-3.0761426], [1.7170285,103.4522982]])
+    real_coords_Full = np.array([[41.102985,40.7492832], [52.5649318,-0.2828335], [47.2318584,38.8684533], [41.8301262,-70.8728116], [23.11086,72.5172045]])
+    
     
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -149,6 +154,10 @@ def main(testtype=None):
         real_coords = real_coords_Zurich
     elif testtype == 'Moscow':
         real_coords = real_coords_Moscow
+    elif testtype == 'Friends':
+        real_coords = real_coords_Friends
+    elif testtype == 'Full':
+        real_coords = real_coords_Full
     else:
         raise ValueError("Invalid test type. Choose a valid one from the list.")
     
