@@ -259,7 +259,7 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 256
+batch_size_data = 250
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
 epochs = 601
 losses = []
