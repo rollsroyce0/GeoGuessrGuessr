@@ -259,9 +259,9 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 250
+batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 601
+epochs = 3000
 losses = []
 val_losses = []
 min_val_loss = 1e5
@@ -301,8 +301,12 @@ for epoch in track(range(epochs), description="Training the model..."):
         
     scheduler.step(val_loss.item())
     
-    if (epoch + 1) % 20 == 0 and val_loss.item() < 1.1 * np.min(val_losses) and val_loss.item() < 1000:
-        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/Checkpoint_Models_NN/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
+    if epoch % 25 == 0:
+        print(f"Epoch [{epoch+1}/{epochs}], Loss: {losses[-1]:.4f}, Val Loss: {val_loss.item():.4f}, Min Val Loss: {min_val_loss:.4f}, Counter: {counter}")
+    
+    if val_loss.item() < 1500 and epoch % 5 == 0:
+        name = f'geo_predictor_nn_{epoch}e_{batch_size_data}b_{int(np.round(val_loss.item(), 0))}k_checkpoint'
+        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{name}.pth')
 
 #print('Finished Training')
 final_val_loss = val_losses[-1]
