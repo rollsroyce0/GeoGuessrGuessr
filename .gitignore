@@ -14,6 +14,13 @@ __pycache__/
 **/images_first_try/
 **/combined_images
 combined_images
+**/ML/Embeddings_Storage/
+
 
 #Nics gitignore
 **/temp_images/
+
+
+# Vojtas gitignore
+#*.pth
+.idea/

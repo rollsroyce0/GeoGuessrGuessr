@@ -1,0 +1,17 @@
+Ultra: 200.119, Highest: 560.196, Lowest: 1.779
+Enlarged: 200.112, Highest: 334.573, Lowest: 0.23
+Google: 184.425, Highest: 495.97, Lowest: 2.28
+Moscow: 175.635, Highest: 533.205, Lowest: 14.288
+World: 113.939, Highest: 348.657, Lowest: 0.326
+Friends: 87.154, Highest: 386.134, Lowest: 0.113
+Entire: 77.636, Highest: 218.356, Lowest: 0.46
+Super: 74.334, Highest: 245.102, Lowest: 0.95
+Validation: 64.877, Highest: 243.951, Lowest: 0.696
+Exam: 60.909, Highest: 211.308, Lowest: 0.664
+Extreme: 59.046, Highest: 144.128, Lowest: 4.164
+Zurich: 56.123, Highest: 238.704, Lowest: 1.388
+Chrome: 47.52, Highest: 153.296, Lowest: 0.939
+Game: 40.908, Highest: 89.595, Lowest: 1.377
+Verification: 29.712, Highest: 110.455, Lowest: 1.958
+Full: 27.409, Highest: 84.459, Lowest: 1.438
+Task: 12.147, Highest: 43.631, Lowest: 0.411

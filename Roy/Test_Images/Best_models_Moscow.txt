@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Moscow: geo_predictor_nn_500e_256b_963k.pth, geo_predictor_nn_302e_64b_1045k.pth, geo_predictor_nn_505e_232b_1011k.pth, geo_predictor_nn_550e_256b_961k.pth, geo_predictor_nn_500e_64b_952k.pth, geo_predictor_nn_498e_256b_985k.pth, geo_predictor_nn_402e_232b_1054k.pth, geo_predictor_nn_3000e_256b_898k.pth, geo_predictor_nn_1000e_64b_965k.pth, geo_predictor_nn_750e_256b_1006k.pth
