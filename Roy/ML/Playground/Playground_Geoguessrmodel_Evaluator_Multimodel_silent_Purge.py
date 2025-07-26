@@ -8,6 +8,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import time
 import warnings
+from rich.progress import track
 warnings.filterwarnings("ignore")
 
 global list_of_maps
@@ -181,10 +182,12 @@ def main(testtype=None):
     start = time.time()
     highest_points = [0,0,0,0,0]
     total_points_backup = []
+    names_bad = []
+    
 
     # Loop over predictor weights
-    for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
-        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth') or 'check' in fname:
+    for fname in track(sorted(os.listdir('Roy/ML/Saved_Models'))):
+        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth'):
             continue
 
         predictor = GeoPredictorNN().to(device).eval()
@@ -216,7 +219,18 @@ def main(testtype=None):
         # Sort results by total points in descending order and keep the top 3 models
         results = sorted(results, key=lambda x: x[1], reverse=True)[:10]
         #print(f"{fname}: {total_pts} pts")
+        
+        
 
+    # save all the models to names_good if they are in the top 10
+    names_good = [r[0] for r in results]
+
+    average_points = np.mean(np.array(points_backup), axis=0) if points_backup else np.zeros(len(real_coords))
+    
+    
+    
+    # Loop over all models in a second folder named 'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/'
+   
     if len(points_backup) == 0:
         print("No models scored above 10,000 points. Please check your models.")
         points_backup = low_points_backup
@@ -225,24 +239,13 @@ def main(testtype=None):
     for i, (fname, total_pts, preds) in enumerate(results):
         print(f"{i+1}: {fname} - {total_pts} pts")
         #print(preds)
-    # Save the testtype and the best three models to a file
-    # Check if the file exists, if not create it
-    if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}.txt'):
-        # Throw an error if the file does not exist
-        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}.txt does not exist")
-    # remove all text from the file
-    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'r+') as f:
-        #one=1
-        # remove everything from the file
-        f.truncate(0)
-
     
-    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'a') as f:
-        #one=1
-        # remove everything from the file
-        
-        f.write("Best 10 models for each test type:\n")
-        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}, {results[3][0]}, {results[4][0]}, {results[5][0]}, {results[6][0]}, {results[7][0]}, {results[8][0]}, {results[9][0]}\n")
+    # if any of the checkpoint models appear in the results, move the model outside the checkpoint folder
+    for fname, total_pts, preds in results:
+        if 'checkpoint' in fname:
+            new_fname = fname.replace('checkpoint', 'check')
+            os.rename(f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{fname}', f'Roy/ML/Saved_Models/{new_fname}')
+            print(f"Moved {new_fname} to saved models folder.")
     
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
@@ -254,70 +257,34 @@ def main(testtype=None):
     print("Highest points for each image:", highest_points)
     print("Highest total:", sum(highest_points))
     
-    # Calculate a Difficulty score for each image based on the standard deviation of the predictions
-    if len(errors) >=10:
-        errors = np.sort(errors, axis=0)[:-10] # Remove the 10 highest errors or each individual image disregarding model order
-    else:
-        #combine the errors and low_errors
-        errors = np.concatenate((errors, low_errors), axis=0)
-        errors = np.sort(errors, axis=0)[:-10] # Remove the 10 highest errors or each individual image disregarding model order
-    errors = np.array(errors)
-    points_backup = np.sort(points_backup, axis=0)[:10]
-    difficulty_scores = np.std(errors, axis=0) + 0.4*np.mean(errors, axis=0) # Add the mean to the std to get a more accurate score
-    #print("Errors:", errors)
-    print("Difficulty scores raw:", difficulty_scores)
-    # Normalize these on a scale 0-10, where an std dev of 2500 would be a difficulty of 10 and 0 would be 0. However this is not a linear scale, so we will use a logarithmic scale.
-    # We will use a base of 10, so that 10^0 = 1 and 10^1 = 10. This means that a difficulty of 0 would be 0 and a difficulty of 10 would be 10.
-    # We will also use a minimum difficulty of 1, so that we don't get negative scores.
-    # A Difficulty of 10 means the std is 4500km or above
-    
-    
-    difficulty_scores = np.log10(difficulty_scores/1000 + 1) * 8.502741537 # Max difficulty is now 1000
-    #difficulty_scores = np.clip(difficulty_scores, 0, 10)
-    difficulty_scores = difficulty_scores**3
-    difficulty_scores = np.round(difficulty_scores, 3)
-    print("Difficulty scores for each image:", difficulty_scores)
-    print("Average difficulty score of this round:", np.round(np.mean(difficulty_scores), 3))
-    # add the average difficutly score for the test type to a file
-
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'a') as f:
-        f.write(f"{testtype}: {np.round(np.mean(difficulty_scores), 3)}, Highest: {np.round(np.max(difficulty_scores), 3)}, Lowest: {np.round(np.min(difficulty_scores), 3)}\n")
-        
-        # remove any duplicate lines (it is a duplicate, if the first 5 characters are the same)
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'r') as f:
-        lines = f.readlines()
-    
-    # remove duplicates by checking the first 5 characters of each line
-    seen = set()
-    lines = [line for line in reversed(lines) if not (line[:5] in seen or seen.add(line[:5]))]
-    lines = reversed(lines)  # reverse the lines back to original order
-    # write the lines back to the file
-    
-    # sort the lines by the difficulty score (the second value in the line)
-    lines = sorted(lines, key=lambda x: float(x.split(':')[1].split(',')[0]), reverse=True)
-    
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'w') as f:
-        f.writelines(lines)
-
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3)
+    return sum(final_pts), sum(highest_points), full_results, names_bad
 
 
 if __name__ == "__main__":
     start_time = time.time()
     testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     final_scores = []
+    good_models = []
     if testtype == 'All':
         for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
             #print(f"Running test for {testtype}...")
-            final_score, highest_score, difficulty_score = main(testtype)
-            final_scores.append((testtype, final_score, highest_score, difficulty_score))
+            final_score, highest_score, full_results, names_good = main(testtype)
+            final_scores.append((testtype, final_score, highest_score, full_results))
+            good_models.extend(names_good)
         print("\nFinal scores for all test types:")
-        for testtype, final_score, highest_score, difficulty_score in final_scores:
-            print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}")
+        for testtype, final_score, highest_score, full_results in final_scores:
+            print(f"{testtype}: {final_score}, Highest: {highest_score}, full: {full_results[0][0]}")
+        
+        if good_models:
+            print("\nModels that scored below average points and were not saved:")
+            # count the number of times each model was not saved
+            for model in set(good_models):
+                print(f"{model}: {good_models.count(model)} times")
             
+                
     else:
         main(testtype)
         #main() # Uncomment this line to run the main function without any arguments and accept user input

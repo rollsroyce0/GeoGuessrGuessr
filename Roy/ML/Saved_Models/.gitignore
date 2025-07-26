@@ -1,5 +1,6 @@
 geo_embedding_model_r152_normal.pth
 *.pkl
+*.pth
 
 **/Checkpoint_Models_NN/
 **/Old_Naming_Style/

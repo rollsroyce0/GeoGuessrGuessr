@@ -182,9 +182,10 @@ def main(testtype=None):
     start = time.time()
     highest_points = [0,0,0,0,0]
     total_points_backup = []
+    names_bad = []
 
     # Loop over predictor weights
-    for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
+    for fname in track(sorted(os.listdir('Roy/ML/Saved_Models'))):
         if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth'):
             continue
 
@@ -237,8 +238,9 @@ def main(testtype=None):
         total_pts = sum(pts)
         if total_pts < average_points.sum():
             # delete the model if it is not better than the average points
-            print(f"{fname} scored {total_pts} pts, which is lower than the average points {average_points.sum()}. Deleting model.")
-            os.remove(f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{fname}')
+            #print(f"{fname} scored {total_pts} pts, which is lower than the average points {average_points.sum()}. Deleting model.")
+            names_bad.append(fname)
+            #os.remove(f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{fname}')
             continue
         
         total_points_backup.append(total_pts)
@@ -248,7 +250,7 @@ def main(testtype=None):
                 highest_points[i] = p
                 
         if total_pts > 10000:
-            print(f"{fname}: {total_pts} pts")
+            #print(f"{fname}: {total_pts} pts")
             points_backup.append(pts)
             errors.append(errs)
         else:
@@ -270,6 +272,13 @@ def main(testtype=None):
         print(f"{i+1}: {fname} - {total_pts} pts")
         #print(preds)
     
+    # if any of the checkpoint models appear in the results, move the model outside the checkpoint folder
+    for fname, total_pts, preds in results:
+        if 'checkpoint' in fname:
+            new_fname = fname.replace('checkpoint', 'check')
+            os.rename(f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{fname}', f'Roy/ML/Saved_Models/{new_fname}')
+            print(f"Moved {new_fname} to saved models folder.")
+    
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
 
@@ -282,23 +291,48 @@ def main(testtype=None):
     
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), full_results
+    return sum(final_pts), sum(highest_points), full_results, names_bad
 
 
 if __name__ == "__main__":
     start_time = time.time()
     testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     final_scores = []
+    bad_models = []
     if testtype == 'All':
         for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
             #print(f"Running test for {testtype}...")
-            final_score, highest_score, full_results = main(testtype)
+            final_score, highest_score, full_results, names_bad = main(testtype)
             final_scores.append((testtype, final_score, highest_score, full_results))
+            bad_models.extend(names_bad)
         print("\nFinal scores for all test types:")
         for testtype, final_score, highest_score, full_results in final_scores:
             print(f"{testtype}: {final_score}, Highest: {highest_score}, full: {full_results[0][0]}")
+        
+        if bad_models:
+            print("\nModels that scored below average points and were not saved:")
+            # count the number of times each model was not saved
+            for model in set(bad_models):
+                print(f"{model}: {bad_models.count(model)} times")
             
+            #only save the names of models with more then the average number of times they were bad
+            avg =0
+            for model in set(bad_models):
+                avg += bad_models.count(model)
+            avg = avg / len(set(bad_models))*0.75
+            avg = np.floor(avg)
+            print(f"Average number of times a model was bad: {avg}")
+            
+            bad_models = [model for model in set(bad_models) if bad_models.count(model) >= avg]
+            # delete the models from the folder
+            for model in bad_models:
+                try:
+                    os.remove(f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{model}')
+                    #print(f"Deleted {model}")
+                except FileNotFoundError:
+                    print(f"{model} not found, skipping deletion.")
+                
     else:
         main(testtype)
         #main() # Uncomment this line to run the main function without any arguments and accept user input

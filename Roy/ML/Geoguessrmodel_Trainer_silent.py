@@ -225,6 +225,8 @@ geo_predictor = GeoPredictorNN().to(device)
 # print a summary of the model
 #from torchinfo import summary
 #summary(geo_predictor, input_size=(1, 2048), device=device.type)
+#from torchinfo import summary
+#summary(geo_predictor, input_size=(1, 2048), device=device.type)
 
 #######################################
 # Define Haversine Loss and Optimizer   #
@@ -259,9 +261,9 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
-batch_size_data = 256
+batch_size_data = 360
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 3000
+epochs = 1749
 losses = []
 val_losses = []
 min_val_loss = 1e5
@@ -281,10 +283,16 @@ for epoch in track(range(epochs), description="Training the model..."):
             print(f"Loss is NaN, skipping this batch... at epoch {epoch}")
             
             break
+
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
     losses.append(running_loss / len(train_loader))
+    
+    if torch.isnan(torch.tensor(losses[-1])):
+        print(f"Loss is NaN, skipping this epoch... at epoch {epoch}")
+        losses[-1] = 1e5  # Append a large value to avoid saving
+        continue
     
     # Validation
     geo_predictor.eval()
@@ -304,8 +312,14 @@ for epoch in track(range(epochs), description="Training the model..."):
     if epoch % 25 == 0:
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {losses[-1]:.4f}, Val Loss: {val_loss.item():.4f}, Min Val Loss: {min_val_loss:.4f}, Counter: {counter}")
     
-    if val_loss.item() < 1500 and epoch % 5 == 0:
-        name = f'geo_predictor_nn_{epoch}e_{batch_size_data}b_{int(np.round(val_loss.item(), 0))}k_checkpoint'
+    geo_predictor.eval()
+    if torch.isnan(val_loss):
+        print(f"Validation loss is NaN, skipping saving model... at epoch {epoch}")
+        val_losses.append(1e5)  # Append a large value to avoid saving
+        losses.append(1e5)  # Append a large value to avoid saving
+        continue
+    if val_loss.item() < 1500 and epoch % 1 == 0:
+        name = f'geo_predictor_nn_{epoch}e_{batch_size_data}b_{int(np.round(val_loss.item(), 0))}k_checkpoint_{int(time.time())}'
         torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{name}.pth')
 
 #print('Finished Training')
@@ -324,6 +338,11 @@ torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/{name}.pth')
 # Evaluation and Visualization          #
 #######################################
 def haversine_distance(coords1, coords2):
+    if len(coords1) != 2 or len(coords2) != 2:
+        raise ValueError("Coordinates must be in the format [lat, lon].")
+    # Check if it is not nan
+    if np.isnan(coords1).any() or np.isnan(coords2).any():
+        return 10000
     return geopy.distance.geodesic(coords1, coords2).kilometers
 
 def predict_coordinates_nn(embedding, geo_predictor):

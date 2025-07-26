@@ -1,6 +1,6 @@
 import time
 tim = time.time()
-for i in range(3):
+for i in range(2):
     with open('Roy/ML/Geoguessrmodel_Trainer_silent.py') as f:
         exec(f.read())
         print("------------------------------------------------------------------------------")
