@@ -1,2 +1,3 @@
 Best 10 models for each test type:
 Validation: geo_predictor_nn_1000e_257b_933k.pth, geo_predictor_nn_497e_256b_964k.pth, geo_predictor_nn_666e_256b_965k.pth, geo_predictor_nn_601e_256b_978k.pth, geo_predictor_nn_505e_232b_970k.pth, geo_predictor_nn_500e_64b_969k.pth, geo_predictor_nn_512e_256b_991k.pth, geo_predictor_nn_601e_250b_988k.pth, geo_predictor_nn_500e_1024b_1340k.pth, geo_predictor_nn_502e_232b_1014k.pth
+

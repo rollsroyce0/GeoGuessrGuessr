@@ -153,7 +153,9 @@ class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
         self.fc1 = nn.Linear(2048, 1024)
+
         self.dropout0 = nn.Dropout(0.05)
+
         self.batch_norm1 = nn.BatchNorm1d(1024)
         self.gelu1 = nn.GELU()
         self.dropout1 = nn.Dropout(0.2)
@@ -171,7 +173,9 @@ class GeoPredictorNN(nn.Module):
         self.fc4 = nn.Linear(256, 128)
         self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.2)
+
+        self.dropout4 = nn.Dropout(0.25)
+
         
         self.fc5 = nn.Linear(128, 32)
         self.batch_norm5 = nn.BatchNorm1d(32)
@@ -261,9 +265,11 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
+
 batch_size_data = 64
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
 epochs = 500
+
 losses = []
 val_losses = []
 min_val_loss = 1e5
@@ -356,8 +362,10 @@ def predict_coordinates_nn(embedding, geo_predictor):
 
 def evaluate_nn_model(X_test, y_test, geo_predictor):
     #print("Evaluating the neural network model...")
+
     y_test = y_test.cpu().numpy()
     X_test = X_test.cpu().numpy()
+
     y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test])
     distances = np.array([haversine_distance(y_test[i], y_pred[i]) for i in range(len(y_test))])
 

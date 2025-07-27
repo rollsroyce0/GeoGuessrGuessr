@@ -323,7 +323,9 @@ if __name__ == "__main__":
             avg = avg / len(set(bad_models))*0.75
             avg = np.floor(avg)
             print(f"Average number of times a model was bad: {avg}")
+
             count =0
+
             bad_models = [model for model in set(bad_models) if bad_models.count(model) >= avg]
             # delete the models from the folder
             for model in bad_models:
@@ -334,6 +336,7 @@ if __name__ == "__main__":
                 except FileNotFoundError:
                     print(f"{model} not found, skipping deletion.")
             print(f"Deleted {count} models that scored below average points.")
+
                 
     else:
         main(testtype)
