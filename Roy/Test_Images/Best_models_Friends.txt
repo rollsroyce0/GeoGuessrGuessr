@@ -1,2 +1,3 @@
 Best 10 models for each test type:
-Friends: geo_predictor_nn_402e_232b_1054k.pth, geo_predictor_nn_1000e_300b_988k.pth, geo_predictor_nn_505e_232b_970k.pth, geo_predictor_nn_550e_256b_986k.pth, geo_predictor_nn_500e_256b_908k.pth, geo_predictor_nn_601e_250b_988k.pth, geo_predictor_nn_1000e_256b_971k_1749470420.pth, geo_predictor_nn_501e_64b_994k.pth, geo_predictor_nn_601e_256b_999k.pth, geo_predictor_nn_535e_232b_948k.pth
+Friends: geo_predictor_nn_402e_232b_1054k.pth, geo_predictor_nn_1000e_300b_988k.pth, geo_predictor_nn_505e_232b_970k.pth, geo_predictor_nn_550e_256b_986k.pth, geo_predictor_nn_500e_256b_908k.pth, geo_predictor_nn_500e_500b_1020k.pth, geo_predictor_nn_601e_250b_988k.pth, geo_predictor_nn_1000e_256b_971k_1749470420.pth, geo_predictor_nn_501e_64b_994k.pth, geo_predictor_nn_601e_256b_999k.pth
+

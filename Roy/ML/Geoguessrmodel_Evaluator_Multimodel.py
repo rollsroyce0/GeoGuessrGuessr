@@ -316,7 +316,7 @@ def main(testtype=None):
 
 if __name__ == "__main__":
     start_time = time.time()
-    testtype = 'Full' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     if testtype == 'All':
         for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")

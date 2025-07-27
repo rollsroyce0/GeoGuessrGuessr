@@ -198,6 +198,10 @@ def main(testtype=None):
         errs = haversine_batch(real_coords, preds)
         pts = [geoguessr_points(e) for e in errs]
         total_pts = sum(pts)
+        if total_pts <0 or np.isnan(total_pts) or total_pts > 25000:
+            print(f"Skipping {fname} due to invalid total points: {total_pts}")
+            continue
+
         total_points_backup.append(total_pts)
         # for each picture, check if the points are higher than the previous highest points
         for i, p in enumerate(pts):
@@ -262,7 +266,9 @@ def main(testtype=None):
         errors = np.concatenate((errors, low_errors), axis=0)
         errors = np.sort(errors, axis=0)[:-10] # Remove the 10 highest errors or each individual image disregarding model order
     errors = np.array(errors)
-    points_backup = np.sort(points_backup, axis=0)[:10]
+
+    points_backup = np.sort(points_backup, axis=0)[-25:]
+
     difficulty_scores = np.std(errors, axis=0) + 0.4*np.mean(errors, axis=0) # Add the mean to the std to get a more accurate score
     #print("Errors:", errors)
     print("Difficulty scores raw:", difficulty_scores)
@@ -299,9 +305,16 @@ def main(testtype=None):
     with open(f'Roy/Test_Images/Difficulty_scores.txt', 'w') as f:
         f.writelines(lines)
 
+    # Calculate average and median scores
+    total_points_backup = np.array(total_points_backup)
+    total_points_backup = np.sort(total_points_backup, axis=0)[-25:]  # Keep the top 25 scores
+    
+    avg_scores = np.mean(total_points_backup, axis=0)
+    median_scores = np.median(total_points_backup, axis=0)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3)
+    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores
+
 
 
 if __name__ == "__main__":
@@ -312,13 +325,19 @@ if __name__ == "__main__":
         for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
             #print(f"Running test for {testtype}...")
-            final_score, highest_score, difficulty_score = main(testtype)
-            final_scores.append((testtype, final_score, highest_score, difficulty_score))
+            final_score, highest_score, difficulty_score, avg_scores, median_scores = main(testtype)
+            final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores))
         print("\nFinal scores for all test types:")
-        for testtype, final_score, highest_score, difficulty_score in final_scores:
-            print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}")
+        for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores in final_scores:
+            print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
+
+        avg_avg_scores = np.mean([fs[4] for fs in final_scores], axis=0)
+        avg_median_scores = np.mean([fs[5] for fs in final_scores], axis=0)
+        print(f"\nAverage scores across all test types:\nAvg Scores: {avg_avg_scores}, Median Scores: {avg_median_scores}")
             
     else:
-        main(testtype)
+        final_score, highest_score, difficulty_score, avg_scores, median_scores = main(testtype)
+        print(f"\nFinal score for {testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
+
         #main() # Uncomment this line to run the main function without any arguments and accept user input
     print(f"Execution time: {time.time() - start_time} seconds")

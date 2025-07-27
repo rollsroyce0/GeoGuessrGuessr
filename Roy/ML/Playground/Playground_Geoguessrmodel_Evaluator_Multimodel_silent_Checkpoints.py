@@ -323,15 +323,20 @@ if __name__ == "__main__":
             avg = avg / len(set(bad_models))*0.75
             avg = np.floor(avg)
             print(f"Average number of times a model was bad: {avg}")
-            
+
+            count =0
+
             bad_models = [model for model in set(bad_models) if bad_models.count(model) >= avg]
             # delete the models from the folder
             for model in bad_models:
                 try:
                     os.remove(f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{model}')
                     #print(f"Deleted {model}")
+                    count += 1
                 except FileNotFoundError:
                     print(f"{model} not found, skipping deletion.")
+            print(f"Deleted {count} models that scored below average points.")
+
                 
     else:
         main(testtype)

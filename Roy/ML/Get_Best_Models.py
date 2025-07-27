@@ -78,13 +78,9 @@ avg_batch_size = int(avg_batch_size)
 avg_epoch = int(avg_epoch)
 avg_error = int(avg_error)
 
-#consruct the average best model name
+#construct the average best model name
 avg_model_name = model_name + '_' + str(avg_epoch) + 'e_' + str(avg_batch_size) + 'b_' + str(avg_error) + 'k.pth'
 print("Average best model name: ", avg_model_name)
-    
-    
-    
-    
 
 
 print("Models with the highest score out of a possible ", max_score, ":")
