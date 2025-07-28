@@ -1,5 +1,4 @@
 leaderboard = [
-
     ['geo_predictor_nn_502e_232b_941k.pth', 52],
     ['geo_predictor_nn_500e_64b_988k.pth', 50],
     ['geo_predictor_nn_497e_256b_964k.pth', 43],
