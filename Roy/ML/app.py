@@ -38,4 +38,4 @@ def index():
     return render_template("index.html", testtypes=list_of_maps)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True) 
