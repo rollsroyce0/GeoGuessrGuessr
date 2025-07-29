@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>GeoGuessr Dashboard</title></head>
+<body>
+  <h1>Select Test Type</h1>
+  <form method="POST">
+    <select name="testtype">
+      {% for t in testtypes %}
+        <option value="{{ t }}">{{ t }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Run Evaluation</button>
+  </form>
+</body>
+</html>

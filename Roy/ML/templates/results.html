@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Results - {{ testtype }}</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 1000px; }
+    .info.legend i {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .actual-label {
+    background-color: white;
+    color: green;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 2px 5px;
+    }
+    .pred-label {
+    background-color: white;
+    color: red;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 2px 5px;
+    }
+
+  </style>
+</head>
+<body>
+  <h2>Results for {{ testtype }}</h2>
+  <p><strong>Total Score:</strong> {{ final_total }}</p>
+  <p><strong>Highest Possible Score:</strong> {{ highest_total }}</p>
+  <p><strong>Average Difficulty:</strong> {{ difficulty_avg }}</p>
+
+  <div id="map"></div>
+<h3>📍 Location Summary</h3>
+<table border="1" cellpadding="6" style="border-collapse: collapse; margin-top: 10px;">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Image</th>
+      <th>Real Coordinates</th>
+      <th>Predicted Coordinates</th>
+      <th>Error (km)</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in range(real_coords|length) %}
+      <tr>
+        <td>{{ i+1 }}</td>
+        <td>
+          <img src="{{ url_for('static', filename='images/' ~ image_names[i]) }}" width="200">
+        </td>
+        <td>{{ real_coords[i][0]|round(4) }}, {{ real_coords[i][1]|round(4) }}</td>
+        <td>{{ pred_coords[i][0]|round(4) }}, {{ pred_coords[i][1]|round(4) }}</td>
+        <td>{{ errors[i]|round(2) }}</td>
+        <td>{{ points[i]|round(1) }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const actual = {{ real_coords|tojson }};
+    const preds = {{ pred_coords|tojson }};
+    const errors = {{ errors|tojson }};
+    const points = {{ points|tojson }};
+
+    const map = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    for (let i = 0; i < actual.length; i++) {
+    const label = `${i + 1}`;
+
+    // Actual location marker (green) with label
+    L.circleMarker(actual[i], {color: 'green', radius: 6})
+        .bindTooltip(label, {permanent: true, direction: 'top', className: 'actual-label'})
+        .addTo(map);
+
+    // Predicted location marker (red) with label
+    L.circleMarker(preds[i], {color: 'red', radius: 6})
+        .bindTooltip(label, {permanent: true, direction: 'top', className: 'pred-label'})
+        .addTo(map);
+
+    // Connecting line
+    L.polyline([actual[i], preds[i]], {color: 'blue'}).addTo(map);
+    }
+
+    // Add a Legend
+    const legend = L.control({position: 'topright'});
+    legend.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'info legend');
+      div.innerHTML += '<i style="background: green"></i> Actual<br>';
+      div.innerHTML += '<i style="background: red"></i> Predicted<br>';
+      div.innerHTML += '<i style="background: blue"></i> Error Line<br>';
+      return div;
+    };
+    legend.addTo(map);
+
+
+    for (let i = 0; i < errors.length; i++) {
+      L.marker(preds[i]).bindPopup(`Error: ${errors[i]}<br>Points: ${points[i]}`).addTo(map);
+    }
+
+    // Reset Button
+    L.control.locate().addTo(map);
+    const resetButton = L.control({position: 'topright'});
+    resetButton.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'reset-button');
+      div.innerHTML = '<button onclick="location.reload();">Reset</button>';
+      return div;
+    };
+    resetButton.addTo(map);
+
+    </script>
+
+    <form action="/" method="get" style="margin-top: 20px;">
+      <button type="submit" style="padding: 10px 20px; font-size: 16px;">🔄 Reset / Run Again</button>
+    </form>
+</body>
+</html>

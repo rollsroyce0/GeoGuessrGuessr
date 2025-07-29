@@ -309,7 +309,8 @@ def main(testtype=None):
     median_scores = np.median(total_points_backup, axis=0)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores
+    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
+
 
 
 if __name__ == "__main__":
@@ -320,7 +321,7 @@ if __name__ == "__main__":
         for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
             #print(f"Running test for {testtype}...")
-            final_score, highest_score, difficulty_score, avg_scores, median_scores = main(testtype)
+            final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts = main(testtype)
             final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores))
         print("\nFinal scores for all test types:")
         for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores in final_scores:
