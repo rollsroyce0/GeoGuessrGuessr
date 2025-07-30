@@ -321,7 +321,7 @@ if __name__ == "__main__":
         for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
             #print(f"Running test for {testtype}...")
-            final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts = main(testtype)
+            final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths = main(testtype)
             final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores))
         print("\nFinal scores for all test types:")
         for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores in final_scores:

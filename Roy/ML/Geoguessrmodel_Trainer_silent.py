@@ -158,33 +158,33 @@ class GeoPredictorNN(nn.Module):
 
         self.batch_norm1 = nn.BatchNorm1d(1024)
         self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.02)
+        self.dropout1 = nn.Dropout(0.2)
 
         self.fc2 = nn.Linear(1024, 512)
         self.batch_norm2 = nn.BatchNorm1d(512)
         self.gelu2 = nn.GELU()
-        self.dropout2 = nn.Dropout(0.02)
+        self.dropout2 = nn.Dropout(0.2)
         
         self.fc3 = nn.Linear(512, 256)
         self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.025)
+        self.dropout3 = nn.Dropout(0.2)
         
         self.fc4 = nn.Linear(256, 128)
         self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.025)
+        self.dropout4 = nn.Dropout(0.2)
 
         
         self.fc5 = nn.Linear(128, 32)
         self.batch_norm5 = nn.BatchNorm1d(32)
         self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.02)
+        self.dropout5 = nn.Dropout(0.2)
         
         self.fc6 = nn.Linear(32, 16)
         self.batch_norm6 = nn.BatchNorm1d(16)
         self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.01)
+        self.dropout6 = nn.Dropout(0.1)
         
         self.fc7 = nn.Linear(16, 2)
 
@@ -265,9 +265,9 @@ scheduler = ReduceLROnPlateau(
 # Training Loop                         #
 #######################################
 
-batch_size_data = 642
+batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 500
+epochs = 250
 
 losses = []
 val_losses = []
