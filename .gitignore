@@ -22,5 +22,5 @@ combined_images
 
 
 # Vojtas gitignore
-#*.pth
+*.pth
 .idea/
