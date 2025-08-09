@@ -21,32 +21,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 warnings.filterwarnings("ignore")
 
-#######################################
-# Tkinter Popout Window for Val Loss  #
-#######################################
-def create_loss_window():
-    root = tk.Tk()
-    root.title("Latest Validation Loss")
-    large_font = font.Font(family="Helvetica", size=72, weight="bold")
-    loss_label = tk.Label(root, text="Epoch: N/A\nVal Loss: N/A\nLowest Loss: N/A", font=large_font, bg="white", fg="black")
-    loss_label.pack(padx=20, pady=20)
-    return root, loss_label
 
-def update_loss_label(loss_label, epoch, new_loss, min_val_loss):
-    points =np.floor(5000 * np.exp(-1*new_loss/2000))
-    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.1f} km\nLowest Loss: {min_val_loss:.1f} km\nGeoguessr Points: {int(points)}")
-    loss_label.update_idletasks()
-
-def launch_loss_window(window_ready_event):
-    global loss_root, loss_label
-    loss_root, loss_label = create_loss_window()
-    window_ready_event.set()  # signal that window is ready
-    loss_root.mainloop()
-
-# Start the Tkinter window in a separate thread
-window_ready_event = threading.Event()
-threading.Thread(target=launch_loss_window, args=(window_ready_event,), daemon=True).start()
-window_ready_event.wait()  # Wait until the window is ready
 
 #######################################
 # Utility: Extract Coordinates        #
@@ -60,7 +35,7 @@ def extract_coordinates(image_path):
 # Check Device and Set Location         #
 #######################################
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Using device: {device}")
+#print(f"Using device: {device}")
 
 location = "D:/GeoGuessrGuessr/geoguesst"
 
@@ -121,8 +96,8 @@ class GeoEmbeddingModel(nn.Module):
 #######################################
 # Load or Generate Embeddings           #
 #######################################
-embeddings_file = 'Roy/ML/Best_embeddings.npy'
-image_paths_file = 'Roy/ML/Best_image_paths.npy'
+embeddings_file = 'Roy/ML/embeddings.npy'
+image_paths_file = 'Roy/ML/image_paths.npy'
 
 if os.path.exists(embeddings_file):
     embeddings = np.load(embeddings_file).astype(np.float32)
@@ -135,9 +110,9 @@ else:
     dataset = DualResStreetviewDataset(image_paths=image_paths)
     dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
     
-    if os.path.exists('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth'):
-        model.load_state_dict(torch.load('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth'))
-
+    if os.path.exists('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'):
+        model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'))
+    
     print("Generating custom embeddings...")
     embeddings_list = []
     model.eval()
@@ -152,8 +127,8 @@ else:
     np.save(image_paths_file, np.array(image_paths))
     torch.save(model.state_dict(), 'Roy/ML/Saved_Models/geo_embedding_model.pth')
 
-print(f"Number of images: {len(image_paths)}")
-print(f"Embeddings shape: {embeddings.shape}")
+#print(f"Number of images: {len(image_paths)}")
+#print(f"Embeddings shape: {embeddings.shape}")
 
 #######################################
 # Prepare Coordinates and Data Split    #
@@ -174,79 +149,98 @@ y_test = torch.tensor(y_test).float().to(device)
 #######################################
 # Define the GeoPredictorNN Model       #
 #######################################
-class GeoPredictorNN(nn.Module):
-    def __init__(self):
-        super(GeoPredictorNN, self).__init__()
-        self.fc1 = nn.Linear(2048, 1024)
-        self.dropout0 = nn.Dropout(0.2)
-        self.batch_norm1 = nn.BatchNorm1d(1024)
-        self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.2)
+class AdaptiveGeoPredictor(nn.Module):
+    def __init__(self, input_dim=2048, hidden_dims=[1024, 512, 256, 128, 32, 16], output_dim=2):
+        super().__init__()
+        self.hidden_dims = hidden_dims[:]
+        self.layers = nn.ModuleList()
+        prev_dim = input_dim
+        for h in hidden_dims:
+            self.layers.append(self._make_block(prev_dim, h))
+            prev_dim = h
+        self.final = nn.Linear(prev_dim, output_dim)
 
-        self.fc2 = nn.Linear(1024, 512)
-        self.batch_norm2 = nn.BatchNorm1d(512)
-        self.gelu2 = nn.GELU()
-        self.dropout2 = nn.Dropout(0.2)
-        
-        self.fc3 = nn.Linear(512, 256)
-        self.batch_norm3 = nn.BatchNorm1d(256)
-        self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.25)
-        
-        self.fc4 = nn.Linear(256, 128)
-        self.batch_norm4 = nn.BatchNorm1d(128)
-        self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.25)
-        
-        self.fc5 = nn.Linear(128, 32)
-        self.batch_norm5 = nn.BatchNorm1d(32)
-        self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.2)
-        
-        self.fc6 = nn.Linear(32, 16)
-        self.batch_norm6 = nn.BatchNorm1d(16)
-        self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.1)
-        
-        self.fc7 = nn.Linear(16, 2)
-
+    def _make_block(self, in_f, out_f):
+        return nn.Sequential(
+            nn.Linear(in_f, out_f),
+            nn.BatchNorm1d(out_f),
+            nn.GELU(),
+            nn.Dropout(0.2)
+        )
+    
     def forward(self, x):
-        x = self.fc1(x)
-        x = self.dropout0(x)
-        x = self.batch_norm1(x)
-        x = self.gelu1(x)
-        x = self.dropout1(x)
+        for block in self.layers:
+            x = block(x)
+        return self.final(x)
 
-        x = self.fc2(x)
-        x = self.batch_norm2(x)
-        x = self.gelu2(x)
-        x = self.dropout2(x)
-        
-        x = self.fc3(x)
-        x = self.batch_norm3(x)
-        x = self.gelu3(x)
-        x = self.dropout3(x)
-        
-        x = self.fc4(x)
-        x = self.batch_norm4(x)
-        x = self.gelu4(x)
-        x = self.dropout4(x)
-        
-        x = self.fc5(x)
-        x = self.batch_norm5(x)
-        x = self.gelu5(x)
-        x = self.dropout5(x)
-            
-        x = self.fc6(x)
-        x = self.batch_norm6(x)
-        x = self.gelu6(x)
-        x = self.dropout6(x)
-        
-        x = self.fc7(x)
-        return x
+    def grow_layer(self, idx, growth_factor=1.5):
+        old_block = self.layers[idx]
+        old_linear = old_block[0]
+
+        in_f, out_f = old_linear.in_features, old_linear.out_features
+        new_out_f = int(out_f * growth_factor)
+
+        print(f"Growing layer {idx} from {out_f} to {new_out_f} neurons")
+
+        # Create new linear layer with expanded output
+        new_linear = nn.Linear(in_f, new_out_f)
+        with torch.no_grad():
+            # Copy old weights and bias
+
+
+            new_linear = nn.Linear(in_f, new_out_f).to(device)
+            with torch.no_grad():
+                new_linear.weight[:out_f, :] = old_linear.weight
+                new_linear.bias[:out_f] = old_linear.bias
+
+            new_bn = nn.BatchNorm1d(new_out_f).to(device)
+
+        #print(f"Growing layer {idx} from {out_f} to {new_out_f} neurons")
+        # Create new BatchNorm layer with new features
+        new_bn = nn.BatchNorm1d(new_out_f)
+
+        self.layers[idx] = nn.Sequential(
+            new_linear,
+            new_bn,
+            nn.GELU(),
+            nn.Dropout(0.2)
+        )
+        self.hidden_dims[idx] = new_out_f
+        #print(f"Layer {idx} grown to {new_out_f} neurons")
+        # Adjust next layer input size or final layer
+        if idx + 1 < len(self.layers):
+            next_block = self.layers[idx + 1]
+            next_linear = next_block[0]
+            old_next_out = next_linear.out_features
+
+            new_next_linear = nn.Linear(new_out_f, old_next_out).to(device)
+            with torch.no_grad():
+                new_next_linear.weight[:, :out_f] = next_linear.weight
+                new_next_linear.bias = next_linear.bias
+
+            # Replace next linear layer but keep rest of block
+            self.layers[idx + 1][0] = new_next_linear
+
+        else:
+            # Adjust final output layer
+            old_final_out = self.final.out_features
+            new_final = nn.Linear(new_out_f, old_final_out).to(device)
+            with torch.no_grad():
+                new_final.weight[:, :out_f] = self.final.weight
+                new_final.bias = self.final.bias
+            self.final = new_final
+
+def update_optimizer(model, lr=1e-4, weight_decay=8e-5):
+    return optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay, amsgrad=True)
+
 
 # Initialize the predictor model
-geo_predictor = GeoPredictorNN().to(device)
+geo_predictor = AdaptiveGeoPredictor().to(device)
+# print a summary of the model
+#from torchinfo import summary
+#summary(geo_predictor, input_size=(1, 2048), device=device.type)
+#from torchinfo import summary
+#summary(geo_predictor, input_size=(1, 2048), device=device.type)
 
 #######################################
 # Define Haversine Loss and Optimizer   #
@@ -281,9 +275,11 @@ scheduler = ReduceLROnPlateau(
 #######################################
 # Training Loop                         #
 #######################################
+
 batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 525
+epochs = 40
+
 losses = []
 val_losses = []
 min_val_loss = 1e5
@@ -291,20 +287,6 @@ counter = 0
 
 for epoch in track(range(epochs), description="Training the model..."):
 
-    #if at the halfway point of the training the loss is significantly larger than the minimum, reset the model
-    if epoch == epochs // 2 and np.mean(val_losses[-10:]) > 1.25 * min_val_loss:
-        print("Resetting model due to high loss...")
-        geo_predictor = GeoPredictorNN().to(device)
-        optimizer = optim.AdamW(geo_predictor.parameters(), lr=1e-4, weight_decay=5e-5)
-        scheduler = ReduceLROnPlateau(
-            optimizer,
-            mode='min',
-            patience=5,
-            factor=0.95,
-            threshold=0.01,
-            threshold_mode='rel', 
-            verbose=True
-        )
     geo_predictor.train()
     running_loss = 0.0
     for embeddings_batch, coords_batch in train_loader:
@@ -315,12 +297,18 @@ for epoch in track(range(epochs), description="Training the model..."):
         loss = criterion(outputs, coords_batch)
         if torch.isnan(loss):
             print(f"Loss is NaN, skipping this batch... at epoch {epoch}")
-            epoch = epochs-1
-            continue
+            
+            break
+
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
     losses.append(running_loss / len(train_loader))
+    
+    if torch.isnan(torch.tensor(losses[-1])):
+        print(f"Loss is NaN, skipping this epoch... at epoch {epoch}")
+        losses[-1] = 1e5  # Append a large value to avoid saving
+        continue
     
     # Validation
     geo_predictor.eval()
@@ -328,8 +316,6 @@ for epoch in track(range(epochs), description="Training the model..."):
         val_loss = haversine_loss(geo_predictor(X_test), y_test)
         val_losses.append(val_loss.item())
     
-    # Update the popout window with the latest epoch and validation loss
-    update_loss_label(loss_label, epoch + 1, val_loss.item(), min_val_loss)
     
     if val_loss.item() < min_val_loss:
         min_val_loss = val_loss.item()
@@ -339,11 +325,27 @@ for epoch in track(range(epochs), description="Training the model..."):
         
     scheduler.step(val_loss.item())
     
-    if (epoch + 1) % 20 == 0 and val_loss.item() < 1.1 * np.min(val_losses) and val_loss.item() < 1000:
-        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/Checkpoint_Models_NN/geo_predictor_nn_{epoch}_loss_{np.round(val_loss.item(), 0)}.pth')
+    if epoch % 25 == 0:
+        print(f"Epoch [{epoch+1}/{epochs}], Loss: {losses[-1]:.4f}, Val Loss: {val_loss.item():.4f}, Min Val Loss: {min_val_loss:.4f}, Counter: {counter}")
+    
+    geo_predictor.eval()
+    if torch.isnan(val_loss):
+        print(f"Validation loss is NaN, skipping saving model... at epoch {epoch}")
+        val_losses.append(1e5)  # Append a large value to avoid saving
+        losses.append(1e5)  # Append a large value to avoid saving
+        continue
+    if val_loss.item() < 1500 and epoch % 1 == 0:
+        name = f'geo_predictor_nn_{epoch}e_{batch_size_data}b_{int(np.round(val_loss.item(), 0))}k_checkpoint_{int(time.time())}'
+        torch.save(geo_predictor.state_dict(), f'Roy/ML/Self_Building_NN/Models/Checkpoint_Models_NN/{name}.pth')
+    if epoch > 0 and epoch % 5 == 0:
+        geo_predictor.grow_layer(idx=0).to(device)
+        optimizer = update_optimizer(geo_predictor)  # recreate optimizer!
 
 
-print('Finished Training')
+# Visualize the neural network with all its weights
+print(f"Maximum Weight: {torch.max(torch.tensor([p.abs().max() for p in geo_predictor.parameters()]))}  \n Minimum Weight: {torch.min(torch.tensor([p.abs().min() for p in geo_predictor.parameters()]))}")
+quit()
+#print('Finished Training')
 final_val_loss = val_losses[-1]
 final_val_loss = int(np.round(final_val_loss, 0))
 name = f'geo_predictor_nn_{epochs}e_{batch_size_data}b_{final_val_loss}k'
@@ -356,24 +358,14 @@ print(f"Saving model as {name}")
 torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/{name}.pth')
 
 #######################################
-# Plot Training and Validation Losses   #
-#######################################
-plt.figure(figsize=(10, 6))
-plt.plot(losses, color='skyblue')
-plt.plot(val_losses, color='orange')
-plt.title('Training Loss vs Validation Loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.grid()
-plt.legend(['Training Loss', 'Validation Loss'])
-plt.show(block=False)
-plt.pause(2)
-plt.close()
-
-#######################################
 # Evaluation and Visualization          #
 #######################################
 def haversine_distance(coords1, coords2):
+    if len(coords1) != 2 or len(coords2) != 2:
+        raise ValueError("Coordinates must be in the format [lat, lon].")
+    # Check if it is not nan
+    if np.isnan(coords1).any() or np.isnan(coords2).any():
+        return 10000
     return geopy.distance.geodesic(coords1, coords2).kilometers
 
 def predict_coordinates_nn(embedding, geo_predictor):
@@ -386,29 +378,14 @@ def predict_coordinates_nn(embedding, geo_predictor):
     return predicted_coords
 
 def evaluate_nn_model(X_test, y_test, geo_predictor):
-    print("Evaluating the neural network model...")
-    y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in track(X_test, description="Predicting coordinates...")])
+    #print("Evaluating the neural network model...")
+
+    y_test = y_test.cpu().numpy()
+    X_test = X_test.cpu().numpy()
+
+    y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test])
     distances = np.array([haversine_distance(y_test[i], y_pred[i]) for i in range(len(y_test))])
-    print(f"Mean Distance Error: {np.mean(distances)} km")
-    print(f"Median Distance Error: {np.median(distances)} km")
-    print(f"Max Distance Error: {np.max(distances)} km")
-    print(f"Min Distance Error: {np.min(distances)} km")
-    print(f"Standard Deviation: {np.std(distances)} km")
-    print(f"25th Percentile: {np.percentile(distances, 25)} km")
-    print(f"50th Percentile: {np.percentile(distances, 50)} km")
-    print(f"75th Percentile: {np.percentile(distances, 75)} km")
-    print(f"90th Percentile: {np.percentile(distances, 90)} km")
-    print(f"Index of the minimum distance: {np.argmin(distances)} with name {image_paths[np.argmin(distances)]} and distance {np.min(distances)} km")
-    print(f"Index of the maximum distance: {np.argmax(distances)} with name {image_paths[np.argmax(distances)]} and distance {np.max(distances)} km")
-    
-    plt.figure(figsize=(20,9))
-    plt.hist(distances, bins=100, color='skyblue', edgecolor='black', linewidth=1)
-    plt.title('Histogram of Distance Errors (NN)')
-    plt.xlabel('Distance Error (km)')
-    plt.ylabel('Frequency')
-    plt.show(block=False)
-    plt.pause(2)
-    plt.close()
+
     return np.mean(distances), distances
 
 geo_predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{name}.pth'))
@@ -419,46 +396,11 @@ print(f"Mean Haversine Distance with NN: {mean_haversine_distance_nn} km")
 X_test = X_test.cpu().numpy()
 y_test = y_test.cpu().numpy()
 
-
-plt.figure(figsize=(10, 8))
-world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
-plt.scatter(y_test[:100, 1], y_test[:100, 0], color='blue', label='True')
-y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test[:100]])
-plt.scatter(y_pred[:100, 1], y_pred[:100, 0], color='red', label='Predicted')
-for i in range(100):
-    plt.plot([y_test[i, 1], y_pred[i, 1]], [y_test[i, 0], y_pred[i, 0]], color='green', alpha=0.5)
-plt.title('True vs Predicted Coordinates')
-plt.xlabel('Longitude')
-plt.ylabel('Latitude')
-plt.legend()
-plt.show(block=False)
-plt.pause(2)
-plt.close()
-
 indices = np.argsort(haversine_distances)[:100]
 image_paths_smallest = [image_paths[i] for i in indices]
 true_coords_smallest = y_test[indices]
 predicted_coords_smallest = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test[indices]])
 
-plt.figure(figsize=(10, 8))
-world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
-plt.scatter(true_coords_smallest[:, 1], true_coords_smallest[:, 0], color='blue', label='True')
-plt.scatter(predicted_coords_smallest[:, 1], predicted_coords_smallest[:, 0], color='red', label='Predicted')
-for i in range(100):
-    plt.plot([true_coords_smallest[i, 1], predicted_coords_smallest[i, 1]],
-             [true_coords_smallest[i, 0], predicted_coords_smallest[i, 0]],
-             color='green', alpha=0.5)
-plt.title('100 Smallest Haversine Distances: True vs Predicted Coordinates')
-plt.xlabel('Longitude')
-plt.ylabel('Latitude')
-plt.legend()
-plt.show(block=False)
-plt.pause(2)
-plt.close()
 
-# Optionally, when everything is done, you can close the popout window:
-loss_root.quit()
-# Note: The popout window will remain open until you close it manually or the script ends. 
+
 
