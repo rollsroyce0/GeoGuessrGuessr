@@ -44,7 +44,7 @@ class GeoEmbeddingModel(nn.Module):
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super().__init__()
-        dims = [2048, 1024, 512, 256, 128, 32, 16]
+        dims = [4096, 2048, 1024, 512, 256, 128, 32, 16]
         for i in range(len(dims)-1):
             in_dim, out_dim = dims[i], dims[i+1]
             setattr(self, f'fc{i+1}', nn.Linear(in_dim, out_dim))
@@ -166,7 +166,7 @@ def main(testtype=None):
     
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
-    embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
+    embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model.pth', map_location=device))
 
     # Precompute embeddings
     with torch.no_grad():
@@ -183,12 +183,12 @@ def main(testtype=None):
     total_points_backup = []
 
     # Loop over predictor weights
-    for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
+    for fname in sorted(os.listdir('Roy/ML/Playground/Double/Models')):
         if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth') or 'check' in fname:
             continue
 
         predictor = GeoPredictorNN().to(device).eval()
-        predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{fname}', map_location=device))
+        predictor.load_state_dict(torch.load(f'Roy/ML/Playground/Double/Models/{fname}', map_location=device))
 
         with torch.no_grad():
             preds = predictor(embeddings.to(device)).cpu().numpy()
@@ -230,17 +230,17 @@ def main(testtype=None):
         #print(preds)
     # Save the testtype and the best three models to a file
     # Check if the file exists, if not create it
-    if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}.txt'):
+    if not os.path.exists(f'Roy/ML/Playground/Double/Best_models_{testtype}.txt'):
         # Throw an error if the file does not exist
-        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}.txt does not exist")
+        raise FileNotFoundError(f"File Roy/ML/Playground/Double/Best_models_{testtype}.txt does not exist")
     # remove all text from the file
-    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'r+') as f:
+    with open(f'Roy/ML/Playground/Double/Best_models_{testtype}.txt', 'r+') as f:
         #one=1
         # remove everything from the file
         f.truncate(0)
 
-    
-    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'a') as f:
+
+    with open(f'Roy/ML/Playground/Double/Best_models_{testtype}.txt', 'a') as f:
         #one=1
         # remove everything from the file
         
@@ -283,11 +283,11 @@ def main(testtype=None):
     print("Average difficulty score of this round:", np.round(np.mean(difficulty_scores), 3))
     # add the average difficutly score for the test type to a file
 
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'a') as f:
+    with open(f'Roy/ML/Playground/Double/Difficulty_scores.txt', 'a') as f:
         f.write(f"{testtype}: {np.round(np.mean(difficulty_scores), 3)}, Highest: {np.round(np.max(difficulty_scores), 3)}, Lowest: {np.round(np.min(difficulty_scores), 3)}\n")
         
         # remove any duplicate lines (it is a duplicate, if the first 5 characters are the same)
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'r') as f:
+    with open(f'Roy/ML/Playground/Double/Difficulty_scores.txt', 'r') as f:
         lines = f.readlines()
     
     # remove duplicates by checking the first 5 characters of each line
@@ -298,8 +298,8 @@ def main(testtype=None):
     
     # sort the lines by the difficulty score (the second value in the line)
     lines = sorted(lines, key=lambda x: float(x.split(':')[1].split(',')[0]), reverse=True)
-    
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'w') as f:
+
+    with open(f'Roy/ML/Playground/Double/Difficulty_scores.txt', 'w') as f:
         f.writelines(lines)
     # Calculate average and median scores
     total_points_backup = np.array(total_points_backup)

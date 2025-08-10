@@ -91,7 +91,7 @@ class GeoEmbeddingModel(torch.nn.Module):
         return x
 
 embeddings_file = 'Roy/ML/Best_embeddings.npy'
-image_paths_file = 'Roy/ML/Bestimage_paths.npy'
+image_paths_file = 'Roy/ML/Best_image_paths.npy'
 
 if os.path.exists(embeddings_file) and os.path.exists(image_paths_file):
     embeddings = np.load(embeddings_file).astype(np.float32)
@@ -148,12 +148,10 @@ class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
         self.fc1 = nn.Linear(2048, 1024)
-
-        #self.dropout0 = nn.Dropout(0.05)
-
+        self.dropout0 = nn.Dropout(0.00001)
         self.batch_norm1 = nn.BatchNorm1d(1024)
         self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.15)
+        self.dropout1 = nn.Dropout(0.2)
 
         self.fc2 = nn.Linear(1024, 512)
         self.batch_norm2 = nn.BatchNorm1d(512)
@@ -163,17 +161,17 @@ class GeoPredictorNN(nn.Module):
         self.fc3 = nn.Linear(512, 256)
         self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.4)
+        self.dropout3 = nn.Dropout(0.1)
         
         self.fc4 = nn.Linear(256, 128)
         self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.4)
+        self.dropout4 = nn.Dropout(0.1)
 
         self.fc5 = nn.Linear(128, 32)
         self.batch_norm5 = nn.BatchNorm1d(32)
         self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.2)
+        self.dropout5 = nn.Dropout(0.1)
         
         self.fc6 = nn.Linear(32, 16)
         self.batch_norm6 = nn.BatchNorm1d(16)
@@ -259,9 +257,9 @@ scheduler = ReduceLROnPlateau(
 # Training Loop                         #
 #######################################
 
-batch_size_data = 256
+batch_size_data = 212
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 567
+epochs = 595
 
 losses = []
 val_losses = []

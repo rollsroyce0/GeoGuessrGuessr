@@ -21,6 +21,29 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 warnings.filterwarnings("ignore")
 
+def create_loss_window():
+    root = tk.Tk()
+    root.title("Latest Validation Loss")
+    large_font = font.Font(family="Helvetica", size=72, weight="bold")
+    loss_label = tk.Label(root, text="Epoch: N/A\nVal Loss: N/A\nLowest Loss: N/A", font=large_font, bg="white", fg="black")
+    loss_label.pack(padx=20, pady=20)
+    return root, loss_label
+
+def update_loss_label(loss_label, epoch, new_loss, min_val_loss):
+    points =np.floor(5000 * np.exp(-1*new_loss/2000))
+    loss_label.config(text=f"Epoch: {epoch}\nVal Loss: {new_loss:.1f} km\nLowest Loss: {min_val_loss:.1f} km\nGeoguessr Points: {int(points)}")
+    loss_label.update_idletasks()
+
+def launch_loss_window(window_ready_event):
+    global loss_root, loss_label
+    loss_root, loss_label = create_loss_window()
+    window_ready_event.set()  # signal that window is ready
+    loss_root.mainloop()
+
+# Start the Tkinter window in a separate thread
+window_ready_event = threading.Event()
+threading.Thread(target=launch_loss_window, args=(window_ready_event,), daemon=True).start()
+window_ready_event.wait()  # Wait until the window is ready
 
 
 #######################################
@@ -83,8 +106,8 @@ class GeoEmbeddingModel(torch.nn.Module):
         x = x.view(x.size(0), -1)
         return x
 
-embeddings_file = 'Roy/ML/embeddings.npy'
-image_paths_file = 'Roy/ML/image_paths.npy'
+embeddings_file = 'Roy/ML/Playground/Double/embeddings.npy'
+image_paths_file = 'Roy/ML/Playground/Double/image_paths.npy'
 
 if os.path.exists(embeddings_file) and os.path.exists(image_paths_file):
     embeddings = np.load(embeddings_file).astype(np.float32)
@@ -99,9 +122,9 @@ else:
     small_loader = DataLoader(SmallResDataset(image_paths), batch_size=8, shuffle=True)
 
     
-    if os.path.exists('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'):
-        model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'))
-    
+    if os.path.exists('Roy/ML/Saved_Models/geo_embedding_model.pth'):
+        model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model.pth'))
+
     print("Generating custom embeddings...")
     embeddings_list = []
     model.eval()
@@ -147,40 +170,44 @@ y_test = torch.tensor(y_test).float().to(device)
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
-        self.fc1 = nn.Linear(2048, 1024)
+        self.fc1 = nn.Linear(4096, 2048)
+        self.dropout0 = nn.Dropout(0.05)
 
-        #self.dropout0 = nn.Dropout(0.05)
-
-        self.batch_norm1 = nn.BatchNorm1d(1024)
+        self.batch_norm1 = nn.BatchNorm1d(2048)
         self.gelu1 = nn.GELU()
         self.dropout1 = nn.Dropout(0.15)
 
-        self.fc2 = nn.Linear(1024, 512)
-        self.batch_norm2 = nn.BatchNorm1d(512)
+        self.fc2 = nn.Linear(2048, 1024)
+        self.batch_norm2 = nn.BatchNorm1d(1024)
         self.gelu2 = nn.GELU()
         self.dropout2 = nn.Dropout(0.2)
-        
-        self.fc3 = nn.Linear(512, 256)
-        self.batch_norm3 = nn.BatchNorm1d(256)
-        self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.4)
-        
-        self.fc4 = nn.Linear(256, 128)
-        self.batch_norm4 = nn.BatchNorm1d(128)
-        self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.4)
 
-        self.fc5 = nn.Linear(128, 32)
-        self.batch_norm5 = nn.BatchNorm1d(32)
+        self.fc3 = nn.Linear(1024, 512)
+        self.batch_norm3 = nn.BatchNorm1d(512)
+        self.gelu3 = nn.GELU()
+        self.dropout3 = nn.Dropout(0.2)
+
+        self.fc4 = nn.Linear(512, 256)
+        self.batch_norm4 = nn.BatchNorm1d(256)
+        self.gelu4 = nn.GELU()
+        self.dropout4 = nn.Dropout(0.2)
+        
+        self.fc5 = nn.Linear(256, 128)
+        self.batch_norm5 = nn.BatchNorm1d(128)
         self.gelu5 = nn.GELU()
         self.dropout5 = nn.Dropout(0.2)
-        
-        self.fc6 = nn.Linear(32, 16)
-        self.batch_norm6 = nn.BatchNorm1d(16)
+
+        self.fc6 = nn.Linear(128, 32)
+        self.batch_norm6 = nn.BatchNorm1d(32)
         self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.05)
-        
-        self.fc7 = nn.Linear(16, 2)
+        self.dropout6 = nn.Dropout(0.2)
+
+        self.fc7 = nn.Linear(32, 16)
+        self.batch_norm7 = nn.BatchNorm1d(16)
+        self.gelu7 = nn.GELU()
+        self.dropout7 = nn.Dropout(0.05)
+
+        self.fc8 = nn.Linear(16, 2)
 
     def forward(self, x):
         x = self.fc1(x)
@@ -203,18 +230,23 @@ class GeoPredictorNN(nn.Module):
         x = self.batch_norm4(x)
         x = self.gelu4(x)
         x = self.dropout4(x)
-        
+
         x = self.fc5(x)
         x = self.batch_norm5(x)
         x = self.gelu5(x)
         x = self.dropout5(x)
-            
+
         x = self.fc6(x)
         x = self.batch_norm6(x)
         x = self.gelu6(x)
         x = self.dropout6(x)
-        
+
         x = self.fc7(x)
+        x = self.batch_norm7(x)
+        x = self.gelu7(x)
+        x = self.dropout7(x)
+
+        x = self.fc8(x)
         return x
 
 # Initialize the predictor model
@@ -299,6 +331,8 @@ for epoch in track(range(epochs), description="Training the model..."):
         val_loss = haversine_loss(geo_predictor(X_test), y_test)
         val_losses.append(val_loss.item())
     
+    # Update the popout window with the latest epoch and validation loss
+    update_loss_label(loss_label, epoch + 1, val_loss.item(), min_val_loss)
     
     if val_loss.item() < min_val_loss:
         min_val_loss = val_loss.item()
@@ -333,15 +367,26 @@ if os.path.exists(f'Roy/ML/Saved_Models/{name}.pth'):
 print(f"Saving model as {name}")
 torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models/{name}.pth')
 
+
+#######################################
+# Plot Training and Validation Losses   #
+#######################################
+plt.figure(figsize=(10, 6))
+plt.plot(losses, color='skyblue')
+plt.plot(val_losses, color='orange')
+plt.title('Training Loss vs Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.grid()
+plt.legend(['Training Loss', 'Validation Loss'])
+plt.show(block=False)
+plt.pause(2)
+plt.close()
+
 #######################################
 # Evaluation and Visualization          #
 #######################################
 def haversine_distance(coords1, coords2):
-    if len(coords1) != 2 or len(coords2) != 2:
-        raise ValueError("Coordinates must be in the format [lat, lon].")
-    # Check if it is not nan
-    if np.isnan(coords1).any() or np.isnan(coords2).any():
-        return 10000
     return geopy.distance.geodesic(coords1, coords2).kilometers
 
 def predict_coordinates_nn(embedding, geo_predictor):
@@ -354,14 +399,29 @@ def predict_coordinates_nn(embedding, geo_predictor):
     return predicted_coords
 
 def evaluate_nn_model(X_test, y_test, geo_predictor):
-    #print("Evaluating the neural network model...")
-
-    y_test = y_test.cpu().numpy()
-    X_test = X_test.cpu().numpy()
-
-    y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test])
+    print("Evaluating the neural network model...")
+    y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in track(X_test, description="Predicting coordinates...")])
     distances = np.array([haversine_distance(y_test[i], y_pred[i]) for i in range(len(y_test))])
-
+    print(f"Mean Distance Error: {np.mean(distances)} km")
+    print(f"Median Distance Error: {np.median(distances)} km")
+    print(f"Max Distance Error: {np.max(distances)} km")
+    print(f"Min Distance Error: {np.min(distances)} km")
+    print(f"Standard Deviation: {np.std(distances)} km")
+    print(f"25th Percentile: {np.percentile(distances, 25)} km")
+    print(f"50th Percentile: {np.percentile(distances, 50)} km")
+    print(f"75th Percentile: {np.percentile(distances, 75)} km")
+    print(f"90th Percentile: {np.percentile(distances, 90)} km")
+    print(f"Index of the minimum distance: {np.argmin(distances)} with name {image_paths[np.argmin(distances)]} and distance {np.min(distances)} km")
+    print(f"Index of the maximum distance: {np.argmax(distances)} with name {image_paths[np.argmax(distances)]} and distance {np.max(distances)} km")
+    
+    plt.figure(figsize=(20,9))
+    plt.hist(distances, bins=100, color='skyblue', edgecolor='black', linewidth=1)
+    plt.title('Histogram of Distance Errors (NN)')
+    plt.xlabel('Distance Error (km)')
+    plt.ylabel('Frequency')
+    plt.show(block=False)
+    plt.pause(2)
+    plt.close()
     return np.mean(distances), distances
 
 geo_predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{name}.pth'))
@@ -372,10 +432,50 @@ print(f"Mean Haversine Distance with NN: {mean_haversine_distance_nn} km")
 X_test = X_test.cpu().numpy()
 y_test = y_test.cpu().numpy()
 
+
+plt.figure(figsize=(10, 8))
+world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
+plt.scatter(y_test[:100, 1], y_test[:100, 0], color='blue', label='True')
+y_pred = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test[:100]])
+plt.scatter(y_pred[:100, 1], y_pred[:100, 0], color='red', label='Predicted')
+for i in range(100):
+    plt.plot([y_test[i, 1], y_pred[i, 1]], [y_test[i, 0], y_pred[i, 0]], color='green', alpha=0.5)
+plt.title('True vs Predicted Coordinates')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.legend()
+plt.show(block=False)
+plt.pause(2)
+plt.close()
+
 indices = np.argsort(haversine_distances)[:100]
 image_paths_smallest = [image_paths[i] for i in indices]
 true_coords_smallest = y_test[indices]
 predicted_coords_smallest = np.array([predict_coordinates_nn(embedding, geo_predictor) for embedding in X_test[indices]])
+
+plt.figure(figsize=(10, 8))
+world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
+plt.scatter(true_coords_smallest[:, 1], true_coords_smallest[:, 0], color='blue', label='True')
+plt.scatter(predicted_coords_smallest[:, 1], predicted_coords_smallest[:, 0], color='red', label='Predicted')
+for i in range(100):
+    plt.plot([true_coords_smallest[i, 1], predicted_coords_smallest[i, 1]],
+             [true_coords_smallest[i, 0], predicted_coords_smallest[i, 0]],
+             color='green', alpha=0.5)
+plt.title('100 Smallest Haversine Distances: True vs Predicted Coordinates')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.legend()
+plt.show(block=False)
+plt.pause(2)
+plt.close()
+
+# Optionally, when everything is done, you can close the popout window:
+loss_root.quit()
+# Note: The popout window will remain open until you close it manually or the script ends. 
+
+
 
 
 

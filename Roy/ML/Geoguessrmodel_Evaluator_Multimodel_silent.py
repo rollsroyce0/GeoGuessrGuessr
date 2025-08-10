@@ -165,8 +165,9 @@ def main(testtype=None):
         raise ValueError("Invalid test type. Choose a valid one from the list.")
     
     # Initialize embedding model
+    
     embed_model = GeoEmbeddingModel().to(device).eval()
-    embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
+    embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth', map_location=device))
 
     # Precompute embeddings
     with torch.no_grad():
@@ -186,7 +187,7 @@ def main(testtype=None):
     for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
         if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth') or 'check' in fname:
             continue
-
+        #print(f"Evaluating model: {fname}")
         predictor = GeoPredictorNN().to(device).eval()
         predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{fname}', map_location=device))
 
