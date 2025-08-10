@@ -11,7 +11,7 @@ max_score = 0
 for file_name in os.listdir(folder_path):
     if file_name.endswith('.txt') and not file_name.startswith('Difficulty'):
         if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords.txt':
-            continue
+            continue 
         max_score += 25
         file_path = os.path.join(folder_path, file_name)
         with open(file_path, 'r') as file:
