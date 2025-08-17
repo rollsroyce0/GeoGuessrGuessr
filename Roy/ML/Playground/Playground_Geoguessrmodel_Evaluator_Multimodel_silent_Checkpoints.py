@@ -167,7 +167,7 @@ def main(testtype=None):
     
     # Initialize embedding model
     embed_model = GeoEmbeddingModel().to(device).eval()
-    embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
+    embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth', map_location=device))
 
     # Precompute embeddings
     with torch.no_grad():
@@ -183,6 +183,8 @@ def main(testtype=None):
     highest_points = [0,0,0,0,0]
     total_points_backup = []
     names_bad = []
+    print(f"Number of predictor models: {len(os.listdir('Roy/ML/Saved_Models'))}")
+    print(f"Number of checkpoint models: {len(os.listdir('Roy/ML/Saved_Models_New/Checkpoint_Models_NN'))}")
 
     # Loop over predictor weights
     for fname in track(sorted(os.listdir('Roy/ML/Saved_Models'))):
