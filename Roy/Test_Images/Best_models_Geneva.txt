@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Geneva: geo_predictor_nn_888e_256b_953k.pth, geo_predictor_nn_500e_64b_969k.pth, geo_predictor_nn_1000e_256b_1042k.pth, geo_predictor_nn_499e_64b_1009k.pth, geo_predictor_nn_900e_256b_1446k.pth, geo_predictor_nn_250e_256b_945k.pth, geo_predictor_nn_1000e_64b_976k.pth, geo_predictor_nn_200e_64b_1101k.pth, geo_predictor_nn_601e_256b_984k.pth, geo_predictor_nn_1000e_256b_936k.pth

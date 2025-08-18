@@ -5,7 +5,9 @@ Moscow: 185.019, Highest: 544.278, Lowest: 17.838
 World: 116.383, Highest: 359.647, Lowest: 0.406
 Friends: 89.697, Highest: 395.537, Lowest: 0.109
 Entire: 81.8, Highest: 222.279, Lowest: 0.469
+Beans: 81.092, Highest: 354.608, Lowest: 0.71
 Super: 75.385, Highest: 246.967, Lowest: 1.009
+Geneva: 71.795, Highest: 217.404, Lowest: 0.425
 Validation: 68.759, Highest: 250.515, Lowest: 0.708
 Zurich: 62.407, Highest: 262.354, Lowest: 1.801
 Exam: 62.189, Highest: 213.056, Lowest: 0.761
@@ -14,4 +16,5 @@ Chrome: 51.723, Highest: 152.571, Lowest: 1.256
 Game: 44.818, Highest: 88.681, Lowest: 1.448
 Verification: 30.895, Highest: 111.585, Lowest: 1.983
 Full: 29.086, Highest: 88.586, Lowest: 1.495
+Berne: 22.674, Highest: 38.133, Lowest: 5.541
 Task: 16.85, Highest: 65.026, Lowest: 0.461

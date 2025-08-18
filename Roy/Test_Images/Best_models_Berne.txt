@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Berne: geo_predictor_nn_525e_256b_1003k.pth, geo_predictor_nn_500e_64b_952k.pth, geo_predictor_nn_500e_256b_714k.pth, geo_predictor_nn_750e_256b_975k.pth, geo_predictor_nn_1300e_256b_984k.pth, geo_predictor_nn_690e_256b_1748k.pth, geo_predictor_nn_505e_232b_959k.pth, geo_predictor_nn_502e_232b_1030k.pth, geo_predictor_nn_750e_444b_839k.pth, geo_predictor_nn_497e_256b_1049k.pth

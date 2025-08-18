@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Beans: geo_predictor_nn_601e_256b_962k_1748182267.pth, geo_predictor_nn_4000e_256b_903k.pth, geo_predictor_nn_1200e_256b_817k.pth, geo_predictor_nn_505e_232b_970k.pth, geo_predictor_nn_250e_256b_951k.pth, geo_predictor_nn_505e_232b_1007k.pth, geo_predictor_nn_502e_232b_990k.pth, geo_predictor_nn_555e_256b_800k.pth, geo_predictor_nn_511e_256b_1004k.pth, geo_predictor_nn_729e_256b_958k.pth
