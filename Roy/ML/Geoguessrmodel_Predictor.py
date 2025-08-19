@@ -28,11 +28,11 @@ class GeoEmbeddingModel(nn.Module):
 class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
-        self.fc1 = nn.Linear(2048, 1024)  # Fully connected layer
-        self.dropout0 = nn.Dropout(0.2)   # Dropout layer to prevent overfitting
-        self.batch_norm1 = nn.BatchNorm1d(1024)  # Batch normalization layer
+        self.fc1 = nn.Linear(2048, 1024)
+        self.dropout0 = nn.Dropout(0.00001)
+        self.batch_norm1 = nn.BatchNorm1d(1024)
         self.gelu1 = nn.GELU()
-        self.dropout1 = nn.Dropout(0.2)   # Dropout layer to prevent overfitting
+        self.dropout1 = nn.Dropout(0.2)
 
         self.fc2 = nn.Linear(1024, 512)
         self.batch_norm2 = nn.BatchNorm1d(512)
@@ -42,27 +42,24 @@ class GeoPredictorNN(nn.Module):
         self.fc3 = nn.Linear(512, 256)
         self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.2)
-        
+        self.dropout3 = nn.Dropout(0.1)
         
         self.fc4 = nn.Linear(256, 128)
         self.batch_norm4 = nn.BatchNorm1d(128)
         self.gelu4 = nn.GELU()
-        self.dropout4 = nn.Dropout(0.2)
-        
+        self.dropout4 = nn.Dropout(0.1)
+
         self.fc5 = nn.Linear(128, 32)
         self.batch_norm5 = nn.BatchNorm1d(32)
         self.gelu5 = nn.GELU()
-        self.dropout5 = nn.Dropout(0.2)
+        self.dropout5 = nn.Dropout(0.1)
         
         self.fc6 = nn.Linear(32, 16)
         self.batch_norm6 = nn.BatchNorm1d(16)
         self.gelu6 = nn.GELU()
-        self.dropout6 = nn.Dropout(0.1)
+        self.dropout6 = nn.Dropout(0.05)
         
-
         self.fc7 = nn.Linear(16, 2)
-
 
     def forward(self, x):
         x = self.fc1(x)
@@ -81,13 +78,12 @@ class GeoPredictorNN(nn.Module):
         x = self.gelu3(x)
         x = self.dropout3(x)
         
-        
         x = self.fc4(x)
         x = self.batch_norm4(x)
         x = self.gelu4(x)
         x = self.dropout4(x)
         
-        x = self.fc5(x)  
+        x = self.fc5(x)
         x = self.batch_norm5(x)
         x = self.gelu5(x)
         x = self.dropout5(x)
@@ -97,8 +93,7 @@ class GeoPredictorNN(nn.Module):
         x = self.gelu6(x)
         x = self.dropout6(x)
         
-        x = self.fc7(x)    
-        
+        x = self.fc7(x)
         return x
 
 # Function to load and transform the image
@@ -159,12 +154,15 @@ def haversine(coord1, coord2):
     return R * c
 
 # Visualization: Plot predicted coordinates on the world map
-def plot_coordinates_on_map(predicted_coords, image_path):
+def plot_coordinates_on_map(predicted_coords, image_path, predicted_coords0, predicted_coords1, predicted_coords2):
     plt.figure(figsize=(10, 8))
     world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
     world.boundary.plot(ax=plt.gca(), linewidth=1, color='black')
 
     plt.scatter(predicted_coords[1], predicted_coords[0], color='red', label='Predicted Location', s=100)
+    plt.scatter(predicted_coords0[1], predicted_coords0[0], color='blue', label='Model 1 Location', s=100)
+    plt.scatter(predicted_coords1[1], predicted_coords1[0], color='green', label='Model 2 Location', s=100)
+    plt.scatter(predicted_coords2[1], predicted_coords2[0], color='orange', label='Model 3 Location', s=100)
     plt.title(f'Predicted Coordinates on the World Map for the Image {image_path}')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
@@ -178,40 +176,45 @@ if __name__ == "__main__":
     # Load the models
     geo_embedding_model = GeoEmbeddingModel().to(device)
     geo_predictor_nn = GeoPredictorNN().to(device)
+    geo_predictor_nn1 = GeoPredictorNN().to(device)
+    geo_predictor_nn2 = GeoPredictorNN().to(device)
 
     # Load the saved model weights
-    geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth', map_location=device))
-    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_952k.pth', map_location=device))
-    # currently best model: geo_predictor_nn_500e_64b_952k.pth at 16037 points
-    
-    # Call the images to be tested Current_Test_ImagesX.jpg
+    geo_embedding_model.load_state_dict(torch.load('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth', map_location=device))
+    geo_predictor_nn.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_601e_256b_962k_1748182267.pth', map_location=device))
+    # multimodel, take three models and their average
+    geo_predictor_nn1.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_256b_879k.pth', map_location=device))
+    geo_predictor_nn2.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_predictor_nn_500e_64b_988k.pth', map_location=device))
+
+
 
     counter = 0
     errors = []
-    for image_path in os.listdir('Roy/Test_Images'):
+    #for image_path in os.listdir('Roy/Test_Images'):
         
-        if not image_path.endswith('.jpg'):
-            continue
-        if not image_path.__contains__("Current"):
-            continue    
+        #if not image_path.endswith('.jpg'):
+            #continue
+        #if not image_path.__contains__("Current"):
+            #continue    
         
-        image_path = f"Roy/Test_Images/{image_path}"
+        #image_path = f"Roy/Test_Images/{image_path}"
+    image_path = f"Roy/Test_Images/test1.jpeg"
         
         #image_path = "Roy/Test_Images/test10.png"
         
         # Predict the coordinates
-        predicted_coords = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
-        print(f"Predicted Coordinates: Latitude: {predicted_coords[0]}, Longitude: {predicted_coords[1]}")
+    predicted_coords0 = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn)
+    predicted_coords1 = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn1)
+    predicted_coords2 = predict_image_coordinates(image_path, geo_embedding_model, geo_predictor_nn2)
+
+    predicted_coords = (predicted_coords0 + predicted_coords1 + predicted_coords2) / 3
+    print(f"Predicted Coordinates: Latitude: {predicted_coords[0]}, Longitude: {predicted_coords[1]}")
         
 
-        counter += 1
-        # Open the location in Google Maps
-        url = f"https://www.google.com/maps/@{predicted_coords[0]},{predicted_coords[1]},9z"
-        webbrowser.open_new_tab(url)
+    counter += 1
+    # Open the location in Google Maps
+    url = f"https://www.google.com/maps/@{predicted_coords[0]},{predicted_coords[1]},9z"
+    webbrowser.open_new_tab(url)
         
-        # Plot the predicted coordinates on the world map
-        plot_coordinates_on_map(predicted_coords, image_path)
-
-    
-
-    
+    # Plot the predicted coordinates on the world map
+    plot_coordinates_on_map(predicted_coords, image_path, predicted_coords0, predicted_coords1, predicted_coords2)
