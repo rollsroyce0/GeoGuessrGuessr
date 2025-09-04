@@ -148,7 +148,7 @@ class GeoPredictorNN(nn.Module):
     def __init__(self):
         super(GeoPredictorNN, self).__init__()
         self.fc1 = nn.Linear(2048, 1024)
-        self.dropout0 = nn.Dropout(0.00001)
+        self.dropout0 = nn.Dropout(0.01)
         self.batch_norm1 = nn.BatchNorm1d(1024)
         self.gelu1 = nn.GELU()
         self.dropout1 = nn.Dropout(0.2)
@@ -257,7 +257,7 @@ scheduler = ReduceLROnPlateau(
 # Training Loop                         #
 #######################################
 
-batch_size_data = 1024
+batch_size_data = 420
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
 epochs = 1000
 
