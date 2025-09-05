@@ -199,6 +199,23 @@ def main(testtype=None):
     for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
         if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth') or 'check' in fname:
             continue
+        for txtfile in ['Roy/Test_Images']:
+            if txtfile.endswith(f'Best_models_{testtype}.txt'):
+                with open(txtfile, 'r') as f:
+                    lines = f.readlines()
+                    model_line = None
+                    for line in lines:
+                        if line.startswith(testtype):
+                            model_line = line
+                            break
+                    if model_line is None:
+                        raise ValueError(f"No entry found for test type {testtype} in {txtfile}")
+                    best_models = [m.strip() for m in model_line.split(':')[1].split(',')]
+                    if fname not in best_models:
+                        #print(f"Skipping {fname} as it's not in the best models list for {testtype}")
+                        continue
+
+
         #print(f"Evaluating model: {fname}")
         predictor = GeoPredictorNN().to(device).eval()
         predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{fname}', map_location=device))
