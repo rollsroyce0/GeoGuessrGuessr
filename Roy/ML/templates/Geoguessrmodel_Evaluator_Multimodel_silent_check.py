@@ -258,24 +258,6 @@ def main(testtype=None):
     for i, (fname, total_pts, preds) in enumerate(results):
         print(f"{i+1}: {fname} - {total_pts} pts")
         #print(preds)
-    # Save the testtype and the best three models to a file
-    # Check if the file exists, if not create it
-    if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}_check.txt'):
-        # Throw an error if the file does not exist
-        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}_check.txt does not exist")
-    # remove all text from the file
-    with open(f'Roy/Test_Images/Best_models_{testtype}_check.txt', 'r+') as f:
-        #one=1
-        # remove everything from the file
-        f.truncate(0)
-
-    
-    with open(f'Roy/Test_Images/Best_models_{testtype}_check.txt', 'a') as f:
-        #one=1
-        # remove everything from the file
-        
-        f.write("Best 10 models for each test type:\n")
-        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}, {results[3][0]}, {results[4][0]}, {results[5][0]}, {results[6][0]}, {results[7][0]}, {results[8][0]}, {results[9][0]}\n")
     
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
@@ -309,33 +291,5 @@ def main(testtype=None):
     median_scores = np.median(total_points_backup, axis=0)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
+    return sum(final_pts), sum(highest_points), 0, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
 
-
-
-if __name__ == "__main__":
-    start_time = time.time()
-    testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
-    errors = []
-    final_scores = []
-    if testtype == 'All':
-        for testtype in list_of_maps:
-            print("\n----------------------------------------------------------------------\n")
-            #print(f"Running test for {testtype}...")
-            final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths = main(testtype)
-            errors.extend(final_errs)
-            final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores))
-        print("\nFinal scores for all test types:")
-        for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores in final_scores:
-            print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
-
-        avg_avg_scores = np.mean([fs[4] for fs in final_scores], axis=0)
-        avg_median_scores = np.mean([fs[5] for fs in final_scores], axis=0)
-        print(f"\nAverage scores across all test types:\nAvg Scores: {avg_avg_scores}, Median Scores: {avg_median_scores}")
-        print(f"\nOverall average error across all test types: {np.mean(errors)} km, Median error: {np.median(errors)} km")
-            
-    else:
-        final_score, highest_score, difficulty_score, avg_scores, median_scores = main(testtype)
-        print(f"\nFinal score for {testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
-        #main() # Uncomment this line to run the main function without any arguments and accept user input
-    print(f"Execution time: {time.time() - start_time} seconds")

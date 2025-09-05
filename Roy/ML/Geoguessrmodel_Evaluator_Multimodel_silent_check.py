@@ -194,30 +194,11 @@ def main(testtype=None):
     start = time.time()
     highest_points = [0,0,0,0,0]
     total_points_backup = []
-    for txtfile in sorted(os.listdir('Roy/Test_Images')):
-                #print(f"Evaluating model: {fname} against {txtfile}")
-                if txtfile.endswith(f'Best_models_{testtype}.txt'):
-                    txtfile_path = os.path.join('Roy/Test_Images', txtfile)
-                    with open(txtfile_path, 'r') as f:
-                        lines = f.readlines()
-                        model_line = None
-                        for line in lines:
-                            if line.startswith(testtype):
-                                model_line = line
-                                break
-                        if model_line is None:
-                            raise ValueError(f"No entry found for test type {testtype} in {txtfile}")
-                        best_models = [m.strip() for m in model_line.split(':')[1].split(',')]
+
     # Loop over predictor weights
     for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
-        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth') or 'check' in fname:
+        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth'):
             continue
-        
-        if fname not in best_models:
-            #print(f"Skipping {fname} as it's not in the best models list for {testtype}")
-            continue
-
-
         #print(f"Evaluating model: {fname}")
         predictor = GeoPredictorNN().to(device).eval()
         predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{fname}', map_location=device))
@@ -260,8 +241,25 @@ def main(testtype=None):
     for i, (fname, total_pts, preds) in enumerate(results):
         print(f"{i+1}: {fname} - {total_pts} pts")
         #print(preds)
-    
+    # Save the testtype and the best three models to a file
+    # Check if the file exists, if not create it
+    if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}_check.txt'):
+        # Throw an error if the file does not exist
+        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}_check.txt does not exist")
+    # remove all text from the file
+    with open(f'Roy/Test_Images/Best_models_{testtype}_check.txt', 'r+') as f:
+        #one=1
+        # remove everything from the file
+        f.truncate(0)
 
+    
+    with open(f'Roy/Test_Images/Best_models_{testtype}_check.txt', 'a') as f:
+        #one=1
+        # remove everything from the file
+        
+        f.write("Best 10 models for each test type:\n")
+        f.write(f"{testtype}: {results[0][0]}, {results[1][0]}, {results[2][0]}, {results[3][0]}, {results[4][0]}, {results[5][0]}, {results[6][0]}, {results[7][0]}, {results[8][0]}, {results[9][0]}\n")
+    
     backups = list(zip(*[r[2] for r in results]))
     avg_preds = np.mean(np.array(backups), axis=1)
     #print(results)
@@ -283,8 +281,41 @@ def main(testtype=None):
         errors = np.sort(errors, axis=0)[:-10] # Remove the 10 highest errors or each individual image disregarding model order
     errors = np.array(errors)
     points_backup = np.sort(points_backup, axis=0)[-25:]
+    difficulty_scores = np.std(errors, axis=0) + 0.4*np.mean(errors, axis=0) # Add the mean to the std to get a more accurate score
+    #print("Errors:", errors)
+    print("Difficulty scores raw:", difficulty_scores)
+    # Normalize these on a scale 0-10, where an std dev of 2500 would be a difficulty of 10 and 0 would be 0. However this is not a linear scale, so we will use a logarithmic scale.
+    # We will use a base of 10, so that 10^0 = 1 and 10^1 = 10. This means that a difficulty of 0 would be 0 and a difficulty of 10 would be 10.
+    # We will also use a minimum difficulty of 1, so that we don't get negative scores.
+    # A Difficulty of 10 means the std is 4500km or above
     
+    
+    difficulty_scores = np.log10(difficulty_scores/1000 + 1) * 8.502741537 # Max difficulty is now 1000
+    #difficulty_scores = np.clip(difficulty_scores, 0, 10)
+    difficulty_scores = difficulty_scores**3
+    difficulty_scores = np.round(difficulty_scores, 3)
+    print("Difficulty scores for each image:", difficulty_scores)
+    print("Average difficulty score of this round:", np.round(np.mean(difficulty_scores), 3))
+    # add the average difficutly score for the test type to a file
 
+    with open(f'Roy/Test_Images/Difficulty_scores_check.txt', 'a') as f:
+        f.write(f"{testtype}: {np.round(np.mean(difficulty_scores), 3)}, Highest: {np.round(np.max(difficulty_scores), 3)}, Lowest: {np.round(np.min(difficulty_scores), 3)}\n")
+        
+        # remove any duplicate lines (it is a duplicate, if the first 5 characters are the same)
+    with open(f'Roy/Test_Images/Difficulty_scores_check.txt', 'r') as f:
+        lines = f.readlines()
+    
+    # remove duplicates by checking the first 5 characters of each line
+    seen = set()
+    lines = [line for line in reversed(lines) if not (line[:5] in seen or seen.add(line[:5]))]
+    lines = reversed(lines)  # reverse the lines back to original order
+    # write the lines back to the file
+    
+    # sort the lines by the difficulty score (the second value in the line)
+    lines = sorted(lines, key=lambda x: float(x.split(':')[1].split(',')[0]), reverse=True)
+    
+    with open(f'Roy/Test_Images/Difficulty_scores_check.txt', 'w') as f:
+        f.writelines(lines)
     # Calculate average and median scores
     total_points_backup = np.array(total_points_backup)
     total_points_backup = np.sort(total_points_backup, axis=0)[-25:]  # Keep the top 25 scores
@@ -293,4 +324,33 @@ def main(testtype=None):
     median_scores = np.median(total_points_backup, axis=0)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), 0, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
+    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
+
+
+
+if __name__ == "__main__":
+    start_time = time.time()
+    testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    errors = []
+    final_scores = []
+    if testtype == 'All':
+        for testtype in list_of_maps:
+            print("\n----------------------------------------------------------------------\n")
+            #print(f"Running test for {testtype}...")
+            final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths = main(testtype)
+            errors.extend(final_errs)
+            final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores))
+        print("\nFinal scores for all test types:")
+        for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores in final_scores:
+            print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
+
+        avg_avg_scores = np.mean([fs[4] for fs in final_scores], axis=0)
+        avg_median_scores = np.mean([fs[5] for fs in final_scores], axis=0)
+        print(f"\nAverage scores across all test types:\nAvg Scores: {avg_avg_scores}, Median Scores: {avg_median_scores}")
+        print(f"\nOverall average error across all test types: {np.mean(errors)} km, Median error: {np.median(errors)} km")
+            
+    else:
+        final_score, highest_score, difficulty_score, avg_scores, median_scores = main(testtype)
+        print(f"\nFinal score for {testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
+        #main() # Uncomment this line to run the main function without any arguments and accept user input
+    print(f"Execution time: {time.time() - start_time} seconds")
