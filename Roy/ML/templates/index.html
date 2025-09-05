@@ -9,6 +9,12 @@
         <option value="{{ t }}">{{ t }}</option>
       {% endfor %}
     </select>
+    <br><br>
+    <label>
+      <input type="checkbox" name="include_checkpoints">
+      <b>Include checkpoints (Warning: May significantly increase evaluation time)</b>
+    </label>
+    <br><br>
     <button type="submit">Run Evaluation</button>
   </form>
 </body>
