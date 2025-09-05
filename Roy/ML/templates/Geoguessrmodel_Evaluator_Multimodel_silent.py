@@ -293,4 +293,12 @@ def main(testtype=None):
     median_scores = np.median(total_points_backup, axis=0)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), 0, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
+
+    
+    with open('Roy/Test_Images/Difficulty_scores.txt', 'r') as f:
+        for diff in f.read().splitlines():
+            if diff.startswith(testtype):
+                Difficulty_scores = [float(diff.split(':')[1].split(',')[0])]
+                break
+
+    return sum(final_pts), sum(highest_points), Difficulty_scores, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
