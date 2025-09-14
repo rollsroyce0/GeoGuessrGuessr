@@ -12,8 +12,9 @@ for file_name in os.listdir(folder_path):
     if file_name.endswith('check.txt') and not file_name.startswith('Difficulty'):
         if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords.txt' or file_name == 'Best_overall_models_check.txt':
             continue 
-        max_score += 25
+        max_score += 3
         file_path = os.path.join(folder_path, file_name)
+        #print("Processing file: ", file_path)
         with open(file_path, 'r') as file:
             for line in file:
                 #print(line)
@@ -25,28 +26,28 @@ for file_name in os.listdir(folder_path):
                     if not model.startswith('geo'):
                         continue
                     if idx == 0:
-                        model_scores[model] += 25
+                        model_scores[model] += 3
                     elif idx == 1:
-                        model_scores[model] += 18
+                        model_scores[model] += 3
                     elif idx == 2:
-                        model_scores[model] += 15
-                    elif idx == 3:
-                        model_scores[model] += 12
-                    elif idx == 4:
-                        model_scores[model] += 10
-                    elif idx == 5:
-                        model_scores[model] += 8
-                    elif idx == 6:
-                        model_scores[model] += 6
-                    elif idx == 7:
-                        model_scores[model] += 4
-                    elif idx == 8:
                         model_scores[model] += 2
+                    elif idx == 3:
+                        model_scores[model] += 2
+                    elif idx == 4:
+                        model_scores[model] += 1
+                    elif idx == 5:
+                        model_scores[model] += 1
+                    elif idx == 6:
+                        model_scores[model] += 1
+                    elif idx == 7:
+                        model_scores[model] += 1    
+                    elif idx == 8:
+                        model_scores[model] += 1
                     else:
                         model_scores[model] += 1
 
 # Find the 3 highest scores
-highest_scores = sorted(model_scores.values(), reverse=True)[:3]
+highest_scores = sorted(model_scores.values(), reverse=True)[:1]
 model_scores = dict(sorted(model_scores.items(), key=lambda item: item[1], reverse=True)) 
 # save the leaderboard to a file called Best_overall_models_check.txt in the same folder
 output_file_path = os.path.join(folder_path, 'Best_overall_models_check.txt')
@@ -63,9 +64,10 @@ max_score_check = 0
 
 for file_name in os.listdir(folder_path):
     if file_name.endswith('.txt') and not file_name.startswith('Difficulty'):
-        if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords.txt' or file_name.endswith('check.txt'):
+        if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords_backup.txt' or file_name.endswith('check.txt'):
             continue 
         max_score_check += 25
+        #print("Processing file: ", file_name)
         file_path = os.path.join(folder_path, file_name)
         with open(file_path, 'r') as file:
             for line in file:
@@ -138,7 +140,7 @@ print("Average best model name: ", avg_model_name)
 
 
 print("Regular Models with the highest score out of a possible ", max_score, ":")
-print("Checkpoint Models with the highest score out of a possible ", max_score_check, ":")
+print("Checkpoint Model with the highest score out of a possible ", max_score_check, ":")
 print("leaderboard_check = [")
 for model, score in model_scores.items():
     if score in highest_scores:

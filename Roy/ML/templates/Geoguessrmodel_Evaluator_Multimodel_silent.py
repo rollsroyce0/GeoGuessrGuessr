@@ -30,7 +30,10 @@ list_of_maps = ['Game',
                 'Moscow',
                 'Beans',
                 'Geneva',
-                'Berne']
+                'Screen',
+                'Shoot',
+                'Berne',
+                'Funky']
 
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
@@ -132,6 +135,9 @@ def main(testtype=None):
     real_coords_Berne = np.array([[45.1505555,-62.9293509], [-7.3554706,110.0087041], [43.5722547,1.433309], [42.6433378,-8.5002503], [34.6325209,135.5288726]])
     real_coords_Beans = np.array([[58.5876457,13.4665706], [45.4151798,-72.9940301], [17.6926828,121.7066423], [6.711965,-1.6163255], [54.9033943,61.3904874]])
     real_coords_Geneva = np.array([[51.5228122,-0.4598376], [50.3514039,13.9085949], [-33.4692077,25.4182488], [7.4913942,3.9163648], [44.4120475,-90.9631281]])
+    real_coords_Screen = np.array([[40.8277375,-73.3291613], [61.0183407,24.5133898], [39.133634,-94.7250001], [28.5947955,77.2494721], [21.1454991,-88.1384239]])
+    real_coords_Shoot = np.array([[29.5580223,-98.322072], [49.7909501,18.4802871], [50.1588493,-5.2928866], [7.086827,125.5943939], [40.7892681,-73.50277]])
+    real_coords_Funky = np.array([[7.8269091,98.3394144], [49.3641445,8.5459606], [27.0107561,-82.1502861], [23.874421,90.3919131], [38.416887,-90.3832795]])
 
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -173,6 +179,12 @@ def main(testtype=None):
         real_coords = real_coords_Beans
     elif testtype == 'Geneva':
         real_coords = real_coords_Geneva
+    elif testtype == 'Screen':
+        real_coords = real_coords_Screen
+    elif testtype == 'Shoot':
+        real_coords = real_coords_Shoot
+    elif testtype == 'Funky':
+        real_coords = real_coords_Funky
     else:
         raise ValueError("Invalid test type. Choose a valid one from the list.")
     
