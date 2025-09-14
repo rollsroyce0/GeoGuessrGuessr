@@ -33,7 +33,8 @@ list_of_maps = ['Game',
                 'Screen',
                 'Shoot',
                 'Berne',
-                'Funky']
+                'Funky',
+                'Best']
 
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
@@ -138,6 +139,7 @@ def main(testtype=None):
     real_coords_Screen = np.array([[40.8277375,-73.3291613], [61.0183407,24.5133898], [39.133634,-94.7250001], [28.5947955,77.2494721], [21.1454991,-88.1384239]])
     real_coords_Shoot = np.array([[29.5580223,-98.322072], [49.7909501,18.4802871], [50.1588493,-5.2928866], [7.086827,125.5943939], [40.7892681,-73.50277]])
     real_coords_Funky = np.array([[7.8269091,98.3394144], [49.3641445,8.5459606], [27.0107561,-82.1502861], [23.874421,90.3919131], [38.416887,-90.3832795]])
+    real_coords_Best = np.array([[59.407269,15.415694], [49.3641445,8.5459606], [-1.5005364,29.621744], [23.874421,90.3919131], [51.5529906,-0.4758671]])
 
     if testtype == 'Game':
         real_coords = real_coords_Game
@@ -185,6 +187,8 @@ def main(testtype=None):
         real_coords = real_coords_Shoot
     elif testtype == 'Funky':
         real_coords = real_coords_Funky
+    elif testtype == 'Best':
+        real_coords = real_coords_Best
     else:
         raise ValueError("Invalid test type. Choose a valid one from the list.")
     

@@ -33,6 +33,7 @@ list_of_maps = ['Game',
                 'Screen',
                 'Shoot',
                 'Funky',
+                'Best',
                 'Berne']
 
 # Custom Model to generate embeddings
@@ -138,6 +139,7 @@ def main(testtype=None):
     real_coords_Screen = np.array([[40.8277375,-73.3291613], [61.0183407,24.5133898], [39.133634,-94.7250001], [28.5947955,77.2494721], [21.1454991,-88.1384239]])
     real_coords_Shoot = np.array([[29.5580223,-98.322072], [49.7909501,18.4802871], [50.1588493,-5.2928866], [7.086827,125.5943939], [40.7892681,-73.50277]])
     real_coords_Funky = np.array([[7.8269091,98.3394144], [49.3641445,8.5459606], [27.0107561,-82.1502861], [23.874421,90.3919131], [38.416887,-90.3832795]])
+    real_coords_Best = np.array([[59.407269,15.415694], [49.3641445,8.5459606], [-1.5005364,29.621744], [23.874421,90.3919131], [51.5529906,-0.4758671]])
 
 
     if testtype == 'Game':
@@ -186,6 +188,8 @@ def main(testtype=None):
         real_coords = real_coords_Shoot
     elif testtype == 'Funky':
         real_coords = real_coords_Funky
+    elif testtype == 'Best':
+        real_coords = real_coords_Best
     else:
         raise ValueError("Invalid test type. Choose a valid one from the list.")
     
@@ -343,7 +347,7 @@ def main(testtype=None):
 
 if __name__ == "__main__":
     start_time = time.time()
-    testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    testtype = 'Best' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     errors = []
     final_scores = []
     if testtype == 'All':
@@ -352,16 +356,21 @@ if __name__ == "__main__":
             #print(f"Running test for {testtype}...")
             final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths, highest_points = main(testtype)
             errors.extend(final_errs)
-            final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores, highest_points))
+            final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores, highest_points, final_pts, img_paths))
         print("\nFinal scores for all test types:")
-        for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores, highest_points in final_scores:
+        for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores, highest_points, final_pts, img_paths in final_scores:
             print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}, Highest Points: {highest_points}")
         #generate a best set of 5 images with the highest points for each image across all test types
-        pointies = np.array([fs[6] for fs in final_scores])
-        print('pointies:', pointies)
-        print('pointies shape:', pointies.shape)
+        pointies = np.array([fs[7] for fs in final_scores])
+        #print('pointies:', pointies)
+        #print('pointies shape:', pointies.shape)
         # Get the indices of the top 5 highest points for each image, preserving test_type
         top_5_indices = np.argsort(pointies, axis=0)[-5:]
+        # also print the sum of the total top 5 scores disregarding test type or image
+        p = pointies.flatten()
+        p = np.sort(p)[-5:]
+        print(f"\nSum of overall top 5 scores disregarding test type or image: {np.sum(p)}")
+        
         # For each image, print the test_type and score of the top 5
         for img_idx in range(pointies.shape[1]):
             print(f"\nImage {img_idx+1} top 5 scores and test types:")

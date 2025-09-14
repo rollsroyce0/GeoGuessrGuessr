@@ -6,7 +6,7 @@ from templates import Geoguessrmodel_Evaluator_Multimodel_silent as regular
 from templates import Geoguessrmodel_Evaluator_Multimodel_silent_check as check
 
 app = Flask(__name__)
-list_of_maps = ['All', 'Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome',
+list_of_maps = ['All', 'Best', 'Game', 'Validation', 'Super', 'Verification', 'Ultra', 'Extreme', 'Chrome',
                 'World', 'Task', 'Enlarged', 'Exam', 'Google', 'Zurich', 'Friends', 'Full',
                 'Entire', 'Moscow', 'Berne', 'Beans', 'Geneva', 'Screen', 'Shoot', 'Funky']
 

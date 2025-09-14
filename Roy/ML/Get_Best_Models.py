@@ -10,7 +10,7 @@ max_score = 0
 # Iterate through all files in the folder
 for file_name in os.listdir(folder_path):
     if file_name.endswith('check.txt') and not file_name.startswith('Difficulty'):
-        if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords.txt' or file_name == 'Best_overall_models_check.txt':
+        if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords.txt' or file_name == 'Best_overall_models_check.txt' or file_name.endswith('Best_check.txt')or file_name.endswith('Best.txt'):
             continue 
         max_score += 3
         file_path = os.path.join(folder_path, file_name)
@@ -64,7 +64,7 @@ max_score_check = 0
 
 for file_name in os.listdir(folder_path):
     if file_name.endswith('.txt') and not file_name.startswith('Difficulty'):
-        if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords_backup.txt' or file_name.endswith('check.txt'):
+        if file_name == 'Best_overall_models.txt' or file_name == 'A_real_coords_backup.txt' or file_name.endswith('check.txt') or file_name.endswith('Best_check.txt')or file_name.endswith('Best.txt'):
             continue 
         max_score_check += 25
         #print("Processing file: ", file_name)

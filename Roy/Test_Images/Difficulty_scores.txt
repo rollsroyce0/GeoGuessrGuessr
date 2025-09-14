@@ -21,3 +21,4 @@ Shoot: 31.976, Highest: 64.415, Lowest: 3.929
 Full: 29.426, Highest: 88.008, Lowest: 1.557
 Berne: 23.328, Highest: 39.75, Lowest: 6.008
 Task: 19.413, Highest: 76.979, Lowest: 0.498
+Best: 2.575, Highest: 11.174, Lowest: 0.137
