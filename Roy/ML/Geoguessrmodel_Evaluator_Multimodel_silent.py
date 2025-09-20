@@ -347,7 +347,7 @@ def main(testtype=None):
 
 if __name__ == "__main__":
     start_time = time.time()
-    testtype = 'Best' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
+    testtype = 'All' #'Validation' or 'Game' or 'Verification' or 'Super' or 'All'
     errors = []
     final_scores = []
     if testtype == 'All':

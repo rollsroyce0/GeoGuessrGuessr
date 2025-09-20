@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Screen: geo_predictor_nn_1000e_420b_763k.pth, geo_predictor_nn_601e_256b_958k.pth, geo_predictor_nn_288e_420b_805k_check_1756972076.pth, geo_predictor_nn_500e_256b_883k.pth, geo_predictor_nn_326e_256b_998k_check_1749297689.pth, geo_predictor_nn_231e_302b_889k_check_1757774458.pth, geo_predictor_nn_601e_256b_978k.pth, geo_predictor_nn_1000e_196b_983k.pth, geo_predictor_nn_500e_302b_788k.pth, geo_predictor_nn_272e_302b_832k_check_1757769992.pth

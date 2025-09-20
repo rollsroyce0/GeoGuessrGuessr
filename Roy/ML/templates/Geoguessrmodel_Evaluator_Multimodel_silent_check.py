@@ -315,5 +315,5 @@ def main(testtype=None):
                 Difficulty_scores = [float(diff.split(':')[1].split(',')[0])]
                 break
 
-    return sum(final_pts), sum(highest_points), Difficulty_scores, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
+    return sum(final_pts), sum(highest_points), Difficulty_scores, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths, highest_points
 

@@ -25,7 +25,7 @@ def index():
                 for map_type in list_of_maps:
                     if map_type != 'All':
                         # run inference for each map type
-                        final_temp, highest_temp, difficulty_temp, avg_scores_temp, median_scores_temp, pred_coords_temp, real_coords_temp, errors_temp, points_temp, img_paths_temp = regular.main(map_type)
+                        final_temp, highest_temp, difficulty_temp, avg_scores_temp, median_scores_temp, pred_coords_temp, real_coords_temp, errors_temp, points_temp, img_paths_temp, highest_points_temp = regular.main(map_type)
                         final.append(final_temp)
                         highest.append(highest_temp)
                         difficulty.append(difficulty_temp)
@@ -39,7 +39,7 @@ def index():
             else:
                 # run inference and return coords
                 # After you load images and paths in run_inference, collect the image file names
-                final, highest, difficulty, avg_scores, median_scores, pred_coords, real_coords, errors, points, img_paths = regular.main(testtype)
+                final, highest, difficulty, avg_scores, median_scores, pred_coords, real_coords, errors, points, img_paths, highest_points = regular.main(testtype)
 
             print("Final:", final)
             print("Highest:", highest)
@@ -81,7 +81,7 @@ def index():
                 for map_type in list_of_maps:
                     if map_type != 'All':
                         # run inference for each map type
-                        final_temp, highest_temp, difficulty_temp, avg_scores_temp, median_scores_temp, pred_coords_temp, real_coords_temp, errors_temp, points_temp, img_paths_temp = check.main(map_type)
+                        final_temp, highest_temp, difficulty_temp, avg_scores_temp, median_scores_temp, pred_coords_temp, real_coords_temp, errors_temp, points_temp, img_paths_temp, highest_points_temp = check.main(map_type)
                         final.append(final_temp)
                         highest.append(highest_temp)
                         difficulty.append(difficulty_temp)
@@ -95,7 +95,7 @@ def index():
             else:
                 # run inference and return coords
                 # After you load images and paths in run_inference, collect the image file names
-                final, highest, difficulty, avg_scores, median_scores, pred_coords, real_coords, errors, points, img_paths = check.main(testtype)
+                final, highest, difficulty, avg_scores, median_scores, pred_coords, real_coords, errors, points, img_paths, highest_points = check.main(testtype)
 
             print("Final:", final)
             print("Highest:", highest)

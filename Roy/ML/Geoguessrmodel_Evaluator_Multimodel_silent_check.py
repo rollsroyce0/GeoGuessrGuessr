@@ -12,6 +12,7 @@ warnings.filterwarnings("ignore")
 
 global list_of_maps
 list_of_maps = ['Game',
+                'Best',
                 'Validation',
                 'Super',
                 'Verification',
@@ -30,7 +31,10 @@ list_of_maps = ['Game',
                 'Moscow',
                 'Beans',
                 'Geneva',
-                'Berne']
+                'Berne',
+                'Screen',
+                'Shoot',
+                'Funky']
 
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
@@ -132,7 +136,13 @@ def main(testtype=None):
     real_coords_Berne = np.array([[45.1505555,-62.9293509], [-7.3554706,110.0087041], [43.5722547,1.433309], [42.6433378,-8.5002503], [34.6325209,135.5288726]])
     real_coords_Beans = np.array([[58.5876457,13.4665706], [45.4151798,-72.9940301], [17.6926828,121.7066423], [6.711965,-1.6163255], [54.9033943,61.3904874]])
     real_coords_Geneva = np.array([[51.5228122,-0.4598376], [50.3514039,13.9085949], [-33.4692077,25.4182488], [7.4913942,3.9163648], [44.4120475,-90.9631281]])
-
+    real_coords_Screen = np.array([[40.8277375,-73.3291613], [61.0183407,24.5133898], [39.133634,-94.7250001], [28.5947955,77.2494721], [21.1454991,-88.1384239]])
+    real_coords_Shoot = np.array([[29.5580223,-98.322072], [49.7909501,18.4802871], [50.1588493,-5.2928866], [7.086827,125.5943939], [40.7892681,-73.50277]])
+    real_coords_Funky = np.array([[7.8269091,98.3394144], [49.3641445,8.5459606], [27.0107561,-82.1502861], [23.874421,90.3919131], [38.416887,-90.3832795]])
+    real_coords_Best = np.array([[59.407269,15.415694], [49.3641445,8.5459606], [-1.5005364,29.621744], [23.874421,90.3919131], [51.5529906,-0.4758671]])
+    
+    
+    
     if testtype == 'Game':
         real_coords = real_coords_Game
     elif testtype == 'Validation':
@@ -173,9 +183,16 @@ def main(testtype=None):
         real_coords = real_coords_Beans
     elif testtype == 'Geneva':
         real_coords = real_coords_Geneva
+    elif testtype == 'Screen':
+        real_coords = real_coords_Screen
+    elif testtype == 'Shoot':
+        real_coords = real_coords_Shoot
+    elif testtype == 'Funky':
+        real_coords = real_coords_Funky
+    elif testtype == 'Best':
+        real_coords = real_coords_Best
     else:
         raise ValueError("Invalid test type. Choose a valid one from the list.")
-    
     # Initialize embedding model
     
     embed_model = GeoEmbeddingModel().to(device).eval()
@@ -324,7 +341,7 @@ def main(testtype=None):
     median_scores = np.median(total_points_backup, axis=0)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
-    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths
+    return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths, highest_points
 
 
 
@@ -337,20 +354,38 @@ if __name__ == "__main__":
         for testtype in list_of_maps:
             print("\n----------------------------------------------------------------------\n")
             #print(f"Running test for {testtype}...")
-            final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths = main(testtype)
+            final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths, highest_points = main(testtype)
             errors.extend(final_errs)
-            final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores))
+            final_scores.append((testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores, highest_points, final_pts, img_paths))
         print("\nFinal scores for all test types:")
-        for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores in final_scores:
-            print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
+        for testtype, final_score, highest_score, difficulty_score, avg_scores, median_scores, highest_points, final_pts, img_paths in final_scores:
+            print(f"{testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}, Highest Points: {highest_points}")
+        #generate a best set of 5 images with the highest points for each image across all test types
+        pointies = np.array([fs[7] for fs in final_scores])
+        #print('pointies:', pointies)
+        #print('pointies shape:', pointies.shape)
+        # Get the indices of the top 5 highest points for each image, preserving test_type
+        top_5_indices = np.argsort(pointies, axis=0)[-5:]
+        # also print the sum of the total top 5 scores disregarding test type or image
+        p = pointies.flatten()
+        p = np.sort(p)[-5:]
+        print(f"\nSum of overall top 5 scores disregarding test type or image: {np.sum(p)}")
+        
+        # For each image, print the test_type and score of the top 5
+        for img_idx in range(pointies.shape[1]):
+            print(f"\nImage {img_idx+1} top 5 scores and test types:")
+            for idx in reversed(top_5_indices[:, img_idx]):
+                print(f"  {final_scores[idx][0]}: {pointies[idx, img_idx]}")
 
         avg_avg_scores = np.mean([fs[4] for fs in final_scores], axis=0)
         avg_median_scores = np.mean([fs[5] for fs in final_scores], axis=0)
-        print(f"\nAverage scores across all test types:\nAvg Scores: {avg_avg_scores}, Median Scores: {avg_median_scores}")
+        avg_highest_points = np.mean([fs[6] for fs in final_scores], axis=0)
+        print(f"\nAverage scores across all test types:\nAvg Scores: {avg_avg_scores}, Median Scores: {avg_median_scores}, Highest Points: {avg_highest_points}")
         print(f"\nOverall average error across all test types: {np.mean(errors)} km, Median error: {np.median(errors)} km")
             
     else:
-        final_score, highest_score, difficulty_score, avg_scores, median_scores = main(testtype)
-        print(f"\nFinal score for {testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}")
+        final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths, highest_points = main(testtype)
+        print(f"\nFinal score for {testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}, Highest Points: {highest_points}")
         #main() # Uncomment this line to run the main function without any arguments and accept user input
+        
     print(f"Execution time: {time.time() - start_time} seconds")
