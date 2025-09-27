@@ -43,7 +43,7 @@ for i in range(total_runs_possible):
     print("------------------------------------------------------------------------------")
 
 # Evaluation time
-with open('Roy/ML/Playground/Geoguessrmodel_Evaluator_Multimodel_silent.py') as f:
+with open('Roy/ML/Geoguessrmodel_Evaluator_Multimodel_silent.py') as f:
         exec(f.read())
 with open('Roy/ML/Get_Best_Models.py') as f:
         exec(f.read())
