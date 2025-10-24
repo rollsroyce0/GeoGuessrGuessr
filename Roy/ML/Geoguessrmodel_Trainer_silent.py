@@ -257,9 +257,9 @@ scheduler = ReduceLROnPlateau(
 # Training Loop                         #
 #######################################
 
-batch_size_data = 256
+batch_size_data = 420
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 10000
+epochs = 420
 
 losses = []
 val_losses = []
@@ -321,7 +321,7 @@ for epoch in track(range(epochs), description="Training the model..."):
 
 if losses[-1] == 1e5:
     print("No valid training completed, model not saved.")
-    exit()
+    quit()
 
 #print('Finished Training')
 final_val_loss = val_losses[-1]
