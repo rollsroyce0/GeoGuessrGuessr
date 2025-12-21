@@ -48,30 +48,75 @@ class GeoEmbeddingModel(nn.Module):
         return x.view(x.size(0), -1)
 
 # Custom model for predicting coordinates with original layer names
-class GeoPredictorNN(nn.Module):
-    def __init__(self):
+class GeoMoE(nn.Module):
+    def __init__(self, D, E=6, k=2, expert_dropout=0.1):
+        """
+        D: embedding dimension
+        E: number of experts
+        k: top-k experts to route to
+        expert_dropout: probability to drop an expert during training
+        """
         super().__init__()
-        dims = [2048, 1024, 512, 256, 128, 32, 16]
-        for i in range(len(dims)-1):
-            in_dim, out_dim = dims[i], dims[i+1]
-            setattr(self, f'fc{i+1}', nn.Linear(in_dim, out_dim))
-            setattr(self, f'batch_norm{i+1}', nn.BatchNorm1d(out_dim))
-            setattr(self, f'gelu{i+1}', nn.GELU())
-            # smaller dropout on last block
-            dropout_rate = 0.1 if i == len(dims)-2 else 0.2
-            setattr(self, f'dropout{i+1}', nn.Dropout(dropout_rate))
-        # final layer
-        self.fc7 = nn.Linear(16, 2)
+        self.E = E
+        self.k = k
+        self.expert_dropout = expert_dropout
+
+        # ---- router (deep + wide) ----
+        self.router = nn.Sequential(
+            nn.Linear(D, 1024),
+            nn.GELU(),
+            nn.Linear(1024, 512),
+            nn.GELU(),
+            nn.Linear(512, 256),
+            nn.GELU(),
+            nn.Linear(256, E)
+        )
+
+        # ---- experts (deep, multiple layers) ----
+        self.experts = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(D, 512),
+                nn.GELU(),
+                nn.Linear(512, 256),
+                nn.GELU(),
+                nn.Linear(256, 128),
+                nn.GELU(),
+                nn.Linear(128, 64),
+                nn.GELU(),
+                nn.Linear(64, 32),
+                nn.GELU(),
+                nn.Linear(32, 3)
+            ) for _ in range(E)
+        ])
 
     def forward(self, x):
-        # sequentially apply each block
-        for i in range(1, 7):
-            x = getattr(self, f'fc{i}')(x)
-            x = getattr(self, f'dropout{i}')(x)
-            x = getattr(self, f'batch_norm{i}')(x)
-            x = getattr(self, f'gelu{i}')(x)
-        x = self.fc7(x)
-        return x
+        # routing logits
+        logits = self.router(x)  # [B, E]
+
+        if self.training and self.expert_dropout > 0:
+            # randomly drop some experts (regularization)
+            drop_mask = torch.rand_like(logits) > self.expert_dropout
+            logits = logits.masked_fill(~drop_mask, float('-inf'))
+
+        # top-k routing
+        topk_vals, topk_idx = torch.topk(logits, self.k, dim=1)  # [B, k]
+        w = torch.softmax(topk_vals, dim=1)  # [B, k]
+
+        # gather expert outputs
+        outs = torch.stack([self.experts[i](x) for i in range(self.E)], dim=1)  # [B, E, 3]
+        selected = torch.gather(
+            outs, 1, topk_idx.unsqueeze(-1).expand(-1, -1, 3)
+        )  # [B, k, 3]
+
+        # weighted sum
+        out = (w.unsqueeze(-1) * selected).sum(dim=1)
+
+        # residual connection: mean of all experts
+        out += outs.mean(dim=1)
+
+        return out
+
+
 
 # Image loading and transform
 transform = transforms.Compose([
@@ -196,7 +241,7 @@ def main(testtype=None):
     # Initialize embedding model
     
     embed_model = GeoEmbeddingModel().to(device).eval()
-    embed_model.load_state_dict(torch.load('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth', map_location=device))
+    embed_model.load_state_dict(torch.load('Roy/ML/Resnet_Experiment/geo_embedding_model.pth', map_location=device))
 
     # Precompute embeddings
     with torch.no_grad():
@@ -213,16 +258,12 @@ def main(testtype=None):
     total_points_backup = []
 
     # Loop over predictor weights
-    for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
-        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth') or 'check' in fname:
-            continue
-        if int(fname.split('k')[0].split('_')[-1])>6500:
-            os.remove(f'Roy/ML/Saved_Models/{fname}')
-            print(f"Removed old model: {fname}")
+    for fname in sorted(os.listdir('Roy/ML/Resnet_Experiment/Saved_Models_New')):
+        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth'):
             continue
         #print(f"Evaluating model: {fname}")
-        predictor = GeoPredictorNN().to(device).eval()
-        predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{fname}', map_location=device))
+        predictor = GeoMoE(2048).to(device).eval()
+        predictor.load_state_dict(torch.load(f'Roy/ML/Resnet_Experiment/Saved_Models_New/{fname}', map_location=device))
 
         with torch.no_grad():
             preds = predictor(embeddings.to(device)).cpu().numpy()
@@ -264,17 +305,18 @@ def main(testtype=None):
         #print(preds)
     # Save the testtype and the best three models to a file
     # Check if the file exists, if not create it
-    if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}.txt'):
-        # Throw an error if the file does not exist
-        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}.txt does not exist")
+    if not os.path.exists(f'Roy/ML/Resnet_Experiment/txt_storage/Best_models_{testtype}.txt'):
+        # create the file
+        with open(f'Roy/ML/Resnet_Experiment/txt_storage/Best_models_{testtype}.txt', 'w') as f:
+            f.write("Best models for each test type:\n")
     # remove all text from the file
-    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'r+') as f:
+    with open(f'Roy/ML/Resnet_Experiment/txt_storage/Best_models_{testtype}.txt', 'r+') as f:
         #one=1
         # remove everything from the file
         f.truncate(0)
 
-    
-    with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'a') as f:
+
+    with open(f'Roy/ML/Resnet_Experiment/txt_storage/Best_models_{testtype}.txt', 'a') as f:
         #one=1
         # remove everything from the file
         
@@ -319,11 +361,11 @@ def main(testtype=None):
     print("Average difficulty score of this round:", np.round(np.mean(difficulty_scores), 3))
     # add the average difficutly score for the test type to a file
 
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'a') as f:
+    with open(f'Roy/ML/Resnet_Experiment/txt_storage/Difficulty_scores.txt', 'w') as f:
         f.write(f"{testtype}: {np.round(np.mean(difficulty_scores), 3)}, Highest: {np.round(np.max(difficulty_scores), 3)}, Lowest: {np.round(np.min(difficulty_scores), 3)}\n")
         
         # remove any duplicate lines (it is a duplicate, if the first 5 characters are the same)
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'r') as f:
+    with open(f'Roy/ML/Resnet_Experiment/txt_storage/Difficulty_scores.txt', 'r') as f:
         lines = f.readlines()
     
     # remove duplicates by checking the first 5 characters of each line
@@ -335,7 +377,7 @@ def main(testtype=None):
     # sort the lines by the difficulty score (the second value in the line)
     lines = sorted(lines, key=lambda x: float(x.split(':')[1].split(',')[0]), reverse=True)
     
-    with open(f'Roy/Test_Images/Difficulty_scores.txt', 'w') as f:
+    with open(f'Roy/ML/Resnet_Experiment/txt_storage/Difficulty_scores.txt', 'w') as f:
         f.writelines(lines)
     # Calculate average and median scores
     total_points_backup = np.array(total_points_backup)
@@ -345,6 +387,23 @@ def main(testtype=None):
     median_scores = np.median(total_points_backup, axis=0)
 
     print(f"Time elapsed: {time.time()-start:.2f}s")
+    
+    #display on a world map using geopandas
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    fig, ax = plt.subplots(figsize=(15,10))
+    world.plot(ax=ax, color='lightgray')
+    gdf_real = gpd.GeoDataFrame(geometry=gpd.points_from_xy(real_coords[:,1], real_coords[:,0]))
+    gdf_pred = gpd.GeoDataFrame(geometry=gpd.points_from_xy(avg_preds[:,1], avg_preds[:,0]))
+    gdf_real.plot(ax=ax, color='blue', markersize=100, label='Real Coordinates', alpha=0.6)
+    gdf_pred.plot(ax=ax, color='red', markersize=100, label='Predicted Coordinates', alpha=0.6)
+    for i in range(len(real_coords)):
+        ax.plot([real_coords[i,1], avg_preds[i,1]], [real_coords[i,0], avg_preds[i,0]], color='green', linestyle='--', linewidth=1)
+    plt.title(f'Geoguessr Predictions for {testtype} Set')
+    plt.legend()
+    plt.show(block =False)
+    plt.pause(2)
+    plt.close()
+    
     return sum(final_pts), sum(highest_points), np.round(np.mean(difficulty_scores), 3), avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths, highest_points
 
 
@@ -391,5 +450,6 @@ if __name__ == "__main__":
         final_score, highest_score, difficulty_score, avg_scores, median_scores, avg_preds, real_coords, final_errs, final_pts, img_paths, highest_points = main(testtype)
         print(f"\nFinal score for {testtype}: {final_score}, Highest: {highest_score}, Avg of Difficulty: {difficulty_score}, Avg Scores: {avg_scores}, Median Scores: {median_scores}, Highest Points: {highest_points}")
         #main() # Uncomment this line to run the main function without any arguments and accept user input
+    
         
     print(f"Execution time: {time.time() - start_time} seconds")
