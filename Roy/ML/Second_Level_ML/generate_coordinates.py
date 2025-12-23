@@ -1,7 +1,7 @@
 import numpy as np
 
 def get_real_coordinates(testtype):
-
+    # New arrrays below here
     real_coords_Game = np.array([[59.2642, 10.4276], [1.4855, 103.8676], [54.9927, -1.6732], [19.4745, -99.1974], [58.6133, 49.6275]])
     real_coords_Valid = np.array([[43.3219114, -5.5783907], [23.0376137, 72.5819308], [55.9300025, -3.2678762], [51.9187417, 4.4957128], [40.6000729, -74.3125485]])
     real_coords_Verification = np.array([[48.1787242,16.4149478], [39.3544037,-76.4284282], [12.6545729,77.4269159], [53.5361597,-113.470894], [65.9408919,12.2171864]])
@@ -32,6 +32,8 @@ def get_real_coordinates(testtype):
     real_coords_Yippee = np.array([[37.2461187,-76.6488819], [17.5421013,80.6055166], [-29.3102639,27.5317762], [50.7016383,20.653696], [30.9914195,-97.82943]])
     
     
+    
+    # New If-Else below here
     if testtype == 'Game':
         real_coords = real_coords_Game
     elif testtype == 'Validation':
@@ -96,6 +98,7 @@ def get_real_coordinates(testtype):
 
 def list_test_types():
     return [
+        #new test types added here
         'Lavender', 'Guinea', 'United', 'Yippee',
         'Super', 'Ultra', 'Extreme', 'Game', 'Validation', 'Verification',
         'Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google', 'Zurich',
