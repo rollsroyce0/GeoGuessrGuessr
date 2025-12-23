@@ -143,7 +143,7 @@ def run(geoguessr_url):
     print(f'\nSuggested test type name: {test_type}')
 
     print('\nIn array format:')
-    array_str = 'real_coords_'+test_type+'==np.array(['
+    array_str = 'real_coords_'+test_type+' = np.array(['
     for c in coords:
         array_str += f'[{c[0]},{c[1]}], '
 
@@ -188,7 +188,7 @@ def run(geoguessr_url):
             
         if insert_index_ifelse is not None:
             print(f'Inserting new if-else at line {insert_index_ifelse}')
-            lines.insert(insert_index_ifelse, "    elif testtype == "+test_type+':')
+            lines.insert(insert_index_ifelse, "    elif testtype == '"+test_type+"':"+"\n")
             lines.insert(insert_index_ifelse+1, "        real_coords = real_coords_"+test_type+"\n")
             
         if insert_index_testtypes is not None:

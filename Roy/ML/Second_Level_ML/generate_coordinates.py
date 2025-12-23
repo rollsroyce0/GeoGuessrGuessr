@@ -2,6 +2,7 @@ import numpy as np
 
 def get_real_coordinates(testtype):
     # New arrays below here
+    real_coords_MFYM = np.array([[-9.9468102,-67.858007], [44.4431257,-79.9186955], [53.1090174,50.1406704], [40.6180422,-0.7611749], [34.9474768,137.053109]])
     real_coords_Game = np.array([[59.2642, 10.4276], [1.4855, 103.8676], [54.9927, -1.6732], [19.4745, -99.1974], [58.6133, 49.6275]])
     real_coords_Valid = np.array([[43.3219114, -5.5783907], [23.0376137, 72.5819308], [55.9300025, -3.2678762], [51.9187417, 4.4957128], [40.6000729, -74.3125485]])
     real_coords_Verification = np.array([[48.1787242,16.4149478], [39.3544037,-76.4284282], [12.6545729,77.4269159], [53.5361597,-113.470894], [65.9408919,12.2171864]])
@@ -37,6 +38,8 @@ def get_real_coordinates(testtype):
     if testtype == 'Game':
         real_coords = real_coords_Game
     # New If-Else below here
+    elif testtype == 'MFYM':
+        real_coords = real_coords_MFYM
     elif testtype == 'Validation':
         real_coords = real_coords_Valid
     elif testtype == 'Verification':
@@ -100,6 +103,7 @@ def get_real_coordinates(testtype):
 def list_test_types():
     return [
         #new test types added here
+        'MFYM',
         'Lavender', 'Guinea', 'United', 'Yippee',
         'Super', 'Ultra', 'Extreme', 'Game', 'Validation', 'Verification',
         'Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google', 'Zurich',
