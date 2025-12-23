@@ -143,7 +143,7 @@ def run(geoguessr_url):
     print(f'\nSuggested test type name: {test_type}')
 
     print('\nIn array format:')
-    array_str = 'real_coords_'+test_type+'==np.array['
+    array_str = 'real_coords_'+test_type+'==np.array(['
     for c in coords:
         array_str += f'[{c[0]},{c[1]}], '
 
@@ -164,12 +164,12 @@ def run(geoguessr_url):
         
     with open('Roy/ML/Second_Level_ML/generate_coordinates.py', 'r+') as f:
         lines = f.readlines()
-        print(lines)
+        #print(lines)
         insert_index_array = None
         insert_index_ifelse = None
         insert_index_testtypes = None
         for i, line in enumerate(lines):
-            print(f'Line {i}: {line.strip()}')
+            #print(f'Line {i}: {line.strip()}')
             if line.strip() == "# New arrays below here":
                 insert_index_array = i + 1
                 continue
@@ -184,16 +184,16 @@ def run(geoguessr_url):
         print(f'Found insert indices - Array: {insert_index_array}, If-Else: {insert_index_ifelse}, Test Types: {insert_index_testtypes}')
         if insert_index_array is not None:
             print(f'Inserting new array at line {insert_index_array}')
-            lines.insert(insert_index_array, "    "+ array_str)
+            lines.insert(insert_index_array, "    "+ array_str+"\n")
             
         if insert_index_ifelse is not None:
             print(f'Inserting new if-else at line {insert_index_ifelse}')
             lines.insert(insert_index_ifelse, "    elif testtype == "+test_type+':')
-            lines.insert(insert_index_ifelse+1, "        real_coords = real_coords_"+test_type)
+            lines.insert(insert_index_ifelse+1, "        real_coords = real_coords_"+test_type+"\n")
             
         if insert_index_testtypes is not None:
             print(f'Inserting new test type at line {insert_index_testtypes}')
-            lines.insert(insert_index_testtypes, "        '"+test_type+"',")
+            lines.insert(insert_index_testtypes, "        '"+test_type+"',"+"\n")
         
         f.seek(0)
         f.truncate()
