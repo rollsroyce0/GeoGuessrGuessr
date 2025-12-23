@@ -33,9 +33,10 @@ def get_real_coordinates(testtype):
     
     
     
-    # New If-Else below here
+    
     if testtype == 'Game':
         real_coords = real_coords_Game
+    # New If-Else below here
     elif testtype == 'Validation':
         real_coords = real_coords_Valid
     elif testtype == 'Verification':

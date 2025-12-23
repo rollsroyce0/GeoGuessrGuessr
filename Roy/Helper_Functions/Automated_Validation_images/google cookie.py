@@ -13,10 +13,10 @@ with open('Roy/ML/Second_Level_ML/generate_coordinates.py', 'r+') as f:
                 insert_index_array = i + 1
                 continue
             if line.strip() == "#new test types added here":
-                insert_index_testtypes = i + 1
+                insert_index_testtypes = i + 3
                 continue
             if line.strip() == "# New If-Else below here":
-                insert_index_ifelse = i + 1
+                insert_index_ifelse = i + 2
                 continue
             
         print("\nModifying generate_coordinates.py...")
