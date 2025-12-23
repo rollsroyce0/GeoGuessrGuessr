@@ -44,5 +44,5 @@ def enumerate_models(folder_path, model_prefix='geo_predictor_nn_', model_suffix
     df.to_csv(os.path.join('Roy/ML/Second_Level_ML/model_files.csv'), index=False)
 
     return model_files
-
-enumerate_models('Roy/ML/Saved_Models/')
+if __name__ == "__main__":
+    enumerate_models('Roy/ML/Saved_Models/')

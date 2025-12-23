@@ -81,11 +81,33 @@ def get_real_coordinates(testtype):
     
     return real_coords
 
-#make a csv with the coordinates for all test types
-if __name__ == "__main__":
+def main():
     import pandas as pd
 
-    test_types = ['Game', 'Validation', 'Verification', 'Super', 'Ultra', 'Extreme', 'Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google', 'Zurich', 'Moscow', 'Friends', 'Full', 'Entire', 'Berne', 'Beans', 'Geneva', 'Screen', 'Shoot', 'Funky', 'Best']
+    test_types = ['Game',
+                  'Validation',
+                  'Verification',
+                  'Super',
+                  'Ultra',
+                  'Extreme',
+                  'Chrome',
+                  'World',
+                  'Task',
+                  'Enlarged',
+                  'Exam',
+                  'Google',
+                  'Zurich',
+                  'Moscow', 
+                  'Friends',
+                  'Full',
+                  'Entire',
+                  'Berne',
+                  'Beans',
+                  'Geneva',
+                  'Screen',
+                  'Shoot',
+                  'Funky',
+                  'Best']
     
     all_coords = []
     for testtype in test_types:
@@ -95,3 +117,7 @@ if __name__ == "__main__":
     
     df = pd.DataFrame(all_coords)
     df.to_csv('Roy/ML/Second_Level_ML/real_coordinates.csv', index=False)
+
+#make a csv with the coordinates for all test types
+if __name__ == "__main__":
+    main()
