@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+XGXN: geo_predictor_nn_400e_256b_996k_1748102167.pth, geo_predictor_nn_511e_256b_987k.pth, geo_predictor_nn_897e_256b_974k.pth, geo_predictor_nn_512e_256b_1011k.pth, geo_predictor_nn_800e_64b_924k.pth, geo_predictor_nn_402e_64b_1062k.pth, geo_predictor_nn_498e_256b_971k.pth, geo_predictor_nn_400e_256b_1007k.pth, geo_predictor_nn_511e_256b_1004k.pth, geo_predictor_nn_302e_64b_1034k.pth

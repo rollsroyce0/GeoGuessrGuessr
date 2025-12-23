@@ -16,6 +16,7 @@ Zurich: 55.942, Highest: 239.369, Lowest: 1.426
 Extreme: 55.337, Highest: 131.633, Lowest: 4.024
 Chrome: 46.028, Highest: 144.584, Lowest: 0.9
 Game: 39.749, Highest: 88.782, Lowest: 1.372
+XGXN: 30.62, Highest: 98.253, Lowest: 1.441
 Verification: 29.11, Highest: 107.682, Lowest: 1.802
 Shoot: 28.035, Highest: 64.033, Lowest: 3.402
 Full: 25.893, Highest: 79.61, Lowest: 1.397

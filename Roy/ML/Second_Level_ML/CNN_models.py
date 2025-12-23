@@ -10,7 +10,7 @@ from Generate_model_predictions import main as main_predictions
 
 
 # =========================
-# Utils
+# Utils (run if new data was acquired)
 # =========================
 if False:
     main_predictions()

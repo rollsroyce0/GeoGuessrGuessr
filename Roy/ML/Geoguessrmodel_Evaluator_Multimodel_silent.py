@@ -10,31 +10,9 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
+from Second_Level_ML.generate_coordinates import get_real_coordinates, list_test_types
 global list_of_maps
-list_of_maps = ['Game',
-                'Validation',
-                'Super',
-                'Verification',
-                'Ultra',
-                'Extreme',
-                'Chrome',
-                'World',
-                'Task',
-                'Enlarged',
-                'Exam',
-                'Google',
-                'Zurich',
-                'Friends',
-                'Full',
-                'Entire',
-                'Moscow',
-                'Beans',
-                'Geneva',
-                'Screen',
-                'Shoot',
-                'Funky',
-                'Best',
-                'Berne']
+list_of_maps = list_test_types()
 
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
@@ -116,8 +94,6 @@ def main(testtype=None):
     images = images.to(device)
 
     # Real coordinates
-
-    from Second_Level_ML.generate_coordinates import get_real_coordinates
     real_coords = get_real_coordinates(testtype)
     
     # Initialize embedding model
@@ -157,6 +133,7 @@ def main(testtype=None):
             preds[:,1] = (preds[:,1]+180)%360 - 180
 
         errs = haversine_batch(real_coords, preds)
+        #print(errs)
         pts = [geoguessr_points(e) for e in errs]
         total_pts = sum(pts)
         if total_pts <0 or np.isnan(total_pts) or total_pts > 25000:
@@ -193,7 +170,7 @@ def main(testtype=None):
     # Check if the file exists, if not create it
     if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}.txt'):
         # Throw an error if the file does not exist
-        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}.txt does not exist")
+        open(f'Roy/Test_Images/Best_models_{testtype}.txt', "x")
     # remove all text from the file
     with open(f'Roy/Test_Images/Best_models_{testtype}.txt', 'r+') as f:
         #one=1
@@ -213,6 +190,7 @@ def main(testtype=None):
     #print(results)
 
     final_errs = haversine_batch(real_coords, avg_preds)
+    print(final_errs)
     #print(len(final_errs), len(real_coords))
     final_pts = [geoguessr_points(e) for e in final_errs]
     print("Final points for each image:", final_pts)
