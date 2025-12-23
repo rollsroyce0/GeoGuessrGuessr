@@ -72,7 +72,7 @@ def build_cnn_dataset(df):
     return X, y
 
 
-def train_split_data(df, split=0.9):
+def train_split_data(df, split=0.8):
     df = model_indexing(df)
     X, y = build_cnn_dataset(df)
 
@@ -92,12 +92,13 @@ def train_split_data(df, split=0.9):
 # =========================
 
 class CNNEnsemble(nn.Module):
-    def __init__(self, num_models, hidden=64):
+    def __init__(self, num_models, hidden=128):
         super().__init__()
 
         self.conv1 = nn.Conv1d(num_models, hidden, 3, padding=1)
-        self.conv2 = nn.Conv1d(hidden, hidden, 3, padding=1)
-        self.conv3 = nn.Conv1d(hidden, hidden, 3, padding=1)
+        self.conv2 = nn.Conv1d(hidden, hidden * 2, 3, padding=1)
+        self.conv3 = nn.Conv1d(hidden * 2, hidden * 2, 3, padding=1)
+        self.conv4 = nn.Conv1d(hidden * 2, hidden, 3, padding=1)
 
         self.attn = nn.Sequential(
             nn.AdaptiveAvgPool1d(1),
@@ -107,8 +108,12 @@ class CNNEnsemble(nn.Module):
         )
 
         self.fc = nn.Sequential(
-            nn.Linear(hidden * 10, 512),
+            nn.Linear(hidden * 10, 1024),
             nn.GELU(),
+            nn.Dropout(0.2),
+            nn.Linear(1024, 512),
+            nn.GELU(),
+            nn.Dropout(0.2),
             nn.Linear(512, 256),
             nn.GELU(),
             nn.Linear(256, 10)
@@ -118,6 +123,7 @@ class CNNEnsemble(nn.Module):
         h = F.gelu(self.conv1(x))
         h = F.gelu(self.conv2(h))
         h = F.gelu(self.conv3(h))
+        h = F.gelu(self.conv4(h))
 
         w = self.attn(h).unsqueeze(-1)
         h = h * w.sum(dim=1, keepdim=True)
@@ -149,9 +155,9 @@ def haversine_loss(pred, target):
 # Training
 # =========================
 
-def train(model, Xtr, ytr, Xte, yte, epochs=2000, lr=4e-6):
+def train(model, Xtr, ytr, Xte, yte, epochs=2000, lr=4e-5):
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
-
+    best_val_loss = float('inf')
     for e in range(epochs):
         model.train()
         loss = haversine_loss(model(Xtr), ytr)
@@ -159,11 +165,26 @@ def train(model, Xtr, ytr, Xte, yte, epochs=2000, lr=4e-6):
         opt.zero_grad()
         loss.backward()
         opt.step()
-
+        
+        if loss.item() == torch.nan:
+            print("Loss is NaN, stopping training.")
+            break
+        
+        
+        
         model.eval()
         with torch.no_grad():
-            val = haversine_loss(model(Xte), yte)
-        if e % 100 == 0:
+            val = haversine_loss(model(Xte), yte) 
+        # if overfitting on validation, stop training
+        
+        
+        
+        if e > 0 and val.item() > best_val_loss:
+            print("Overfitting detected, stopping training on epoch", e+1, "with val loss", val.item(), "and prev loss", best_val_loss/1.08)
+            break
+        best_val_loss = (min(val.item(), best_val_loss/1.08) if e > 0 else val.item())*1.08
+        #print(best_val_loss)
+        if e % 1 == 0:
             print(f"{e+1:03d} | train {loss:.2f} km | val {val:.2f} km | lr {lr:.1e} | Points {Geoguessr_score(loss.item()):.1f} | Val Points {Geoguessr_score(val.item()):.1f}")
 
 
