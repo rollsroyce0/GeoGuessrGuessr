@@ -2,6 +2,11 @@ import numpy as np
 
 def get_real_coordinates(testtype):
     # New arrays below here
+    real_coords_XGXN = np.array([[53.5844474,-1.6240971], [40.7960745,22.4144571], [38.6888912,-75.3954654], [50.8907278,14.8637668], [44.7613688,-0.6125308]])
+    real_coords_KCVU = np.array([[43.6114163,3.8670858], [51.2494443,-1.2329519], [52.7514339,15.2446081], [-8.6994011,116.1044286], [36.3042534,127.3788972]])
+    real_coords_YVEP = np.array([[50.9998753,-2.6780839], [24.9234655,91.8334294], [38.9475903,-75.6058596], [47.5727747,8.8886752], [40.2829236,-91.8600552]])
+    real_coords_LYQK = np.array([[48.8265388,2.2771981], [-1.0637203,-80.6507052], [42.0551531,14.7342765], [14.6675396,-89.9268566], [58.069741,54.64578]])
+    real_coords_RTTJ = np.array([[20.6928639,-103.3246792], [50.7969102,10.3635416], [42.3575969,-71.0530984], [18.912933,98.9673232], [37.4083168,-121.8832713]])
     real_coords_MFYM = np.array([[-9.9468102,-67.858007], [44.4431257,-79.9186955], [53.1090174,50.1406704], [40.6180422,-0.7611749], [34.9474768,137.053109]])
     real_coords_Game = np.array([[59.2642, 10.4276], [1.4855, 103.8676], [54.9927, -1.6732], [19.4745, -99.1974], [58.6133, 49.6275]])
     real_coords_Valid = np.array([[43.3219114, -5.5783907], [23.0376137, 72.5819308], [55.9300025, -3.2678762], [51.9187417, 4.4957128], [40.6000729, -74.3125485]])
@@ -38,6 +43,16 @@ def get_real_coordinates(testtype):
     if testtype == 'Game':
         real_coords = real_coords_Game
     # New If-Else below here
+    elif testtype == 'XGXN':
+        real_coords = real_coords_XGXN
+    elif testtype == 'KCVU':
+        real_coords = real_coords_KCVU
+    elif testtype == 'YVEP':
+        real_coords = real_coords_YVEP
+    elif testtype == 'LYQK':
+        real_coords = real_coords_LYQK
+    elif testtype == 'RTTJ':
+        real_coords = real_coords_RTTJ
     elif testtype == 'MFYM':
         real_coords = real_coords_MFYM
     elif testtype == 'Validation':
@@ -103,6 +118,11 @@ def get_real_coordinates(testtype):
 def list_test_types():
     return [
         #new test types added here
+        'XGXN',
+        'KCVU',
+        'YVEP',
+        'LYQK',
+        'RTTJ',
         'MFYM',
         'Lavender', 'Guinea', 'United', 'Yippee',
         'Super', 'Ultra', 'Extreme', 'Game', 'Validation', 'Verification',

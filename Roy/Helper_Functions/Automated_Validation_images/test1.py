@@ -16,9 +16,9 @@ def list_test_types():
     with open('Roy/ML/Second_Level_ML/generate_coordinates.py', 'r') as f:
         content = f.read()
     matches = re.findall(r"'([A-Za-z]+)'", re.search(r'def list_test_types\(\):\s*return \[(.*?)\]', content, re.DOTALL).group(1))
-    return matches
+    return list(matches)
 
-def run(geoguessr_url):
+def run(geoguessr_url, used_types):
     coords = []
 
     with sync_playwright() as p:
@@ -134,13 +134,25 @@ def run(geoguessr_url):
         
     # real_coords_Yippee = np.array([[37.2461187,-76.6488819], [17.5421013,80.6055166], [-29.3102639,27.5317762], [50.7016383,20.653696], [30.9914195,-97.82943]])  put it into this format, with a 4 letter name. check wether its used already from the list_test_types function in generate_coordinates.py
     used_test_types = list_test_types()
+    print(used_test_types)
+    used_types = list(used_types)
+    print(used_types)
+    
+    if len(used_types)>0:
+        print("test")
+        for element in used_types:
+            if not used_test_types.__contains__(element):
+                used_test_types.append(element)
     print(f'\nUsed test types: {used_test_types}')
+    
     # Generate a random test type name that is not already used out of 4 characters, then check against the first 4 letters of each used
     while True:
         test_type = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ', k=4))
         if test_type not in [name[:4] for name in used_test_types]:
             break
     print(f'\nSuggested test type name: {test_type}')
+    used_types.append(str(test_type))
+    
 
     print('\nIn array format:')
     array_str = 'real_coords_'+test_type+' = np.array(['
@@ -198,8 +210,21 @@ def run(geoguessr_url):
         f.seek(0)
         f.truncate()
         f.writelines(lines)
+    
+    return used_types
         
         
 
 if __name__ == "__main__":
-    run("https://www.geoguessr.com/challenge/pOf3CCLXpO9a4D2Y")
+    List_of_links = [
+        "https://www.geoguessr.com/challenge/gsGEAMcC29zDXPE7",
+        "https://www.geoguessr.com/challenge/K3y3S4WkFieTwnlq",
+        "https://www.geoguessr.com/challenge/XGawCvuu52N4TXra",
+        "https://www.geoguessr.com/challenge/SnZQSfahHXSdGMtG",
+        "https://www.geoguessr.com/challenge/LdKG7vAtdPDMIe7T"
+    ]
+    
+    
+    used_types = []
+    for i in range (5):
+        used_types = run(List_of_links[i], used_types)
