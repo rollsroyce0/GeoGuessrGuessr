@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,7 +12,7 @@ from Generate_model_predictions import main as main_predictions
 # =========================
 # Utils
 # =========================
-if True:
+if False:
     main_predictions()
     main_coords()
     main_merge()
@@ -25,6 +26,8 @@ def load_data(csv_file):
     print(f"Loaded {len(df)} rows")
     return df
 
+def Geoguessr_score(error):
+    return 5000 if error < 0.15 else np.floor(5000 * np.exp(-error/2000))
 
 def model_indexing(df):
     enumerate_models('Roy/ML/Saved_Models/')
@@ -69,7 +72,7 @@ def build_cnn_dataset(df):
     return X, y
 
 
-def train_split_data(df, split=0.8):
+def train_split_data(df, split=0.9):
     df = model_indexing(df)
     X, y = build_cnn_dataset(df)
 
@@ -146,7 +149,7 @@ def haversine_loss(pred, target):
 # Training
 # =========================
 
-def train(model, Xtr, ytr, Xte, yte, epochs=50, lr=1e-3):
+def train(model, Xtr, ytr, Xte, yte, epochs=2000, lr=4e-6):
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
 
     for e in range(epochs):
@@ -160,8 +163,8 @@ def train(model, Xtr, ytr, Xte, yte, epochs=50, lr=1e-3):
         model.eval()
         with torch.no_grad():
             val = haversine_loss(model(Xte), yte)
-
-        print(f"{e+1:03d} | train {loss:.2f} km | val {val:.2f} km")
+        if e % 100 == 0:
+            print(f"{e+1:03d} | train {loss:.2f} km | val {val:.2f} km | lr {lr:.1e} | Points {Geoguessr_score(loss.item()):.1f} | Val Points {Geoguessr_score(val.item()):.1f}")
 
 
 # =========================

@@ -26,8 +26,10 @@ def get_real_coordinates(testtype):
     real_coords_Shoot = np.array([[29.5580223,-98.322072], [49.7909501,18.4802871], [50.1588493,-5.2928866], [7.086827,125.5943939], [40.7892681,-73.50277]])
     real_coords_Funky = np.array([[7.8269091,98.3394144], [49.3641445,8.5459606], [27.0107561,-82.1502861], [23.874421,90.3919131], [38.416887,-90.3832795]])
     real_coords_Best = np.array([[59.407269,15.415694], [49.3641445,8.5459606], [-1.5005364,29.621744], [23.874421,90.3919131], [51.5529906,-0.4758671]])
-
-
+    real_coords_Lavender = np.array([[52.516117,-2.004328], [31.8493014,35.2266686], [36.6184887,-88.3600286], [60.9087756,28.1206302], [46.3332073,-73.4905423]])
+    real_coords_Guinea = np.array([[14.7366162,-17.333487], [56.9702074,24.1393877], [51.306979,-0.556926], [34.741606,135.5245822], [32.7773573,-117.1985646]])
+    real_coords_United = np.array([[51.8952761,-1.1183537], [-5.3419033,120.1665516], [38.9149075,-77.0925625], [6.3490251,99.7589703], [36.7971044,-119.8958626]])
+    real_coords_Yippee = np.array([[37.2461187,-76.6488819], [17.5421013,80.6055166], [-29.3102639,27.5317762], [50.7016383,20.653696], [30.9914195,-97.82943]])
     if testtype == 'Game':
         real_coords = real_coords_Game
     elif testtype == 'Validation':
@@ -76,38 +78,33 @@ def get_real_coordinates(testtype):
         real_coords = real_coords_Funky
     elif testtype == 'Best':
         real_coords = real_coords_Best
+    elif testtype == 'Lavender':
+        real_coords = real_coords_Lavender
+    elif testtype == 'Guinea':
+        real_coords = real_coords_Guinea
+    elif testtype == 'United':
+        real_coords = real_coords_United
+    elif testtype == 'Yippee':
+        real_coords = real_coords_Yippee
+
     else:
         raise ValueError("Invalid test type. Choose a valid one from the list.")
     
     return real_coords
 
+def list_test_types():
+    return [
+        'Lavender', 'Guinea', 'United', 'Yippee',
+        'Super', 'Ultra', 'Extreme', 'Game', 'Validation', 'Verification',
+        'Chrome', 'World', 'Task', 'Enlarged', 'Exam', 'Google', 'Zurich',
+        'Moscow', 'Friends', 'Full', 'Entire', 'Berne', 'Beans', 'Geneva',
+        'Screen', 'Shoot', 'Funky', 'Best' 
+    ]
+
 def main():
     import pandas as pd
 
-    test_types = ['Game',
-                  'Validation',
-                  'Verification',
-                  'Super',
-                  'Ultra',
-                  'Extreme',
-                  'Chrome',
-                  'World',
-                  'Task',
-                  'Enlarged',
-                  'Exam',
-                  'Google',
-                  'Zurich',
-                  'Moscow', 
-                  'Friends',
-                  'Full',
-                  'Entire',
-                  'Berne',
-                  'Beans',
-                  'Geneva',
-                  'Screen',
-                  'Shoot',
-                  'Funky',
-                  'Best']
+    test_types = list_test_types()
     
     all_coords = []
     for testtype in test_types:

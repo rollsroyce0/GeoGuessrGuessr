@@ -10,34 +10,11 @@ import matplotlib.pyplot as plt
 import time
 import warnings
 
-from generate_coordinates import get_real_coordinates
+from generate_coordinates import get_real_coordinates, list_test_types
 warnings.filterwarnings("ignore")
 
 global list_of_maps
-list_of_maps = ['Game',
-                'Validation',
-                'Super',
-                'Verification',
-                'Ultra',
-                'Extreme',
-                'Chrome',
-                'World',
-                'Task',
-                'Enlarged',
-                'Exam',
-                'Google',
-                'Zurich',
-                'Friends',
-                'Full',
-                'Entire',
-                'Moscow',
-                'Beans',
-                'Geneva',
-                'Screen',
-                'Shoot',
-                'Funky',
-                'Best',
-                'Berne']
+list_of_maps = list_test_types()
 
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
@@ -240,7 +217,7 @@ def main2(testtype=None, predicted_coordinates=None):
         # save this to the dataframe
         for i in range(len(preds)):
             predicted_coordinates = pd.concat([predicted_coordinates, pd.DataFrame({
-                'Test_Type': [testtype],
+                'test_type': [testtype],
                 'Model_Name': [fname],
                 'Predicted_Latitude1': [preds[i][0]],
                 'Predicted_Longitude1': [preds[i][1]],
@@ -328,7 +305,7 @@ def main():
     errors = []
     final_scores = []
     
-    predicted_coordinates = pd.DataFrame(columns=['test_Type','Model_Name',  'Predicted_Latitude1', 'Predicted_Longitude1',
+    predicted_coordinates = pd.DataFrame(columns=['test_type','Model_Name',  'Predicted_Latitude1', 'Predicted_Longitude1',
                                                  'Predicted_Latitude2', 'Predicted_Longitude2',
                                                  'Predicted_Latitude3', 'Predicted_Longitude3',
                                                  'Predicted_Latitude4', 'Predicted_Longitude4',
