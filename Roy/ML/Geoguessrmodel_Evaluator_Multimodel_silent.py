@@ -221,7 +221,7 @@ def main(testtype=None):
     difficulty_scores = difficulty_scores**3
     difficulty_scores = np.round(difficulty_scores, 3)
     print("Difficulty scores for each image:", difficulty_scores)
-    print("Average difficulty score of this round:", np.round(np.mean(difficulty_scores), 3))
+    print("Average difficulty score of this round:", np.round((np.mean(difficulty_scores)+np.median(difficulty_scores))/2, 3))
     # add the average difficutly score for the test type to a file
 
     with open(f'Roy/Test_Images/Difficulty_scores.txt', 'a') as f:

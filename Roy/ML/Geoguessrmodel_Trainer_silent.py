@@ -161,7 +161,7 @@ class GeoPredictorNN(nn.Module):
         self.fc3 = nn.Linear(512, 256)
         self.batch_norm3 = nn.BatchNorm1d(256)
         self.gelu3 = nn.GELU()
-        self.dropout3 = nn.Dropout(0.1)
+        self.dropout3 = nn.Dropout(0.15)
         
         self.fc4 = nn.Linear(256, 128)
         self.batch_norm4 = nn.BatchNorm1d(128)
@@ -257,9 +257,9 @@ scheduler = ReduceLROnPlateau(
 # Training Loop                         #
 #######################################
 
-batch_size_data = 10000
+batch_size_data = 256
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 500
+epochs = 600
 
 losses = []
 val_losses = []
@@ -321,7 +321,7 @@ for epoch in track(range(epochs), description="Training the model..."):
 
 if losses[-1] == 1e5:
     print("No valid training completed, model not saved.")
-    quit()
+    exit()
 
 #print('Finished Training')
 final_val_loss = val_losses[-1]
