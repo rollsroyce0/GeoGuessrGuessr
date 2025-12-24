@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Yippee: geo_predictor_nn_750e_256b_975k.pth, geo_predictor_nn_800e_64b_1021k.pth, geo_predictor_nn_500e_64b_1032k.pth, geo_predictor_nn_601e_256b_999k.pth, geo_predictor_nn_302e_64b_1034k.pth, geo_predictor_nn_750e_512b_776k.pth, geo_predictor_nn_1000e_300b_988k.pth, geo_predictor_nn_500e_100b_951k.pth, geo_predictor_nn_500e_64b_953k.pth, geo_predictor_nn_511e_256b_987k.pth

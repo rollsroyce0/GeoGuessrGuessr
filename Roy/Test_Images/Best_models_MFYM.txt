@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+MFYM: geo_predictor_nn_505e_232b_960k.pth, geo_predictor_nn_1000e_64b_976k.pth, geo_predictor_nn_500e_16b_1436k.pth, geo_predictor_nn_302e_64b_1034k.pth, geo_predictor_nn_1200e_256b_817k.pth, geo_predictor_nn_525e_256b_1003k.pth, geo_predictor_nn_2000e_256b_965k.pth, geo_predictor_nn_653e_206b_975k.pth, geo_predictor_nn_401e_256b_980k.pth, geo_predictor_nn_3000e_256b_913k.pth

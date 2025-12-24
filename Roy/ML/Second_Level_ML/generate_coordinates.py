@@ -2,6 +2,11 @@ import numpy as np
 
 def get_real_coordinates(testtype):
     # New arrays below here
+    real_coords_TYRT = np.array([[35.9097179,14.4232762], [45.362038,-73.562605], [45.4704683,16.3668649], [37.6857096,-0.9621712], [5.9041759,116.0468738]])
+    real_coords_YQCU = np.array([[33.2500018,129.9546165], [1.9393363,-77.1590514], [-34.8781733,-56.1494995], [34.0713692,-118.261476], [51.295211,0.1115474]])
+    real_coords_FOPH = np.array([[43.4120158,-112.7294178], [50.3840806,9.1099952], [53.5995413,-2.8417736], [-29.2013203,28.8683549], [25.5930905,-103.4578275]])
+    real_coords_FVLW = np.array([[46.5032555,6.9103343], [54.8430987,-6.7694377], [43.6495585,16.6336502], [28.5561404,-81.5592699], [52.9850349,49.4167141]])
+    real_coords_YJEL = np.array([[47.548144,-122.2330093], [57.1498126,65.5864898], [-23.6512907,-46.7079553], [33.1652096,-80.1186839], [3.1720646,101.690049]])
     real_coords_XGXN = np.array([[53.5844474,-1.6240971], [40.7960745,22.4144571], [38.6888912,-75.3954654], [50.8907278,14.8637668], [44.7613688,-0.6125308]])
     real_coords_KCVU = np.array([[43.6114163,3.8670858], [51.2494443,-1.2329519], [52.7514339,15.2446081], [-8.6994011,116.1044286], [36.3042534,127.3788972]])
     real_coords_YVEP = np.array([[50.9998753,-2.6780839], [24.9234655,91.8334294], [38.9475903,-75.6058596], [47.5727747,8.8886752], [40.2829236,-91.8600552]])
@@ -43,6 +48,16 @@ def get_real_coordinates(testtype):
     if testtype == 'Game':
         real_coords = real_coords_Game
     # New If-Else below here
+    elif testtype == 'TYRT':
+        real_coords = real_coords_TYRT
+    elif testtype == 'YQCU':
+        real_coords = real_coords_YQCU
+    elif testtype == 'FOPH':
+        real_coords = real_coords_FOPH
+    elif testtype == 'FVLW':
+        real_coords = real_coords_FVLW
+    elif testtype == 'YJEL':
+        real_coords = real_coords_YJEL
     elif testtype == 'XGXN':
         real_coords = real_coords_XGXN
     elif testtype == 'KCVU':
@@ -118,6 +133,11 @@ def get_real_coordinates(testtype):
 def list_test_types():
     return [
         #new test types added here
+        'TYRT',
+        'YQCU',
+        'FOPH',
+        'FVLW',
+        'YJEL',
         'XGXN',
         'KCVU',
         'YVEP',

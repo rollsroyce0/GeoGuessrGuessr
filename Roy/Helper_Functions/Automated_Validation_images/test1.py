@@ -217,11 +217,11 @@ def run(geoguessr_url, used_types):
 
 if __name__ == "__main__":
     List_of_links = [
-        "https://www.geoguessr.com/challenge/gsGEAMcC29zDXPE7",
-        "https://www.geoguessr.com/challenge/K3y3S4WkFieTwnlq",
-        "https://www.geoguessr.com/challenge/XGawCvuu52N4TXra",
-        "https://www.geoguessr.com/challenge/SnZQSfahHXSdGMtG",
-        "https://www.geoguessr.com/challenge/LdKG7vAtdPDMIe7T"
+        "https://www.geoguessr.com/challenge/Y3045mIUmDnfhOn3",
+        "https://www.geoguessr.com/challenge/3UVZ8zwNZoEFi0pQ",
+        "https://www.geoguessr.com/challenge/9P4JYUS5QMDMqmrq",
+        "https://www.geoguessr.com/challenge/pEnlY8MzzyxNg3XA",
+        "https://www.geoguessr.com/challenge/DXh9wM1oFuAgEj0d"
     ]
     
     

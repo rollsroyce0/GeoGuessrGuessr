@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Lavender: geo_predictor_nn_402e_232b_976k.pth, geo_predictor_nn_1000e_300b_988k.pth, geo_predictor_nn_750e_444b_904k.pth, geo_predictor_nn_750e_512b_727k.pth, geo_predictor_nn_1000e_96b_1198k.pth, geo_predictor_nn_502e_232b_991k.pth, geo_predictor_nn_500e_64b_973k.pth, geo_predictor_nn_1000e_196b_983k.pth, geo_predictor_nn_601e_256b_998k.pth, geo_predictor_nn_500e_256b_914k.pth
