@@ -162,8 +162,8 @@ def main(testtype=None):
         print("No models scored above 10,000 points. Please check your models.")
         points_backup = low_points_backup
         errors = low_errors
-    print(f"Top 10 models for {testtype}:")
-    for i, (fname, total_pts, preds) in enumerate(results):
+    print(f"Top 3 models for {testtype}:")
+    for i, (fname, total_pts, preds) in enumerate(results[:3]):
         print(f"{i+1}: {fname} - {total_pts} pts")
         #print(preds)
     # Save the testtype and the best three models to a file
@@ -190,13 +190,12 @@ def main(testtype=None):
     #print(results)
 
     final_errs = haversine_batch(real_coords, avg_preds)
-    print(final_errs)
+    #print(final_errs)
     #print(len(final_errs), len(real_coords))
     final_pts = [geoguessr_points(e) for e in final_errs]
     print("Final points for each image:", final_pts)
-    print("Final total:", sum(final_pts))
     print("Highest points for each image:", highest_points)
-    print("Highest total:", sum(highest_points))
+    print("Final total:", sum(final_pts), "pts", "Highest total:", sum(highest_points), "pts")
     
     # Calculate a Difficulty score for each image based on the standard deviation of the predictions
     if len(errors) >=10:
@@ -209,7 +208,7 @@ def main(testtype=None):
     points_backup = np.sort(points_backup, axis=0)[-25:]
     difficulty_scores = np.std(errors, axis=0) + 0.4*np.mean(errors, axis=0) # Add the mean to the std to get a more accurate score
     #print("Errors:", errors)
-    print("Difficulty scores raw:", difficulty_scores)
+    #print("Difficulty scores raw:", difficulty_scores)
     # Normalize these on a scale 0-10, where an std dev of 2500 would be a difficulty of 10 and 0 would be 0. However this is not a linear scale, so we will use a logarithmic scale.
     # We will use a base of 10, so that 10^0 = 1 and 10^1 = 10. This means that a difficulty of 0 would be 0 and a difficulty of 10 would be 10.
     # We will also use a minimum difficulty of 1, so that we don't get negative scores.
