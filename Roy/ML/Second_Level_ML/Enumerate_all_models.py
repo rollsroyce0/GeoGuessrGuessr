@@ -2,7 +2,7 @@ import os
 import itertools
 import pandas as pd
 
-def enumerate_models(folder_path, model_prefix='geo_predictor_nn_', model_suffix='.pth'):
+def enumerate_models(folder_path, model_prefix='geo_predictor_nn_', model_suffix='.pth', leaderboard_only =False):
     """
     Enumerate all model files in the specified folder that match the given prefix and suffix.
     
@@ -34,15 +34,16 @@ def enumerate_models(folder_path, model_prefix='geo_predictor_nn_', model_suffix
             model_files_order.append(model_name)
     print(f"Total models found: {len(model_files_order)}")
     
-    for model in model_files:
-        if model not in model_files_order:
-            model_files_order.append(model)
+    if not leaderboard_only:
+        for model in model_files:
+            if model not in model_files_order:
+                model_files_order.append(model)
     print(f"Total models after adding missing ones: {len(model_files_order)}")
             
     # save to a dataframe and export as csv
     df = pd.DataFrame(model_files_order, columns=['model_file'])
     df.to_csv(os.path.join('Roy/ML/Second_Level_ML/model_files.csv'), index=False)
 
-    return model_files
+    return model_files_order
 if __name__ == "__main__":
     enumerate_models('Roy/ML/Saved_Models/')

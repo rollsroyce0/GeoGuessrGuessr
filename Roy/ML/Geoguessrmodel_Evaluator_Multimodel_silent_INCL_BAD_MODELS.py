@@ -116,8 +116,26 @@ def main(testtype=None):
     highest_points = [0,0,0,0,0]
     total_points_backup = []
 
+    #combine bin models with good models for full coverage
+    print("Evaluating models from both Saved_Models and Saved_Models_Checkpoint...")
+    for fname in sorted(os.listdir('Roy/ML/Saved_Models/')):
+        if fname in os.listdir('Roy/ML/Saved_Models_Checkpoint'):
+            continue
+        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth'):
+            continue
+        shutil.copy(os.path.join('Roy/ML/Saved_Models/', fname), os.path.join('Roy/ML/Saved_Models_Checkpoint', fname))
+    
+    for fname in sorted(os.listdir('Roy/ML/Playground/Model_Backup_Bin/')):
+        if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth'):
+            continue
+        shutil.copy(os.path.join('Roy/ML/Playground/Model_Backup_Bin/', fname), os.path.join('Roy/ML/Saved_Models_Checkpoint', fname))
+
+    print(f"Starting model evaluations with {len(os.listdir('Roy/ML/Saved_Models_Checkpoint'))} models...")
+        
+    
+
     # Loop over predictor weights
-    for fname in sorted(os.listdir('Roy/ML/Saved_Models')):
+    for fname in sorted(os.listdir('Roy/ML/Saved_Models_Checkpoint')):
         if 'embedding' in fname or 'lowest' in fname or not fname.endswith('.pth') or 'check' in fname:
             continue
         if int(fname.split('k')[0].split('_')[-1])>6500:
@@ -126,7 +144,7 @@ def main(testtype=None):
             continue
         #print(f"Evaluating model: {fname}")
         predictor = GeoPredictorNN().to(device).eval()
-        predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models/{fname}', map_location=device))
+        predictor.load_state_dict(torch.load(f'Roy/ML/Saved_Models_Checkpoint/{fname}', map_location=device))
 
         with torch.no_grad():
             preds = predictor(embeddings.to(device)).cpu().numpy()

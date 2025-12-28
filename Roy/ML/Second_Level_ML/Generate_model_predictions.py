@@ -215,21 +215,14 @@ def main2(testtype=None, predicted_coordinates=None):
             preds[:,1] = (preds[:,1]+180)%360 - 180
             
         # save this to the dataframe
-        for i in range(len(preds)):
-            predicted_coordinates = pd.concat([predicted_coordinates, pd.DataFrame({
-                'test_type': [testtype],
-                'Model_Name': [fname],
-                'Predicted_Latitude1': [preds[i][0]],
-                'Predicted_Longitude1': [preds[i][1]],
-                'Predicted_Latitude2': [preds[i][0]],
-                'Predicted_Longitude2': [preds[i][1]],
-                'Predicted_Latitude3': [preds[i][0]],
-                'Predicted_Longitude3': [preds[i][1]],
-                'Predicted_Latitude4': [preds[i][0]],
-                'Predicted_Longitude4': [preds[i][1]],
-                'Predicted_Latitude5': [preds[i][0]],
-                'Predicted_Longitude5': [preds[i][1]]
-            })], ignore_index=True)
+        new_rows_dict = {'test_type': testtype, 'Model_Name': fname,
+                            'Predicted_Latitude1': preds[0,0], 'Predicted_Longitude1': preds[0,1],
+                            'Predicted_Latitude2': preds[1,0], 'Predicted_Longitude2': preds[1,1],
+                            'Predicted_Latitude3': preds[2,0], 'Predicted_Longitude3': preds[2,1],
+                            'Predicted_Latitude4': preds[3,0], 'Predicted_Longitude4': preds[3,1],
+                            'Predicted_Latitude5': preds[4,0], 'Predicted_Longitude5': preds[4,1]}
+        
+        predicted_coordinates = pd.concat([predicted_coordinates, pd.DataFrame([new_rows_dict])], ignore_index=True)
 
         errs = haversine_batch(real_coords, preds)
         pts = [geoguessr_points(e) for e in errs]

@@ -257,9 +257,9 @@ scheduler = ReduceLROnPlateau(
 # Training Loop                         #
 #######################################
 
-batch_size_data = 256
+batch_size_data = 292
 train_loader = DataLoader(list(zip(X_train, y_train)), batch_size=batch_size_data, shuffle=True)
-epochs = 600
+epochs = 550
 
 losses = []
 val_losses = []
@@ -317,7 +317,7 @@ for epoch in track(range(epochs), description="Training the model..."):
         continue
     if val_loss.item() < 1500 and epoch % 1 == 0:
         name = f'geo_predictor_nn_{epoch}e_{batch_size_data}b_{int(np.round(val_loss.item(), 0))}k_checkpoint_{int(time.time())}'
-        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models_New/Checkpoint_Models_NN/{name}.pth')
+        torch.save(geo_predictor.state_dict(), f'Roy/ML/Saved_Models_Checkpoint/Checkpoint_Models_NN/{name}.pth')
 
 if losses[-1] == 1e5:
     print("No valid training completed, model not saved.")

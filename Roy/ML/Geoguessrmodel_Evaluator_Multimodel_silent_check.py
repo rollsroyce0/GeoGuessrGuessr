@@ -10,31 +10,9 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
+from Second_Level_ML.generate_coordinates import get_real_coordinates, list_test_types
 global list_of_maps
-list_of_maps = ['Game',
-                'Best',
-                'Validation',
-                'Super',
-                'Verification',
-                'Ultra',
-                'Extreme',
-                'Chrome',
-                'World',
-                'Task',
-                'Enlarged',
-                'Exam',
-                'Google',
-                'Zurich',
-                'Friends',
-                'Full',
-                'Entire',
-                'Moscow',
-                'Beans',
-                'Geneva',
-                'Berne',
-                'Screen',
-                'Shoot',
-                'Funky']
+list_of_maps = list_test_types()
 
 # Custom Model to generate embeddings
 class GeoEmbeddingModel(nn.Module):
@@ -117,7 +95,6 @@ def main(testtype=None):
 
     # Real coordinates
     # Initialize embedding model
-    from Second_Level_ML.generate_coordinates import get_real_coordinates
     real_coords = get_real_coordinates(testtype)
     
     embed_model = GeoEmbeddingModel().to(device).eval()
@@ -187,7 +164,7 @@ def main(testtype=None):
     # Check if the file exists, if not create it
     if not os.path.exists(f'Roy/Test_Images/Best_models_{testtype}_check.txt'):
         # Throw an error if the file does not exist
-        raise FileNotFoundError(f"File Roy/Test_Images/Best_models_{testtype}_check.txt does not exist")
+        open(f'Roy/Test_Images/Best_models_{testtype}_check.txt', 'x')
     # remove all text from the file
     with open(f'Roy/Test_Images/Best_models_{testtype}_check.txt', 'r+') as f:
         #one=1

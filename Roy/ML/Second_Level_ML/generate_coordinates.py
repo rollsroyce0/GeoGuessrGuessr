@@ -133,12 +133,7 @@ def get_real_coordinates(testtype):
 def list_test_types():
     return [
         #new test types added here
-        'TYRT',
-        'YQCU',
-        'FOPH',
-        'FVLW',
-        'YJEL',
-        'XGXN',
+        'TYRT', 'YQCU', 'FOPH', 'FVLW', 'YJEL', 'XGXN',
         'KCVU',
         'YVEP',
         'LYQK',

@@ -48,6 +48,16 @@ for i in range(total_runs_possible):
         break
     print("------------------------------------------------------------------------------")
 
+with open('Roy/ML/Playground/Playground_Geoguessrmodel_Evaluator_Multimodel_silent_Checkpoints.py') as f:
+        exec(f.read())
+
+with open('Roy/ML/Geoguessrmodel_Evaluator_Multimodel_silent_check.py') as f:
+        exec(f.read())
+        
+with open('Roy/ML/Playground/Playground_Model_Culling.py') as f:
+        exec(f.read())
+
+
 # Evaluation time
 with open('Roy/ML/Geoguessrmodel_Evaluator_Multimodel_silent.py') as f:
         exec(f.read())
