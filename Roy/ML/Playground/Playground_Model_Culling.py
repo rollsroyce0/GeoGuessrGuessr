@@ -1,4 +1,4 @@
-
+import time
 import os
 
 def read_leaderboard_models(folder_path):
@@ -37,9 +37,14 @@ if __name__ == "__main__":
     print("Leaderboard Models: ", len(models))
     
     for model in os.listdir('Roy/ML/Saved_Models/'):
-        if model.endswith('.pth') and model not in models and (not model.__contains__('embedding') or not model.__contains__('Best') or not model.__contains__('low')):
-            print("Model not in leaderboard:", model)
-            os.rename(os.path.join('Roy/ML/Saved_Models/', model), os.path.join('Roy/ML/Playground/Model_Backup_Bin/', model))
+        if model.endswith('.pth') and model not in models:
+            if not(model == 'Best_geo_embedding_model_r152_normal.pth' or model == 'geo_embedding_model.pth'):
+                print("Model not in leaderboard:", model)
+                try:
+                    os.rename(os.path.join('Roy/ML/Saved_Models/', model), os.path.join('Roy/ML/Playground/Model_Backup_Bin/', model))
+                except Exception as e:
+                    print("Error moving model:", model, "Error:", e)
+                    os.rename(os.path.join('Roy/ML/Saved_Models/', model), os.path.join('Roy/ML/Playground/Model_Backup_Bin/', (model.replace('.pth', '') + '_'+ time.time().__str__() + '.pth')))
     
     # count models in backup bin
     backup_models = os.listdir('Roy/ML/Playground/Model_Backup_Bin/')
