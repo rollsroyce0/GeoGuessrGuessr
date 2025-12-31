@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+RTTJ: geo_predictor_nn_1000e_64b_976k.pth, geo_predictor_nn_1450e_360b_937k.pth, geo_predictor_nn_505e_232b_978k.pth, geo_predictor_nn_400e_256b_996k.pth, geo_predictor_nn_601e_256b_978k.pth, geo_predictor_nn_202e_64b_1145k.pth, geo_predictor_nn_501e_256b_973k.pth, geo_predictor_nn_601e_256b_1021k.pth, geo_predictor_nn_600e_256b_767k_1766689863.pth, geo_predictor_nn_256e_256b_1061k.pth

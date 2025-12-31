@@ -121,8 +121,8 @@ class GeoEmbeddingModel(nn.Module):
 #######################################
 # Load or Generate Embeddings           #
 #######################################
-embeddings_file = 'Roy/ML/embeddings.npy'
-image_paths_file = 'Roy/ML/image_paths.npy'
+embeddings_file = 'Roy/ML/Best_embeddings.npy'
+image_paths_file = 'Roy/ML/Best_image_paths.npy'
 
 if os.path.exists(embeddings_file):
     embeddings = np.load(embeddings_file).astype(np.float32)
@@ -135,9 +135,9 @@ else:
     dataset = DualResStreetviewDataset(image_paths=image_paths)
     dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
     
-    if os.path.exists('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'):
-        model.load_state_dict(torch.load('Roy/ML/Saved_Models/geo_embedding_model_r152_normal.pth'))
-    
+    if os.path.exists('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth'):
+        model.load_state_dict(torch.load('Roy/ML/Saved_Models/Best_geo_embedding_model_r152_normal.pth'))
+
     print("Generating custom embeddings...")
     embeddings_list = []
     model.eval()

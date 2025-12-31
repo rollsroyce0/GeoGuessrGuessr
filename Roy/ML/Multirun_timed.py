@@ -20,8 +20,11 @@ print("Time limit in seconds: ", timelmt)
 #quit()
 # run the code once and time it, figure out how long it takes to run
 start_time = time.time()
-with open(filepath) as f:
-        exec(f.read())
+try:
+    with open(filepath) as f:
+            exec(f.read())
+except SystemExit:
+    print("SystemExit caught, continuing...")
 end_time = time.time()
 print("Time taken to run the code once: ", (end_time - start_time)/60, " minutes")
 total_runs_possible = int(timelmt / (end_time - start_time))
@@ -30,8 +33,11 @@ print("Total runs possible: ", total_runs_possible)
 # run the code in a loop for the time limit
 for i in range(total_runs_possible):
     start_time = time.time()
-    with open(filepath) as f:
-        exec(f.read())
+    try:
+        with open(filepath) as f:
+            exec(f.read())
+    except SystemExit:
+        print("SystemExit caught, continuing...")
     end_time = time.time()
     print("Time taken to run the code: ", (end_time - start_time)/60, " minutes")
     print("Total runs possible: ", total_runs_possible - i - 1)
@@ -42,8 +48,18 @@ for i in range(total_runs_possible):
         break
     print("------------------------------------------------------------------------------")
 
+with open('Roy/ML/Playground/Playground_Geoguessrmodel_Evaluator_Multimodel_silent_Checkpoints.py') as f:
+        exec(f.read())
+
+with open('Roy/ML/Geoguessrmodel_Evaluator_Multimodel_silent_check.py') as f:
+        exec(f.read())
+        
+with open('Roy/ML/Playground/Playground_Model_Culling.py') as f:
+        exec(f.read())
+
+
 # Evaluation time
-with open('Roy/ML/Playground/Playground_Geoguessrmodel_Evaluator_Multimodel_silent.py') as f:
+with open('Roy/ML/Geoguessrmodel_Evaluator_Multimodel_silent.py') as f:
         exec(f.read())
 with open('Roy/ML/Get_Best_Models.py') as f:
         exec(f.read())

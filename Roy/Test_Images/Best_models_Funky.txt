@@ -1,0 +1,2 @@
+Best 10 models for each test type:
+Funky: geo_predictor_nn_1000e_512b_856k.pth, geo_predictor_nn_256e_256b_1034k.pth, geo_predictor_nn_601e_256b_931k.pth, geo_predictor_nn_555e_256b_800k.pth, geo_predictor_nn_511e_256b_987k.pth, geo_predictor_nn_502e_232b_1040k.pth, geo_predictor_nn_452e_64b_914k.pth, geo_predictor_nn_501e_256b_1191k.pth, geo_predictor_nn_600e_256b_797k.pth, geo_predictor_nn_555e_256b_991k.pth
