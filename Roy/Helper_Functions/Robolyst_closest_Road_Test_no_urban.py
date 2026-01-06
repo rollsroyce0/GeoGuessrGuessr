@@ -7,12 +7,12 @@ from selenium.webdriver.common.by import By
 import os
 import numpy as np
 import time
-from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
 import Helper_Functions.geofindurban
-import findclosestroad
+import Helper_Functions.geoidenturban
+import Roy.Helper_Functions.findclosestroad as findclosestroad
 import Helper_Functions.geofindcountry as geofindcountry
 
 # Maybe always delete first try to free up space and reduce computation time
@@ -44,11 +44,17 @@ lat_track=[]
 lon_track = []
 dist_track = []
 
-for i in track(range(300)):
+for i in track(range(1000)):
     # generate random latitude and longitude within street view limits
-    code = geofindcountry.generate_random_country_code("africa")
-    lat, lon = geofindcountry.generate_random_point_in_country(code)
-    
+    urban = True
+    counter = 0
+    while urban:
+        code = geofindcountry.generate_random_country_code()
+        lat, lon = geofindcountry.generate_random_point_in_country(code)
+        urban = Helper_Functions.geoidenturban.is_urban([lat, lon])
+        counter += 1
+    if counter > 1:
+        print("Urban found after", counter, "tries")
     latlon, dist = findclosestroad.find_closest_road(lat, lon)
     print(dist)
     lat = latlon[0]
