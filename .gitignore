@@ -12,9 +12,10 @@ __pycache__/
 
 #Roys gitignore
 **/images_first_try/
-**/combined_images
-combined_images
+**/combined_images/
+**/combined_images.csv
 **/ML/Embeddings_Storage/
+**/Test_Images
 
 
 #Nics gitignore
