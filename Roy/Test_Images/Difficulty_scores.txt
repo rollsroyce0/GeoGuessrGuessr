@@ -28,7 +28,7 @@ YVEP: 49.685, Highest: 167.96, Lowest: 2.753
 Chrome: 46.812, Highest: 140.801, Lowest: 0.783
 TYRT: 44.558, Highest: 172.65, Lowest: 1.242
 FVLW: 42.687, Highest: 151.845, Lowest: 1.699
-FOPH: 38.453, Highest: 121.946, Lowest: 0.365
+FOPH: 38.619, Highest: 122.75, Lowest: 0.366
 Game: 36.621, Highest: 81.952, Lowest: 1.253
 XGXN: 30.389, Highest: 91.331, Lowest: 1.371
 Verification: 28.71, Highest: 106.773, Lowest: 1.634

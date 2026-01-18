@@ -34,6 +34,6 @@ Shoot: 38.538, Highest: 64.358, Lowest: 4.598
 Full: 35.938, Highest: 93.76, Lowest: 1.349
 Verification: 30.375, Highest: 101.177, Lowest: 2.194
 Berne: 24.705, Highest: 44.769, Lowest: 5.483
-Best: 23.729, Highest: 100.43, Lowest: 0.103
+Best: 24.144, Highest: 105.11, Lowest: 0.1
 Task: 19.632, Highest: 73.125, Lowest: 0.736
 Moscow: 7.356, Highest: 17.107, Lowest: 0.022
