@@ -1,2 +1,0 @@
-
-    depth = depth+1

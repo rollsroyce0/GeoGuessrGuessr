@@ -10,10 +10,10 @@ import time
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
-import Helper_Functions.geofindurban
-import Helper_Functions.geoidenturban
-import Roy.Helper_Functions.findclosestroad as findclosestroad
-import Helper_Functions.geofindcountry as geofindcountry
+import Helper_Functions.geographic_utils as geographic_utils
+import Helper_Functions.road_utils as findclosestroad
+import warnings
+import Helper_Functions.geographic_utils as geofindcountry
 
 # Maybe always delete first try to free up space and reduce computation time
 
@@ -51,7 +51,7 @@ for i in track(range(1000)):
     while urban:
         code = geofindcountry.generate_random_country_code()
         lat, lon = geofindcountry.generate_random_point_in_country(code)
-        urban = Helper_Functions.geoidenturban.is_urban([lat, lon])
+        urban = geographic_utils.is_urban([lat, lon])
         counter += 1
     if counter > 1:
         print("Urban found after", counter, "tries")

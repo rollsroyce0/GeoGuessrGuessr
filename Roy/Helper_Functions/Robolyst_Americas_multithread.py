@@ -11,17 +11,16 @@ import time
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
-from Helper_Functions.geofindcountry import generate_random_country_code, generate_random_point_in_country
-from Helper_Functions.geofindurban import generate_random_point_in_urban_area
+from geographic_utils import generate_random_country_code, generate_random_point_in_country, generate_random_point_in_urban_area
 
 # Delete all images in the folder to free up space
-for image in os.listdir("Roy/images_first_try/"):
-    os.remove("Roy/images_first_try/"+image)
+for image in os.listdir("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"):
+    os.remove("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"+image)
 
 start_time = time.time()
 warnings.filterwarnings("ignore")
 zoom = 3
-path_to_folder = "Roy/images_first_try/"
+path_to_folder = "GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"
 
 options = selenium.webdriver.ChromeOptions()
 options.add_argument('log-level=3')
@@ -156,7 +155,7 @@ for image in track(os.listdir(path_to_folder), description="Cropping images"):
     img = img.crop((left, top, right, bottom))
     img.save(path_to_folder + image)
 
-path_to_combined_folder = "Roy/combined_images/"
+path_to_combined_folder = "GeoGuessrGuessr-1/Roy/Helper_Functions/combined_images/"
 
 # Combine images
 for image in track(os.listdir(path_to_folder), description="Combining images"):

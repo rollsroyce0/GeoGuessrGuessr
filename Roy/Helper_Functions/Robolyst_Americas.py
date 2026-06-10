@@ -10,8 +10,7 @@ import time
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
-from Helper_Functions.geofindcountry import generate_random_country_code, generate_random_point_in_country
-from Helper_Functions.geofindurban import generate_random_point_in_urban_area
+from Helper_Functions.geographic_utils import generate_random_country_code, generate_random_point_in_country, generate_random_point_in_urban_area
 import time
 
 # Maybe always delete first try to free up space and reduce computation time

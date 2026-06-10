@@ -12,7 +12,7 @@ from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
 sys.path.append('../')
-import geoident.geofindurban
+import Roy.Helper_Functions.geographic_utils as geofindurban
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 images_dir = os.path.join(script_dir, 'temp_images')
@@ -26,7 +26,7 @@ options.add_argument('log-level=3')
 options.add_argument("--headless")
 
 def generate_random_coords():
-    lat, lon = geoident.geofindurban.generate_random_point_in_urban_area()
+    lat, lon = geofindurban.generate_random_point_in_urban_area()
     return lat, lon
 
 def find_panoid(lat, lon):

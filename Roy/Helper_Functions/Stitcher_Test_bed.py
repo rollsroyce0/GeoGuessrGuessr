@@ -3,19 +3,19 @@ from PIL import Image
 from rich.progress import track
 
 # if there are not 1 and 2 images, remove it
-for image in track(os.listdir("Roy/images_first_try/")):
+for image in track(os.listdir("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/")):
     img = str(image).split("_",3)
     ind = img[-1]
     ind = ind[0]
     img = img[0]+"_"+img[1]+"_"+img[2]+"_"
-    if not os.path.exists("Roy/images_first_try/"+img+str(ind)+"_1.png") or not os.path.exists("Roy/images_first_try/"+img+str(ind)+"_2.png"):
+    if not os.path.exists("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"+img+str(ind)+"_1.png") or not os.path.exists("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"+img+str(ind)+"_2.png"):
         print("Removing", image)
-        os.remove("Roy/images_first_try/"+image)
+        os.remove("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"+image)
 
 
 zoom =3
-path_to_folder = "Roy/images_first_try/"
-path_to_combined_folder = "Roy/combined_images/"
+path_to_folder = "GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"
+path_to_combined_folder = "GeoGuessrGuessr-1/Roy/Helper_Functions/combined_images/"
 for image in track(os.listdir(path_to_folder)):
     #print(image)
     img = Image.open(path_to_folder+image)
@@ -40,7 +40,7 @@ for image in track(os.listdir(path_to_folder)):
     img.save(path_to_folder+image)
 
 
-path_to_combined_folder = "Roy/combined_images/"
+path_to_combined_folder = "GeoGuessrGuessr-1/Roy/Helper_Functions/combined_images/"
 # combine 4 images into 1
 for image in track(os.listdir(path_to_folder)):
     img = image.split("_",3)

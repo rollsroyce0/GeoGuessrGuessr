@@ -11,26 +11,27 @@ from selenium.webdriver.common.action_chains import ActionChains
 from global_land_mask import globe
 from streetview import search_panoramas
 import warnings
-import Helper_Functions.geofindurban
-import Roy.Helper_Functions.findclosestroad as findclosestroad
-import Helper_Functions.geofindcountry as geofindcountry
+import road_utils as findclosestroad
+import geographic_utils as geofindcountry
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # Maybe always delete first try to free up space and reduce computation time
 
 # delete all images in the folder
-for image in os.listdir("Roy/images_first_try/"):
-    os.remove("Roy/images_first_try/"+image)
+for image in os.listdir("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"):
+    os.remove("GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"+image)
 
 
 warnings.filterwarnings("ignore")
 zoom = 3
-path_to_folder = "Roy/images_first_try/"
+path_to_folder = "GeoGuessrGuessr-1/Roy/Helper_Functions/images_first_try/"
 
 
 
 options = selenium.webdriver.ChromeOptions()
 options.add_argument('log-level=3')
-options.add_argument("--headless")   # run the browser in the background
+#options.add_argument("--headless")   # run the browser in the background
 
 driver = selenium.webdriver.Chrome(options=options)
 url = "https://www.google.ch/maps/"
@@ -38,7 +39,50 @@ driver.get(url)
 driver.set_window_size(1920, 1080)
 buttons = driver.find_elements(By.CSS_SELECTOR, "button")
 #print(buttons)
-buttons[1].click()
+#buttons[1].click()
+try:
+            # Wait for the cookie banner to be present and clickable
+            cookie_button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-qa='cookie-banner-accept']"))
+            )
+            ActionChains(driver).move_to_element(cookie_button).click().perform()
+            print("Accepted cookies using specific selector.")
+except Exception as cookie_error:
+            print("Specific cookie banner not found:", cookie_error)
+            # Fallback: try to find any visible, clickable button
+            try:
+                # Wait a moment for page to stabilize
+                time.sleep(1)
+
+                # Try to find any button that is visible and has dimensions
+                buttons = driver.find_elements(By.CSS_SELECTOR, "button")
+                clickable_button = None
+
+                for button in buttons:
+                    try:
+                        # Check if button is displayed and has dimensions
+                        if button.is_displayed() and button.size['width'] > 0 and button.size['height'] > 0:
+                            clickable_button = button
+                            break
+                    except:
+                        continue
+
+                if clickable_button:
+                    # Try ActionChains first
+                    try:
+                        ActionChains(driver).move_to_element(clickable_button).click().perform()
+                        print("Accepted cookies using ActionChains.")
+                    except:
+                        # Fallback to JavaScript click
+                        driver.execute_script("arguments[0].click();", clickable_button)
+                        print("Accepted cookies using JavaScript click.")
+                else:
+                    print("No visible clickable buttons found.")
+
+            except Exception as fallback_error:
+                print("Could not accept cookies with fallback method:", fallback_error)
+                print("Continuing without cookie acceptance...")
+
 
 lat_track=[]
 lon_track = []
@@ -46,7 +90,7 @@ dist_track = []
 
 for i in track(range(300)):
     # generate random latitude and longitude within street view limits
-    code = geofindcountry.generate_random_country_code("africa")
+    code = geofindcountry.generate_random_country_code()
     lat, lon = geofindcountry.generate_random_point_in_country(code)
     
     latlon, dist = findclosestroad.find_closest_road(lat, lon)

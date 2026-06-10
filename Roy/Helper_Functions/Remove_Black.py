@@ -33,21 +33,33 @@ def remove_half_black_images(image, counter, folder):
             os.remove(folder+image)
     return counter
 
+def remove_white_images(image, counter, folder):
+    if image.endswith(".png"):
+        img = Image.open(folder+image)
+        #print(img.getextrema())
+        if img.getextrema() == ((255,255), (255,255), (255,255)):
+            print("removing", image)
+            counter +=1
+            os.remove(folder+image)
+    return counter
+
 
 counter = 0
-folder = "Roy/combined_images/"
+counterw = 0
+folder = "GeoGuessrGuessr-1/Roy/Helper_Functions/combined_images/"
 for image in track(os.listdir(folder)):
-    if image.endswith("2.png") or image.endswith("3.png") or image.endswith("4.png") or image.endswith("5.png") or image.endswith("6.png") or image.endswith("7.png"):
-        continue
+    #if image.endswith("2.png") or image.endswith("3.png") or image.endswith("4.png") or image.endswith("5.png") or image.endswith("6.png") or image.endswith("7.png"):
+    #    continue
         
     previous_counter = counter
     counter = remove_half_black_images(image, counter, folder)
     if previous_counter != counter:
         continue
-    counter = remove_black_images(image, counter, folder)
-    
+    counter += remove_black_images(image, counter, folder)
+    counterw += remove_white_images(image, counter, folder)
             
 print("removed", counter, "images")
+print("removed", counterw, "white images")
 
 
 # check for duplicates
@@ -59,4 +71,5 @@ def check_duplicates(folder):
     print(len(set(files)))
     print(len(files)-len(set(files)))
 
-check_duplicates("D:/GeoGuessrGuessr/geoguesst/")
+#check_duplicates("D:/GeoGuessrGuessr/geoguesst/")
+check_duplicates(folder)

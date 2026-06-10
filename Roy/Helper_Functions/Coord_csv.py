@@ -15,6 +15,6 @@ print(len(lat)/8)
 # Create a dataframe
 df = pd.DataFrame({"Latitude": lat, "Longitude": lon})
 
-save_path = "Roy/combined_images.csv"
+save_path = "GeoGuessrGuessr-1/Roy/combined_images.csv"
 df.to_csv(save_path, index=False)
 
