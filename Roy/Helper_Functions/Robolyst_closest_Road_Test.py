@@ -94,9 +94,10 @@ for i in track(range(300)):
     lat, lon = geofindcountry.generate_random_point_in_country(code)
     
     latlon, dist = findclosestroad.find_closest_road(lat, lon)
-    print(dist)
+    
     lat = latlon[0]
     lon = latlon[1]
+    print(dist, "meters to closest road", lat, lon)
     dist_track.append(dist)
     
     
