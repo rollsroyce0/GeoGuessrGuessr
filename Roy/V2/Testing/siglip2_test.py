@@ -6,12 +6,26 @@ from rich.progress import track
 from transformers import AutoImageProcessor, SiglipVisionModel
 from math import radians, sin, cos, sqrt, atan2
 import pandas as pd
+import argparse
 #from Real_coords_lookup import get_real_coordinates
 from pathlib import Path
 import re
 
 from pathlib import Path
 import importlib.util
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='SigLIP2 GeoGuessr Test')
+parser.add_argument('--debug', action='store_true', help='Enable extensive debug statements')
+args = parser.parse_args()
+
+# Debug flag
+DEBUG = args.debug
+
+def debug_print(*messages):
+    """Print debug messages only when debug flag is enabled"""
+    if DEBUG:
+        print("[DEBUG]", *messages)
 
 lookup_path = Path(__file__).resolve().parents[3] / "Test_Images" / "Real_coords_lookup.py"
 
@@ -26,29 +40,30 @@ spec.loader.exec_module(lookup)
 get_real_coordinates = lookup.get_real_coordinates
 list_test_types = lookup.list_test_types
 
-
-
-
 # --------------------
 # CONFIG
 # --------------------
 CKPT = "google/siglip2-so400m-patch14-384"
 
-print("CUDA available:", torch.cuda.is_available())
-print("Device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
+debug_print("CUDA available:", torch.cuda.is_available())
+debug_print("Device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
 
 TRAIN_DIR = Path(r"D:/GeoGuessrGuessr/geoguesst")
 CACHE_FILE = TRAIN_DIR / "siglip_cache.npz"
 TEST_DIR = Path("GeoGuessrGuessr-1/Test_Images")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+debug_print(f"Using device: {DEVICE}")
+debug_print(f"Train directory: {TRAIN_DIR}")
+debug_print(f"Cache file: {CACHE_FILE}")
+debug_print(f"Test directory: {TEST_DIR}")
+
 processor = AutoImageProcessor.from_pretrained(CKPT)
 model = SiglipVisionModel.from_pretrained(CKPT).to(DEVICE).eval()
 
 # Directory Tests
 for test_type in list_test_types():
-    print(f"{test_type}: {len(list(TEST_DIR.glob(f'{test_type}_*.jpg')))} images")
-
+    debug_print(f"{test_type}: {len(list(TEST_DIR.glob(f'{test_type}_*.jpg')))} images")
 
 # --------------------
 # DATA PARSING
@@ -57,13 +72,11 @@ def parse_coords(path):
     lat, lon = path.stem.split("_", 2)[:2]
     return float(lat), float(lon)
 
-
 def get_image_list():
     return sorted([
         p for p in TRAIN_DIR.rglob("*")
         if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}
     ])
-
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0
@@ -169,11 +182,6 @@ def parse_test_image(path):
 
     return test_type, idx
 
-
-
-
-
-
 def geoguessr_score(distance_km):
     return round(5000 * np.exp(-distance_km / 1492.7))
 
@@ -181,6 +189,7 @@ def geoguessr_score(distance_km):
 # EMBEDDING
 # --------------------
 def embed_image(path):
+    debug_print(f"Embedding image: {path}")
     img = Image.open(path).convert("RGB")
 
     inputs = processor(images=img, return_tensors="pt")
@@ -192,8 +201,8 @@ def embed_image(path):
     emb = outputs.pooler_output
     emb = torch.nn.functional.normalize(emb, dim=-1)
 
+    debug_print(f"Embedding shape: {emb.shape}")
     return emb[0]   # KEEP AS TORCH TENSOR (no numpy yet)
-
 
 # --------------------
 # CACHE
@@ -209,7 +218,6 @@ def load_cache():
         for p, e in zip(data["paths"], data["embeddings"])
     }
 
-
 def save_cache(cache):
     paths = np.array(list(cache.keys()), dtype=object)
     embs = np.stack([cache[p] for p in paths])
@@ -221,7 +229,6 @@ def save_cache(cache):
     )
 
     print(f"Saved {len(paths)} embeddings")
-
 
 # --------------------
 # SUPPORT SET
@@ -256,36 +263,37 @@ def build_support_set():
 
         paths.append(p)
         embs.append(cache[key])
-    
-    
 
     coords = torch.tensor(coords, device=DEVICE, dtype=torch.float32)
     embs = torch.tensor(np.stack([e.detach().cpu().numpy() if isinstance(e, torch.Tensor) else e for e in embs]), device=DEVICE, dtype=torch.float32)
 
     embs = torch.nn.functional.normalize(embs, dim=1)
-    
-
 
     return paths, coords, embs
-
 
 # --------------------
 # PREDICTION
 # --------------------
 def predict_coords(query_image, support_paths, support_coords, support_embs, k=5):
+    debug_print(f"Predicting coordinates for: {query_image}")
 
     q = embed_image(query_image).to(DEVICE).float()
     q = torch.nn.functional.normalize(q, dim=0)
 
     # similarity search
     sims = support_embs @ q  # (N,)
+    debug_print(f"Similarity scores shape: {sims.shape}")
+    debug_print(f"Similarity scores range: [{sims.min():.4f}, {sims.max():.4f}]")
 
     topk = torch.topk(sims, k)
-
     indices = topk.indices
     scores = topk.values
 
+    debug_print(f"Top {k} similarity scores: {scores.tolist()}")
+    debug_print(f"Top {k} indices: {indices.tolist()}")
+
     weights = torch.softmax(scores / 0.07, dim=0)
+    debug_print(f"Weights after softmax: {weights.tolist()}")
 
     # IMPORTANT: support_coords already tensor on GPU → do NOT re-wrap
     pred = (support_coords[indices] * weights.unsqueeze(1)).sum(dim=0)
@@ -295,36 +303,47 @@ def predict_coords(query_image, support_paths, support_coords, support_embs, k=5
         for i in indices.tolist()
     ]
 
+    debug_print(f"Predicted coordinates: lat={pred[0].item():.6f}, lon={pred[1].item():.6f}")
+    debug_print(f"Top {k} neighbors: {neighbors}")
+
     return {
         "lat": float(pred[0].item()),
         "lon": float(pred[1].item()),
         "neighbors": neighbors
     }
 
-
 # --------------------
 # MAIN
 # --------------------
 if __name__ == "__main__":
+    debug_print("Starting SigLIP2 test script")
 
     print("Building support set...")
     support_paths, support_coords, support_embs = build_support_set()
 
     print(f"{len(support_paths)} images loaded")
-    
+    debug_print(f"Support set details:")
+    debug_print(f"  - Number of support images: {len(support_paths)}")
+    debug_print(f"  - Support coordinates shape: {support_coords.shape}")
+    debug_print(f"  - Support embeddings shape: {support_embs.shape}")
+
     Average_error_km = 0
     Average_score = 0
+    processed_images = 0
 
     for img_path in sorted(TEST_DIR.glob("*")):
+        debug_print(f"\nProcessing image: {img_path.name}")
 
         try:
             test_type, idx = parse_test_image(img_path.name)
+            debug_print(f"  - Test type: {test_type}, Index: {idx}")
         except Exception as e:
             print(f"Skipping {img_path.name}: {e}")
             continue
 
         try:
             true_lat, true_lon = get_real_coordinates(test_type)[idx]
+            debug_print(f"  - True coordinates: lat={true_lat:.6f}, lon={true_lon:.6f}")
         except Exception as e:
             print(f"Lookup failed for {img_path.name}: {e}")
             continue
@@ -343,16 +362,27 @@ if __name__ == "__main__":
             pred["lon"]
         )
 
-
         score = geoguessr_score(dist)
         print(
             f"{img_path.name:<25}"
             f"{dist:10.1f} km"
             f"{score:6d}"
         )
+
+        debug_print(f"  - Predicted coordinates: lat={pred['lat']:.6f}, lon={pred['lon']:.6f}")
+        debug_print(f"  - Distance: {dist:.2f} km")
+        debug_print(f"  - Score: {score}")
+        debug_print(f"  - Top neighbors: {pred['neighbors'][:3]}")  # Show top 3 neighbors
+
         Average_error_km += dist
         Average_score += score
+        processed_images += 1
+
     num_images = len(list(TEST_DIR.glob("*")))
-    print(f"\nAverage error: {Average_error_km / num_images:.1f} km")
-    print(f"Average score: {Average_score / num_images:.1f}")
-        
+    final_avg_error = Average_error_km / processed_images if processed_images > 0 else 0
+    final_avg_score = Average_score / processed_images if processed_images > 0 else 0
+
+    print(f"\nAverage error: {final_avg_error:.1f} km")
+    print(f"Average score: {final_avg_score:.1f}")
+    debug_print(f"Processed {processed_images} out of {num_images} images")
+    debug_print("Script completed successfully")
