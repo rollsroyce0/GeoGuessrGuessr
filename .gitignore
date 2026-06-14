@@ -16,6 +16,7 @@ __pycache__/
 **/combined_images.csv
 **/ML/Embeddings_Storage/
 **/Test_Images
+*.pt
 
 
 #Nics gitignore
