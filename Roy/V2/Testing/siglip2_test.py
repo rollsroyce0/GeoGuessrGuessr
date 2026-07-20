@@ -1,4 +1,3 @@
-from pathlib import Path
 import numpy as np
 import torch
 from PIL import Image
@@ -9,10 +8,11 @@ import pandas as pd
 import argparse
 #from Real_coords_lookup import get_real_coordinates
 from pathlib import Path
-import re
-
-from pathlib import Path
 import importlib.util
+from Roy.Helper_Functions.project_utils import (
+    get_test_images_dir,
+    parse_test_image as parse_test_image_name,
+)
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='SigLIP2 GeoGuessr Test')
@@ -50,7 +50,7 @@ debug_print("Device:", torch.cuda.get_device_name(0) if torch.cuda.is_available(
 
 TRAIN_DIR = Path(r"D:/GeoGuessrGuessr/geoguesst")
 CACHE_FILE = TRAIN_DIR / "siglip_cache.npz"
-TEST_DIR = Path("GeoGuessrGuessr-1/Test_Images")
+TEST_DIR = get_test_images_dir()
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 debug_print(f"Using device: {DEVICE}")
@@ -169,18 +169,6 @@ def evaluate(
     )
 
     return df
-
-def parse_test_image(path):
-    stem = Path(path).stem
-
-    m = re.fullmatch(r"(.+)_Test(\d+)", stem)
-    if m is None:
-        raise ValueError(f"Cannot parse filename: {path}")
-
-    test_type = m.group(1)
-    idx = int(m.group(2)) - 1
-
-    return test_type, idx
 
 def geoguessr_score(distance_km):
     return round(5000 * np.exp(-distance_km / 1492.7))
@@ -335,7 +323,7 @@ if __name__ == "__main__":
         debug_print(f"\nProcessing image: {img_path.name}")
 
         try:
-            test_type, idx = parse_test_image(img_path.name)
+            test_type, idx = parse_test_image_name(img_path.name)
             debug_print(f"  - Test type: {test_type}, Index: {idx}")
         except Exception as e:
             print(f"Skipping {img_path.name}: {e}")

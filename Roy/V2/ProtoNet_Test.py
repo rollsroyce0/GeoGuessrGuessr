@@ -1,4 +1,3 @@
-import re
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -11,6 +10,12 @@ import argparse
 from math import radians, sin, cos, sqrt, atan2
 from rich.progress import track
 import matplotlib.pyplot as plt
+from Roy.Helper_Functions.project_utils import (
+    get_s2_index_path,
+    get_test_image_path,
+    get_test_images_dir,
+    parse_test_image as parse_test_image_name,
+)
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='ProtoNet GeoGuessr Test')
@@ -34,7 +39,7 @@ CKPT = "google/siglip2-so400m-patch14-384"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 TRAIN_DIR = Path(r"D:/GeoGuessrGuessr/geoguesst")
-TEST_DIR = Path("GeoGuessrGuessr-1/Test_Images")
+TEST_DIR = get_test_images_dir()
 
 debug_print(f"Using device: {DEVICE}")
 debug_print(f"Train directory: {TRAIN_DIR}")
@@ -49,7 +54,7 @@ BEAM_SIZE = 32
 # ----------------------------
 import importlib.util
 
-lookup_path = Path(__file__).resolve().parents[2] / "Test_Images" / "Real_coords_lookup.py"
+lookup_path = get_test_images_dir() / "Real_coords_lookup.py"
 spec = importlib.util.spec_from_file_location("lookup", lookup_path)
 lookup = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(lookup)
@@ -99,18 +104,6 @@ def parse_train_filename(path: Path):
     lon = float(parts[1])
 
     return lat, lon
-
-
-# ----------------------------
-# TEST PARSING
-# ----------------------------
-def parse_test_image(path):
-    stem = Path(path).stem
-    m = re.fullmatch(r"(.+)_Test(\d+)", stem)
-    if not m:
-        raise ValueError(path)
-
-    return m.group(1), int(m.group(2)) - 1
 
 
 # ----------------------------
@@ -178,7 +171,9 @@ class S2Index:
 # ----------------------------
 # BUILD INDEX FROM 70K IMAGES
 # ----------------------------
-def save_index(index, path="s2_index.pt"):
+def save_index(index, path=None):
+    if path is None:
+        path = get_s2_index_path()
     data = {
         "maps": {}
     }
@@ -192,7 +187,9 @@ def save_index(index, path="s2_index.pt"):
     torch.save(data, path)
     print(f"Saved index → {path}")
     
-def load_index(path="GeoGuessrGuessr-1/Roy/V2/s2_index.pt"):
+def load_index(path=None):
+    if path is None:
+        path = get_s2_index_path()
     data = torch.load(path, map_location=DEVICE)
 
     index = S2Index()
@@ -399,7 +396,7 @@ def evaluate(encoder, index, progress_callback=None):
         debug_print(f"\nProcessing image: {p.name}")
 
         try:
-            test_type, idx = parse_test_image(p.name)
+            test_type, idx = parse_test_image_name(p.name)
             gt = get_real_coordinates(test_type)[idx]
             debug_print(f"  - Ground truth: lat={gt[0]:.6f}, lon={gt[1]:.6f}")
 
@@ -477,7 +474,7 @@ if __name__ == "__main__":
 
         # Import and run GUI
         try:
-            from GUI.gui_main import run_gui
+            from Roy.V2.GUI.gui_main import run_gui
             run_gui()
         except ImportError as e:
             print(f"Failed to import GUI module: {e}")
@@ -495,7 +492,7 @@ if __name__ == "__main__":
         encoder = SigLIPEncoder()
 
         print("Building S2 index from 70k images...")
-        INDEX_PATH = "GeoGuessrGuessr-1/Roy/V2/s2_index.pt"
+        INDEX_PATH = get_s2_index_path()
 
         if Path(INDEX_PATH).exists():
             print("Loading cached index...")

@@ -1,26 +1,23 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
-import io
-import os
 import sys
 from pathlib import Path
 import threading
 import time
-import folium
-import webbrowser
-import tempfile
-from typing import Dict, List, Tuple, Optional
+from typing import Tuple
 
 # Add the parent directory to the path so we can import from the main module
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+sys.path.append(str(Path(__file__).resolve().parents[3]))
 
-from GUI.progress_tracker import ProgressTracker
-from GUI.embedded_map import EmbeddedMapDisplay, check_map_view_dependencies, get_map_view_installation_instructions
-from ProtoNet_Test import (
-    SigLIPEncoder, S2Index, load_index, evaluate,
-    parse_test_image, get_real_coordinates, predict
+from Roy.V2.GUI.progress_tracker import ProgressTracker
+from Roy.V2.GUI.embedded_map import EmbeddedMapDisplay
+from Roy.Helper_Functions.project_utils import (
+    get_s2_index_path,
+    get_test_image_path,
+    parse_test_image as parse_test_image_name,
 )
+from Roy.V2.ProtoNet_Test import SigLIPEncoder, load_index, evaluate, get_real_coordinates
 
 class ProtoNetGUI:
     def __init__(self, root: tk.Tk):
@@ -78,9 +75,9 @@ class ProtoNetGUI:
                 self.progress_tracker.update_progress(20, "Encoder loaded successfully")
 
                 self.progress_tracker.set_status("Loading S2 index...")
-                INDEX_PATH = "GeoGuessrGuessr-1/Roy/V2/s2_index.pt"
+                INDEX_PATH = get_s2_index_path()
 
-                if Path(INDEX_PATH).exists():
+                if INDEX_PATH.exists():
                     self.index = load_index(INDEX_PATH)
                     self.progress_tracker.update_progress(30, "Index loaded from cache")
                 else:
@@ -206,7 +203,7 @@ class ProtoNetGUI:
         if self.evaluation_results is not None and not self.evaluation_results.empty:
             test_types = set()
             for img_name in self.evaluation_results['img']:
-                test_type, _ = parse_test_image(img_name)
+                test_type, _ = parse_test_image_name(img_name)
                 test_types.add(test_type)
             test_types = sorted(list(test_types))
 
@@ -234,7 +231,7 @@ class ProtoNetGUI:
             # Find the corresponding result
             result_row = None
             for _, row in self.evaluation_results.iterrows():
-                current_type, current_idx = parse_test_image(row['img'])
+                current_type, current_idx = parse_test_image_name(row['img'])
                 if current_type == test_type and current_idx == image_num:
                     result_row = row
                     break
@@ -244,7 +241,7 @@ class ProtoNetGUI:
                 return
 
             # Get coordinates
-            test_type, idx = parse_test_image(result_row['img'])
+            test_type, idx = parse_test_image_name(result_row['img'])
             real_coords = get_real_coordinates(test_type)[idx]
             pred_lat, pred_lon = result_row['pred_lat'], result_row['pred_lon']
 
@@ -252,7 +249,7 @@ class ProtoNetGUI:
             self.show_test_image(test_type, idx)
 
             # Create and show map
-            self.create_location_map(real_coords, (pred_lat, pred_lon), test_type, idx)
+            self.display_map_in_gui(real_coords, (pred_lat, pred_lon), test_type, idx)
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to show results: {str(e)}")
@@ -260,15 +257,11 @@ class ProtoNetGUI:
     def show_test_image(self, test_type: str, image_idx: int):
         """Display the selected test image"""
         try:
-            # Find the image file
-            test_dir = Path("GeoGuessrGuessr-1/Test_Images")
-            image_files = list(test_dir.glob(f"{test_type}_Test{image_idx + 1}.*"))
-
-            if not image_files:
+            image_path = get_test_image_path(test_type, image_idx)
+            if image_path is None:
                 self.image_label.config(text=f"No image found: {test_type}_Test{image_idx + 1}")
                 return
 
-            image_path = image_files[0]
             img = Image.open(image_path)
 
             # Resize image to fit the frame
@@ -288,49 +281,6 @@ class ProtoNetGUI:
 
         except Exception as e:
             self.image_label.config(text=f"Error loading image: {str(e)}")
-
-    def create_location_map(self, real_coords: Tuple[float, float],
-                          pred_coords: Tuple[float, float],
-                          test_type: str, image_idx: int):
-        """Create a folium map with markers for real and predicted locations"""
-        try:
-            # Create map centered between the two points
-            center_lat = (real_coords[0] + pred_coords[0]) / 2
-            center_lon = (real_coords[1] + pred_coords[1]) / 2
-
-            m = folium.Map(
-                location=[center_lat, center_lon],
-                zoom_start=3,
-                tiles="OpenStreetMap"
-            )
-
-            # Add real location marker (green)
-            folium.Marker(
-                location=[real_coords[0], real_coords[1]],
-                popup=f"Real Location: {real_coords[0]:.6f}, {real_coords[1]:.6f}",
-                icon=folium.Icon(color="green", icon="check", prefix="fa")
-            ).add_to(m)
-
-            # Add predicted location marker (red)
-            folium.Marker(
-                location=[pred_coords[0], pred_coords[1]],
-                popup=f"Predicted Location: {pred_coords[0]:.6f}, {pred_coords[1]:.6f}",
-                icon=folium.Icon(color="red", icon="map-marker", prefix="fa")
-            ).add_to(m)
-
-            # Add line connecting the two points
-            folium.PolyLine(
-                locations=[real_coords, pred_coords],
-                color="blue",
-                weight=2,
-                opacity=0.7
-            ).add_to(m)
-
-            # Display the map in the GUI using the embedded map component
-            self.display_map_in_gui(real_coords, pred_coords, test_type, image_idx)
-
-        except Exception as e:
-            self.map_label.config(text=f"Error creating map: {str(e)}")
 
     def display_map_in_gui(self, real_coords: Tuple[float, float],
                           pred_coords: Tuple[float, float],
