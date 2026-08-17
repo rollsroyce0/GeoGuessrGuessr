@@ -1,21 +1,23 @@
+import argparse
+import importlib.util
+import os
+import sys
+import time
+from math import atan2, cos, radians, sin, sqrt
+from pathlib import Path
+
+import heapq
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import s2sphere as s2
 import torch
 import torch.nn.functional as F
-import numpy as np
 from PIL import Image
-from pathlib import Path
-import heapq
-from transformers import AutoModel, AutoImageProcessor
-import s2sphere as s2
-import pandas as pd
-import argparse
-import time
-from math import radians, sin, cos, sqrt, atan2
 from rich.progress import track
-import matplotlib.pyplot as plt
+from transformers import AutoImageProcessor, AutoModel
 
-# Add the project root to Python path to enable Roy module imports
-import sys
-import os
+# Add project root to Python path for Roy imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from Roy.Helper_Functions.project_utils import (
@@ -27,8 +29,8 @@ from Roy.Helper_Functions.project_utils import (
 
 DEBUG = False
 
+
 def debug_print(*messages):
-    """Print debug messages only when debug flag is enabled"""
     if DEBUG:
         print("[DEBUG]", *messages)
 
@@ -37,38 +39,27 @@ def configure_debug(enabled: bool):
     global DEBUG
     DEBUG = bool(enabled)
 
+
 # ----------------------------
 # CONFIG
 # ----------------------------
 CKPT = "google/siglip2-so400m-patch14-384"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
 TRAIN_DIR = Path(r"D:/GeoGuessrGuessr/geoguesst")
 TEST_DIR = get_test_images_dir()
-EMBED_CACHE_PATH = get_s2_index_path().with_name("s2_embeddings_cache.pt")
-CACHE_VERSION = 1
+EMBED_CACHE_PATH = get_s2_index_path().with_name("s2_embeddings_cache_v2.pt")
+CACHE_VERSION = 2
 TRAIN_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 
-debug_print(f"Using device: {DEVICE}")
-debug_print(f"Train directory: {TRAIN_DIR}")
-debug_print(f"Test directory: {TEST_DIR}")
-
 LEVELS = [3, 7, 11, 15]
-BEAM_SIZE = 32
-LEVEL_WEIGHTS = {
-    3: 0.10,
-    7: 0.20,
-    11: 0.30,
-    15: 0.40,
-}
-TOP_K_REFINEMENT = 5
+BEAM_SIZE = 100
+TOP_K_REFINEMENT = 10
+LEVEL_WEIGHTS = {3: 0.12, 7: 0.20, 11: 0.28, 15: 0.40}
 
 
 # ----------------------------
-# REAL LOOKUP IMPORT (lazy)
+# REAL LOOKUP IMPORT
 # ----------------------------
-import importlib.util
-
 _LOOKUP_MODULE = None
 
 
@@ -81,7 +72,7 @@ def _load_lookup_module():
     lookup_path = get_test_images_dir() / "Real_coords_lookup.py"
     spec = importlib.util.spec_from_file_location("lookup", lookup_path)
     if spec is None or spec.loader is None:
-        raise RuntimeError(f"Unable to load coordinate lookup from {lookup_path}")
+        raise RuntimeError(f"Unable to load real coordinate lookup from {lookup_path}")
 
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -95,7 +86,7 @@ def get_real_coordinates(test_type):
 
 
 # ----------------------------
-# SIGLIP ENCODER (FIXED)
+# SIGLIP ENCODER
 # ----------------------------
 class SigLIPEncoder:
     def __init__(self):
@@ -109,45 +100,46 @@ class SigLIPEncoder:
             out = self.model.vision_model(**x)
             self.dim = out.pooler_output.shape[-1]
 
+    def _prepare_images(self, images):
+        prepared = []
+        for img in images:
+            if hasattr(img, "convert"):
+                prepared.append(img.convert("RGB"))
+            elif isinstance(img, (str, os.PathLike)):
+                with Image.open(img) as opened:
+                    prepared.append(opened.convert("RGB"))
+            else:
+                raise TypeError(f"Unsupported image object: {type(img)!r}")
+        return prepared
+
     def embed(self, img):
-        features = self.embed_batch([img])
-        return features[0]
+        return self.embed_batch([img])[0]
 
     def embed_batch(self, images):
         if not images:
             return torch.empty((0, self.dim), device=DEVICE, dtype=torch.float32)
 
-        rgb_images = []
-        for img in images:
-            if hasattr(img, "convert"):
-                rgb_images.append(img.convert("RGB"))
-            else:
-                with Image.open(img) as opened:
-                    rgb_images.append(opened.convert("RGB"))
-
-        processed = self.processor(images=rgb_images, return_tensors="pt").to(DEVICE)
+        prepared = self._prepare_images(images)
+        inputs = self.processor(images=prepared, return_tensors="pt").to(DEVICE)
 
         with torch.no_grad():
-            out = self.model.vision_model(**processed)
-            feat = out.pooler_output
+            out = self.model.vision_model(**inputs)
+            feats = out.pooler_output
 
-        normalized = F.normalize(feat, dim=-1)
-        debug_print(f"Feature batch shape after normalization: {normalized.shape}")
-        return normalized
+        feats = F.normalize(feats, dim=-1)
+        debug_print(f"Embedded batch shape: {feats.shape}")
+        return feats
 
 
 # ----------------------------
 # TRAIN IMAGE PARSING
 # ----------------------------
 def parse_train_filename(path: Path):
-    """
-    0.33659_6.7055088_Index__Index_2.png
-    """
     parts = path.stem.split("_")
-
+    if len(parts) < 2:
+        raise ValueError(f"Unexpected filename format: {path.name}")
     lat = float(parts[0])
     lon = float(parts[1])
-
     return lat, lon
 
 
@@ -177,13 +169,10 @@ def load_embedding_cache(path=None):
     data = torch.load(path, map_location="cpu")
     if data.get("version") != CACHE_VERSION:
         return None
-
     if data.get("train_dir") != str(TRAIN_DIR):
         return None
-
     if data.get("levels") != LEVELS:
         return None
-
     return data
 
 
@@ -212,14 +201,18 @@ def cell_to_latlon(cell):
 def latlon_to_unit_vector(lat, lon):
     lat_r = radians(lat)
     lon_r = radians(lon)
-    return np.array([
-        cos(lat_r) * cos(lon_r),
-        cos(lat_r) * sin(lon_r),
-        sin(lat_r),
-    ], dtype=np.float64)
+    return np.array(
+        [
+            cos(lat_r) * cos(lon_r),
+            cos(lat_r) * sin(lon_r),
+            sin(lat_r),
+        ],
+        dtype=np.float64,
+    )
 
 
 def unit_vector_to_latlon(vec):
+    vec = np.asarray(vec, dtype=np.float64)
     norm = np.linalg.norm(vec)
     if norm == 0:
         raise ValueError("Cannot convert zero vector to lat/lon")
@@ -238,8 +231,8 @@ def haversine(a, b, c, d):
     a, b, c, d = map(radians, [a, b, c, d])
     da = c - a
     db = d - b
-    x = sin(da/2)**2 + cos(a)*cos(c)*sin(db/2)**2
-    return 2 * R * atan2(sqrt(x), sqrt(1-x))
+    x = sin(da / 2) ** 2 + cos(a) * cos(c) * sin(db / 2) ** 2
+    return 2 * R * atan2(sqrt(x), sqrt(1 - x))
 
 
 def geoguessr_score(d):
@@ -247,36 +240,30 @@ def geoguessr_score(d):
 
 
 # ----------------------------
-# S2 INDEX (PROTOTYPES)
+# S2 INDEX
 # ----------------------------
 class S2Index:
     def __init__(self):
-        self.maps = {l: {} for l in LEVELS}
+        self.maps = {level: {} for level in LEVELS}
 
     def add(self, lat, lon, emb):
-        cell = s2.CellId.from_lat_lng(
-            s2.LatLng.from_degrees(lat, lon)
-        )
+        cell = s2.CellId.from_lat_lng(s2.LatLng.from_degrees(lat, lon))
 
-        for l in LEVELS:
-            cid = cell.parent(l).id()
-
-            if cid not in self.maps[l]:
-                self.maps[l][cid] = {
-                    "sum": emb.detach().clone(),
-                    "count": 1,
-                }
+        for level in LEVELS:
+            cid = cell.parent(level).id()
+            if cid not in self.maps[level]:
+                self.maps[level][cid] = {"sum": emb.detach().clone(), "count": 1}
                 continue
 
-            self.maps[l][cid]["sum"] += emb
-            self.maps[l][cid]["count"] += 1
+            self.maps[level][cid]["sum"] += emb
+            self.maps[level][cid]["count"] += 1
 
     def finalize(self):
-        for l in LEVELS:
-            for k in self.maps[l]:
-                entry = self.maps[l][k]
-                v = entry["sum"] / entry["count"]
-                self.maps[l][k] = F.normalize(v, dim=0)
+        for level in LEVELS:
+            for cid in self.maps[level]:
+                entry = self.maps[level][cid]
+                avg = entry["sum"] / entry["count"]
+                self.maps[level][cid] = F.normalize(avg, dim=0)
 
     def get(self, level, cid):
         return self.maps[level].get(cid, None)
@@ -284,36 +271,36 @@ class S2Index:
     def all(self, level):
         return list(self.maps[level].keys())
 
+    def iter_level(self, level):
+        return self.maps[level].items()
+
 
 # ----------------------------
-# BUILD INDEX FROM 70K IMAGES
+# BUILD INDEX FROM TRAIN IMAGES
 # ----------------------------
 def save_index(index, path=None):
     if path is None:
         path = get_s2_index_path()
-    data = {"version": 1, "levels": LEVELS, "maps": {}}
 
+    data = {"version": 1, "levels": LEVELS, "maps": {}}
     for level in index.maps:
-        data["maps"][level] = {
-            k: v.detach().cpu()
-            for k, v in index.maps[level].items()
-        }
+        data["maps"][level] = {k: v.detach().cpu() for k, v in index.maps[level].items()}
 
     torch.save(data, path)
     print(f"Saved index → {path}")
-    
+
+
 def load_index(path=None):
     if path is None:
         path = get_s2_index_path()
-    data = torch.load(path, map_location=DEVICE)
 
+    data = torch.load(path, map_location=DEVICE)
     index = S2Index()
 
     if "version" in data and data["version"] != 1:
         print(f"Cached index version {data['version']} is not supported")
         return None
 
-    # Check if the LEVELS in the loaded data match the expected LEVELS, else build a new index and save it
     loaded_levels = set(data.get("levels", data["maps"].keys()))
     if loaded_levels != set(LEVELS):
         print(f"Loaded levels {loaded_levels} do not match expected levels {set(LEVELS)}")
@@ -327,12 +314,11 @@ def load_index(path=None):
     return index
 
 
-def build_index(encoder):
-    debug_print("Starting to build S2 index")
+def build_index(encoder, batch_size=16):
+    debug_print("Starting index build")
     index = S2Index()
-
     imgs = get_train_images()
-    debug_print(f"Found {len(imgs)} images to index")
+    debug_print(f"Images found: {len(imgs)}")
 
     print("Indexing:", len(imgs))
 
@@ -340,11 +326,7 @@ def build_index(encoder):
     current_signatures = torch.tensor([file_signature(p) for p in imgs], dtype=torch.long)
 
     cache = load_embedding_cache()
-    if (
-        cache is not None
-        and cache.get("files") == current_files
-        and torch.equal(cache.get("signatures"), current_signatures)
-    ):
+    if cache is not None and cache.get("files") == current_files and torch.equal(cache.get("signatures"), current_signatures):
         debug_print("Using cached training embeddings")
         cached_coords = cache["coords"]
         cached_embs = cache["embeddings"]
@@ -368,9 +350,9 @@ def build_index(encoder):
             if not batch:
                 return
 
-            emb_batch = encoder.embed_batch(batch).detach().cpu()
-            for (lat, lon, path), emb in zip(batch_meta, emb_batch):
-                debug_print(f"Embedding created for {path.name}")
+            batch_embs = encoder.embed_batch(batch).detach().cpu()
+            for (lat, lon, path), emb in zip(batch_meta, batch_embs):
+                debug_print(f"Embedding added: {path.name}")
                 index.add(lat, lon, emb.to(DEVICE, dtype=torch.float32))
                 coords.append((lat, lon))
                 embeddings.append(emb.to(dtype=torch.float16))
@@ -382,13 +364,11 @@ def build_index(encoder):
         for p in track(imgs):
             try:
                 lat, lon = parse_train_filename(p)
-                debug_print(f"Processing image: {p.name} at ({lat:.6f}, {lon:.6f})")
                 batch.append(p)
                 batch_meta.append((lat, lon, p))
 
-                if len(batch) >= 16:
+                if len(batch) >= batch_size:
                     flush_batch()
-
             except Exception as e:
                 debug_print(f"Error processing {p}: {e}")
                 print("skip", p, e)
@@ -408,91 +388,85 @@ def build_index(encoder):
         elif processed != len(imgs):
             print("Embedding cache not saved because some training images failed to process.")
 
-    debug_print("Finalizing index...")
     index.finalize()
-    debug_print("Index building completed")
+    debug_print("Index build completed")
     return index
 
 
 # ----------------------------
-# BEAM SEARCH (HIERARCHICAL PRUNING)
+# BETTER BEAM SEARCH
 # ----------------------------
+def expand_to_level(parent_id, target_level):
+    cells = [s2.CellId(parent_id)]
+    while cells and cells[0].level() < target_level:
+        next_cells = []
+        for cell in cells:
+            next_cells.extend(list(cell.children()))
+        cells = next_cells
+    return cells
 
-# Automatically adjust the beam size based on the number of candidates at each level. Reads the LEVELS constant to determine how many levels there are and prunes the beam accordingly. This allows for a more flexible search that can adapt to different index sizes and distributions.
-def beam_search(q, index: S2Index):
+
+def beam_search(q, index: S2Index, beam_size=BEAM_SIZE):
     debug_print("Starting beam search")
-    debug_print(f"Query vector shape: {q.shape}")
 
+    q = F.normalize(q, dim=0)
     beam = []
-    # Parametric
-    for cid in index.all(LEVELS[0]):
-        emb = index.get(LEVELS[0], cid)
+    for cid, emb in index.iter_level(LEVELS[0]):
         if emb is None:
             continue
-        similarity = torch.dot(q, emb)
-        score = float(similarity * LEVEL_WEIGHTS[LEVELS[0]])
-        beam.append((score, similarity, cid))
+        similarity = float(torch.dot(q, emb))
+        beam.append((similarity * LEVEL_WEIGHTS[LEVELS[0]], similarity, cid, LEVELS[0]))
 
-    debug_print(f"Initial beam size at level {LEVELS[0]}: {len(beam)}")
-    beam = heapq.nlargest(BEAM_SIZE, beam, key=lambda item: item[0])
-    debug_print(f"Beam after pruning at level {LEVELS[0]}: {len(beam)} items")
-
-    def expand_to_level(parent_id, target_level):
-        cells = [s2.CellId(parent_id)]
-        while cells and cells[0].level() < target_level:
-            next_cells = []
-            for cell in cells:
-                next_cells.extend(list(cell.children()))
-            cells = next_cells
-        return cells
+    beam = heapq.nlargest(beam_size, beam, key=lambda item: item[0])
 
     for level in LEVELS[1:]:
-        new = []
-        debug_print(f"Processing level {level}")
-
-        for path_score, _, parent in beam:
-            children = expand_to_level(parent, level)
-
-            for ch in children:
-                emb = index.get(level, ch.id())
+        next_candidates = {}
+        for path_score, _, parent_cid, _ in beam:
+            children = expand_to_level(parent_cid, level)
+            for child in children:
+                emb = index.get(level, child.id())
                 if emb is None:
                     continue
+                similarity = float(torch.dot(q, emb))
+                total_score = path_score + similarity * LEVEL_WEIGHTS[level]
+                current = next_candidates.get(child.id())
+                if current is None or total_score > current[0]:
+                    next_candidates[child.id()] = (total_score, similarity, child.id(), level)
 
-                similarity = torch.dot(q, emb)
-                score = path_score + float(similarity * LEVEL_WEIGHTS[level])
-                new.append((score, similarity, ch.id()))
+        if not next_candidates:
+            break
 
-            beam = heapq.nlargest(BEAM_SIZE, new, key=lambda item: item[0])
-        debug_print(f"Beam after pruning at level {level}: {len(beam)} items")
+        beam = heapq.nlargest(beam_size, next_candidates.values(), key=lambda item: item[0])
 
-    debug_print("Beam search completed")
+    debug_print(f"Beam search finished with {len(beam)} candidates")
     return beam
 
 
 # ----------------------------
-# FINAL SELECTION
+# FINAL PREDICTION
 # ----------------------------
 def final_prediction(beam, top_k=TOP_K_REFINEMENT):
     if not beam:
         return None, None, None
 
-    top = heapq.nlargest(
-        min(top_k, len(beam)),
-        beam,
-        key=lambda item: item[0],
-    )
-
+    ranked = sorted(beam, key=lambda item: item[0], reverse=True)
+    top = ranked[: min(top_k, len(ranked))]
     scores = torch.tensor([item[0] for item in top], dtype=torch.float32)
     weights = torch.softmax(scores, dim=0).tolist()
 
-    vector = np.zeros(3, dtype=np.float64)
     best_cid = top[0][2]
+    best_lat, best_lon = cell_to_latlon(s2.CellId(best_cid))
 
-    for weight, (_, _, cid) in zip(weights, top):
+    vector = np.zeros(3, dtype=np.float64)
+    for weight, (_, _, cid, _) in zip(weights, top):
         lat, lon = cell_to_latlon(s2.CellId(cid))
         vector += weight * latlon_to_unit_vector(lat, lon)
 
-    pred_lat, pred_lon = unit_vector_to_latlon(vector)
+    if np.linalg.norm(vector) < 1e-12:
+        pred_lat, pred_lon = best_lat, best_lon
+    else:
+        pred_lat, pred_lon = unit_vector_to_latlon(vector)
+
     return best_cid, pred_lat, pred_lon
 
 
@@ -502,18 +476,14 @@ def final_prediction(beam, top_k=TOP_K_REFINEMENT):
 def predict(img, encoder, index):
     debug_print("Starting prediction")
     q = encoder.embed(img)
-
     beam = beam_search(q, index)
-    debug_print(f"Beam search returned {len(beam)} candidates")
+    debug_print(f"Beam size: {len(beam)}")
 
     cid, pred_lat, pred_lon = final_prediction(beam)
-    debug_print(f"Final cell ID: {cid}")
-
     if cid is None:
         raise ValueError("Beam search returned no final cell")
 
-    debug_print(f"Predicted coordinates: lat={pred_lat:.6f}, lon={pred_lon:.6f}")
-
+    debug_print(f"Predicted coordinates: ({pred_lat:.6f}, {pred_lon:.6f})")
     return pred_lat, pred_lon
 
 
@@ -521,65 +491,45 @@ def predict(img, encoder, index):
 # HISTOGRAM PLOTTING
 # ----------------------------
 def plot_histogram(distances):
-    """Plot histogram of validation distances"""
-    debug_print("Plotting histogram of distances")
-
-    # Calculate statistics
     mean_dist = np.mean(distances)
     median_dist = np.median(distances)
 
-    # Create figure with two subplots
     plt.figure(figsize=(18, 8))
-
-    # First histogram: Full distribution with 50 bins
     plt.subplot(1, 2, 1)
-    n1, bins1, patches1 = plt.hist(distances, bins=50, edgecolor='black', alpha=0.7, color='blue')
+    plt.hist(distances, bins=50, edgecolor="black", alpha=0.7, color="blue")
+    plt.axvline(mean_dist, color="red", linestyle="--", linewidth=2, label=f"Mean: {mean_dist:.1f} km")
+    plt.axvline(median_dist, color="green", linestyle="--", linewidth=2, label=f"Median: {median_dist:.1f} km")
+    plt.title("Full Distribution of Validation Distances")
+    plt.xlabel("Distance (km)")
+    plt.ylabel("Frequency")
+    plt.legend()
+    plt.grid(alpha=0.3)
 
-    plt.title('Full Distribution of Validation Distances (50 bins)', fontsize=14)
-    plt.xlabel('Distance (km)', fontsize=12)
-    plt.ylabel('Frequency', fontsize=12)
-    plt.grid(True, alpha=0.3)
-
-    # Add mean and median lines
-    plt.axvline(mean_dist, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_dist:.1f} km')
-    plt.axvline(median_dist, color='green', linestyle='--', linewidth=2, label=f'Median: {median_dist:.1f} km')
-    plt.legend(fontsize=10)
-
-    # Second histogram: Upper 50% of scores with 25 bins
     plt.subplot(1, 2, 2)
+    threshold = np.percentile(distances, 50)
+    upper_half = distances[distances <= threshold]
+    plt.hist(upper_half, bins=25, edgecolor="black", alpha=0.7, color="orange")
+    plt.axvline(np.mean(upper_half), color="red", linestyle="--", linewidth=2, label=f"Mean: {np.mean(upper_half):.1f} km")
+    plt.axvline(np.median(upper_half), color="green", linestyle="--", linewidth=2, label=f"Median: {np.median(upper_half):.1f} km")
+    plt.title("Upper 50% of Scores")
+    plt.xlabel("Distance (km)")
+    plt.ylabel("Frequency")
+    plt.legend()
+    plt.grid(alpha=0.3)
 
-    # Calculate threshold for upper 50% (lower distances = better scores)
-    upper_50_threshold = np.percentile(distances, 50)
-    upper_50_distances = distances[distances <= upper_50_threshold]
-
-    n2, bins2, patches2 = plt.hist(upper_50_distances, bins=25, edgecolor='black', alpha=0.7, color='orange')
-
-    plt.title('Upper 50% of Scores (25 bins)', fontsize=14)
-    plt.xlabel('Distance (km)', fontsize=12)
-    plt.ylabel('Frequency', fontsize=12)
-    plt.grid(True, alpha=0.3)
-
-    # Add mean and median lines for the upper 50% data
-    upper_50_mean = np.mean(upper_50_distances)
-    upper_50_median = np.median(upper_50_distances)
-
-    plt.axvline(upper_50_mean, color='red', linestyle='--', linewidth=2, label=f'Mean: {upper_50_mean:.1f} km')
-    plt.axvline(upper_50_median, color='green', linestyle='--', linewidth=2, label=f'Median: {upper_50_median:.1f} km')
-    plt.legend(fontsize=10)
-
-    plt.suptitle('Validation Distance Analysis', fontsize=16, y=1.02)
+    plt.suptitle("Validation Distance Analysis", fontsize=16, y=1.02)
     plt.tight_layout()
     plt.show()
 
+
 # ----------------------------
-# EVALUATION (VALIDATION SET)
+# EVALUATION
 # ----------------------------
 def evaluate(encoder, index, progress_callback=None, max_images=None, use_track=True):
     debug_print("Starting evaluation")
 
     rows = []
     processed_images = 0
-    # Get all test images for progress tracking
     test_images = sorted(TEST_DIR.glob("*"))
 
     if max_images is not None:
@@ -589,24 +539,16 @@ def evaluate(encoder, index, progress_callback=None, max_images=None, use_track=
     image_iter = track(test_images) if use_track else test_images
 
     for i, p in enumerate(image_iter):
-        debug_print(f"\nProcessing image: {p.name}")
-
         try:
             test_type, idx = parse_test_image_name(p.name)
             gt = get_real_coordinates(test_type)[idx]
-            debug_print(f"  - Ground truth: lat={gt[0]:.6f}, lon={gt[1]:.6f}")
 
             with Image.open(p) as img:
                 pred = predict(img.convert("RGB"), encoder, index)
-            debug_print(f"  - Prediction: lat={pred[0]:.6f}, lon={pred[1]:.6f}")
 
             dist = haversine(gt[0], gt[1], pred[0], pred[1])
-            debug_print(f"  - Distance: {dist:.2f} km")
-
             score = geoguessr_score(dist)
-            debug_print(f"  - Score: {score}")
 
-            # Store all needed data including coordinates
             rows.append({
                 "img": p.name,
                 "dist": dist,
@@ -616,49 +558,39 @@ def evaluate(encoder, index, progress_callback=None, max_images=None, use_track=
                 "real_lat": gt[0],
                 "real_lon": gt[1],
                 "test_type": test_type,
-                "image_idx": idx
+                "image_idx": idx,
             })
 
-            debug_print(p.name, dist, geoguessr_score(dist), pred, gt)
-
-            # Update progress callback if provided
             if progress_callback:
-                progress = (i + 1) / total_images * 100
+                progress = (i + 1) / total_images * 100 if total_images else 100
                 progress_callback(progress, f"Processing {p.name} ({i+1}/{total_images})")
 
             processed_images += 1
-
         except Exception as e:
             debug_print(f"Error processing {p.name}: {e}")
             print("skip", p, e)
 
     df = pd.DataFrame(rows)
-
     if df.empty:
         print("No evaluation rows were generated.")
         return df
-
-    print(df.sort_values("dist").head(10))
 
     df_mean = df["dist"].mean()
     df_median = df["dist"].median()
     df_score_sum = df["score"].sum()
 
+    print(df.sort_values("dist").head(10))
     print("\nMEAN KM:", df_mean)
     print("MEDIAN:", df_median)
-    #print("TOTAL SCORE:", df_score_sum)
     print("TOTAL IMAGES PROCESSED:", processed_images)
     print("AVERAGE SCORE PER IMAGE:", df_score_sum / processed_images if processed_images > 0 else 0)
-
-    debug_print(f"Evaluation completed. Processed {processed_images} images.")
-    debug_print(f"Mean distance: {df_mean:.2f} km")
-    debug_print(f"Median distance: {df_median:.2f} km")
-    debug_print(f"Total score: {df_score_sum}")
-    debug_print(f"Average score per image: {df_score_sum / processed_images if processed_images > 0 else 0:.2f}")
 
     return df
 
 
+# ----------------------------
+# LOAD / BUILD INDEX
+# ----------------------------
 def load_or_build_index(encoder, index_path=None):
     if index_path is None:
         index_path = get_s2_index_path()
@@ -669,7 +601,6 @@ def load_or_build_index(encoder, index_path=None):
         print("Loading cached index...")
         index = load_index(index_path)
         if index is not None:
-            debug_print(f"Loaded index from cache: {index_path}")
             return index
         print("Cached index is invalid, rebuilding...")
 
@@ -677,10 +608,12 @@ def load_or_build_index(encoder, index_path=None):
     index = build_index(encoder)
     print("Saving index...")
     save_index(index, index_path)
-    debug_print(f"Index saved to {index_path}")
     return index
 
 
+# ----------------------------
+# BENCHMARK
+# ----------------------------
 def run_benchmark(args):
     print("Running benchmark mode...")
     print(f"Warmup runs: {args.benchmark_warmup}")
@@ -711,23 +644,11 @@ def run_benchmark(args):
             benchmark_rows.append((f"predict_game0_run_{run_idx + 1}", time.perf_counter() - t0))
 
     for _ in range(args.benchmark_warmup):
-        evaluate(
-            encoder,
-            index,
-            progress_callback=None,
-            max_images=args.benchmark_max_images,
-            use_track=False,
-        )
+        evaluate(encoder, index, progress_callback=None, max_images=args.benchmark_max_images, use_track=False)
 
     for run_idx in range(args.benchmark_runs):
         t0 = time.perf_counter()
-        evaluate(
-            encoder,
-            index,
-            progress_callback=None,
-            max_images=args.benchmark_max_images,
-            use_track=False,
-        )
+        evaluate(encoder, index, progress_callback=None, max_images=args.benchmark_max_images, use_track=False)
         benchmark_rows.append((f"evaluate_run_{run_idx + 1}", time.perf_counter() - t0))
 
     print("\nBenchmark timings (seconds):")
@@ -735,15 +656,18 @@ def run_benchmark(args):
         print(f"- {label:<30} {seconds:.4f}")
 
 
+# ----------------------------
+# ARG PARSING
+# ----------------------------
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description='ProtoNet GeoGuessr Test')
-    parser.add_argument('--debug', action='store_true', help='Enable extensive debug statements')
-    parser.add_argument('--gui', action='store_true', help='Enable GUI mode with loading bar and interactive results')
-    parser.add_argument('--hist', action='store_true', help='Show histogram of validation distances')
-    parser.add_argument('--benchmark', action='store_true', help='Run built-in performance benchmark')
-    parser.add_argument('--benchmark-runs', type=int, default=3, help='Number of timed benchmark runs')
-    parser.add_argument('--benchmark-warmup', type=int, default=1, help='Number of warmup runs before timing')
-    parser.add_argument('--benchmark-max-images', type=int, default=None, help='Limit images during evaluate benchmark')
+    parser = argparse.ArgumentParser(description="ProtoNet New GeoGuessr Test")
+    parser.add_argument("--debug", action="store_true", help="Enable extended debug output")
+    parser.add_argument("--gui", action="store_true", help="Enable GUI mode")
+    parser.add_argument("--hist", action="store_true", help="Show histogram of validation distances")
+    parser.add_argument("--benchmark", action="store_true", help="Run benchmark mode")
+    parser.add_argument("--benchmark-runs", type=int, default=3, help="Benchmark run count")
+    parser.add_argument("--benchmark-warmup", type=int, default=1, help="Benchmark warmup count")
+    parser.add_argument("--benchmark-max-images", type=int, default=None, help="Limit evaluation images in benchmark mode")
     return parser.parse_args(argv)
 
 
@@ -754,52 +678,32 @@ def main(argv=None):
     args = parse_args(argv)
     configure_debug(args.debug)
 
-    debug_print("Starting ProtoNet test script")
-
     if args.benchmark:
         run_benchmark(args)
         return
 
-    # Check if GUI mode is enabled
     GUI_MODE = args.gui
-
     if GUI_MODE:
-        debug_print("GUI mode enabled")
-        print("Starting ProtoNet test with GUI...")
-
-        # Import and run GUI
         try:
             from Roy.V2.GUI.gui_main import run_gui
             run_gui()
-        except ImportError as e:
-            print(f"Failed to import GUI module: {e}")
-            print("Falling back to console mode...")
-            GUI_MODE = False
+            return
         except Exception as e:
-            print(f"GUI error: {e}")
-            print("Falling back to console mode...")
+            print(f"GUI load failed: {e}. Falling back to console mode.")
             GUI_MODE = False
 
     if not GUI_MODE:
-        debug_print("Running in console mode")
-
         print("Loading encoder...")
         encoder = SigLIPEncoder()
 
-        print("Building S2 index from 70k images...")
+        print("Building S2 index...")
         index = load_or_build_index(encoder)
 
         print("Running validation...")
-        debug_print("Starting validation process")
         df = evaluate(encoder, index)
 
-        # Plot histogram if --hist flag is set
         if args.hist:
-            debug_print("Histogram flag detected, plotting distances")
-            distances = df["dist"].values
-            plot_histogram(distances)
-
-        debug_print("Script completed successfully")
+            plot_histogram(df["dist"].values)
 
 
 if __name__ == "__main__":
