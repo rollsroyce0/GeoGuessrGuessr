@@ -3,6 +3,7 @@ import torch.nn.functional as F
 import numpy as np
 from PIL import Image
 from pathlib import Path
+import heapq
 from transformers import AutoModel, AutoImageProcessor
 import s2sphere as s2
 import pandas as pd
@@ -10,6 +11,12 @@ import argparse
 from math import radians, sin, cos, sqrt, atan2
 from rich.progress import track
 import matplotlib.pyplot as plt
+
+# Add the project root to Python path to enable Roy module imports
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from Roy.Helper_Functions.project_utils import (
     get_s2_index_path,
     get_test_image_path,
@@ -40,6 +47,9 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 TRAIN_DIR = Path(r"D:/GeoGuessrGuessr/geoguesst")
 TEST_DIR = get_test_images_dir()
+EMBED_CACHE_PATH = get_s2_index_path().with_name("s2_embeddings_cache.pt")
+CACHE_VERSION = 1
+TRAIN_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 
 debug_print(f"Using device: {DEVICE}")
 debug_print(f"Train directory: {TRAIN_DIR}")
@@ -47,6 +57,13 @@ debug_print(f"Test directory: {TEST_DIR}")
 
 LEVELS = [3, 7, 11, 15]
 BEAM_SIZE = 32
+LEVEL_WEIGHTS = {
+    3: 0.10,
+    7: 0.20,
+    11: 0.30,
+    15: 0.40,
+}
+TOP_K_REFINEMENT = 5
 
 
 # ----------------------------
@@ -106,6 +123,51 @@ def parse_train_filename(path: Path):
     return lat, lon
 
 
+def get_train_images():
+    return sorted(
+        p for p in TRAIN_DIR.rglob("*")
+        if p.is_file() and p.suffix.lower() in TRAIN_IMAGE_SUFFIXES
+    )
+
+
+def train_cache_key(path: Path):
+    return str(path.relative_to(TRAIN_DIR))
+
+
+def file_signature(path: Path):
+    stat = path.stat()
+    return stat.st_mtime_ns, stat.st_size
+
+
+def load_embedding_cache(path=None):
+    if path is None:
+        path = EMBED_CACHE_PATH
+
+    if not path.exists():
+        return None
+
+    data = torch.load(path, map_location="cpu")
+    if data.get("version") != CACHE_VERSION:
+        return None
+
+    if data.get("train_dir") != str(TRAIN_DIR):
+        return None
+
+    if data.get("levels") != LEVELS:
+        return None
+
+    return data
+
+
+def save_embedding_cache(data, path=None):
+    if path is None:
+        path = EMBED_CACHE_PATH
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(data, path)
+    print(f"Saved embedding cache → {path}")
+
+
 # ----------------------------
 # S2 UTILITIES
 # ----------------------------
@@ -117,6 +179,27 @@ def latlon_to_cell(lat, lon, level):
 def cell_to_latlon(cell):
     ll = cell.to_lat_lng()
     return ll.lat().degrees, ll.lng().degrees
+
+
+def latlon_to_unit_vector(lat, lon):
+    lat_r = radians(lat)
+    lon_r = radians(lon)
+    return np.array([
+        cos(lat_r) * cos(lon_r),
+        cos(lat_r) * sin(lon_r),
+        sin(lat_r),
+    ], dtype=np.float64)
+
+
+def unit_vector_to_latlon(vec):
+    norm = np.linalg.norm(vec)
+    if norm == 0:
+        raise ValueError("Cannot convert zero vector to lat/lon")
+
+    x, y, z = vec / norm
+    lat = np.degrees(np.arcsin(np.clip(z, -1.0, 1.0)))
+    lon = np.degrees(np.arctan2(y, x))
+    return float(lat), float(lon)
 
 
 # ----------------------------
@@ -151,14 +234,20 @@ class S2Index:
             cid = cell.parent(l).id()
 
             if cid not in self.maps[l]:
-                self.maps[l][cid] = []
+                self.maps[l][cid] = {
+                    "sum": emb.detach().clone(),
+                    "count": 1,
+                }
+                continue
 
-            self.maps[l][cid].append(emb)
+            self.maps[l][cid]["sum"] += emb
+            self.maps[l][cid]["count"] += 1
 
     def finalize(self):
         for l in LEVELS:
             for k in self.maps[l]:
-                v = torch.stack(self.maps[l][k]).mean(0)
+                entry = self.maps[l][k]
+                v = entry["sum"] / entry["count"]
                 self.maps[l][k] = F.normalize(v, dim=0)
 
     def get(self, level, cid):
@@ -174,9 +263,7 @@ class S2Index:
 def save_index(index, path=None):
     if path is None:
         path = get_s2_index_path()
-    data = {
-        "maps": {}
-    }
+    data = {"version": 1, "levels": LEVELS, "maps": {}}
 
     for level in index.maps:
         data["maps"][level] = {
@@ -194,8 +281,12 @@ def load_index(path=None):
 
     index = S2Index()
 
+    if "version" in data and data["version"] != 1:
+        print(f"Cached index version {data['version']} is not supported")
+        return None
+
     # Check if the LEVELS in the loaded data match the expected LEVELS, else build a new index and save it
-    loaded_levels = set(data["maps"].keys())
+    loaded_levels = set(data.get("levels", data["maps"].keys()))
     if loaded_levels != set(LEVELS):
         print(f"Loaded levels {loaded_levels} do not match expected levels {set(LEVELS)}")
         return None
@@ -212,24 +303,66 @@ def build_index(encoder):
     debug_print("Starting to build S2 index")
     index = S2Index()
 
-    imgs = list(TRAIN_DIR.rglob("*.png"))
+    imgs = get_train_images()
     debug_print(f"Found {len(imgs)} images to index")
 
     print("Indexing:", len(imgs))
 
-    for p in track(imgs):
-        try:
-            lat, lon = parse_train_filename(p)
-            debug_print(f"Processing image: {p.name} at ({lat:.6f}, {lon:.6f})")
-            img = Image.open(p).convert("RGB")
-            emb = encoder.embed(img)
-            debug_print(f"Embedding created for {p.name}")
+    current_files = [train_cache_key(p) for p in imgs]
+    current_signatures = torch.tensor([file_signature(p) for p in imgs], dtype=torch.long)
 
-            index.add(lat, lon, emb)
+    cache = load_embedding_cache()
+    if (
+        cache is not None
+        and cache.get("files") == current_files
+        and torch.equal(cache.get("signatures"), current_signatures)
+    ):
+        debug_print("Using cached training embeddings")
+        cached_coords = cache["coords"]
+        cached_embs = cache["embeddings"]
 
-        except Exception as e:
-            debug_print(f"Error processing {p}: {e}")
-            print("skip", p, e)
+        for coord, emb in zip(cached_coords, cached_embs):
+            index.add(
+                float(coord[0].item()),
+                float(coord[1].item()),
+                emb.to(DEVICE, dtype=torch.float32),
+            )
+    else:
+        debug_print("Building a fresh embedding cache")
+        coords = []
+        embeddings = []
+        processed = 0
+
+        for p in track(imgs):
+            try:
+                lat, lon = parse_train_filename(p)
+                debug_print(f"Processing image: {p.name} at ({lat:.6f}, {lon:.6f})")
+
+                with Image.open(p) as img:
+                    emb = encoder.embed(img.convert("RGB")).detach().cpu()
+
+                debug_print(f"Embedding created for {p.name}")
+                index.add(lat, lon, emb.to(DEVICE, dtype=torch.float32))
+                coords.append((lat, lon))
+                embeddings.append(emb.to(dtype=torch.float16))
+                processed += 1
+
+            except Exception as e:
+                debug_print(f"Error processing {p}: {e}")
+                print("skip", p, e)
+
+        if coords and processed == len(imgs):
+            save_embedding_cache({
+                "version": CACHE_VERSION,
+                "train_dir": str(TRAIN_DIR),
+                "levels": LEVELS,
+                "files": current_files,
+                "signatures": current_signatures,
+                "coords": torch.tensor(coords, dtype=torch.float32),
+                "embeddings": torch.stack(embeddings),
+            })
+        elif processed != len(imgs):
+            print("Embedding cache not saved because some training images failed to process.")
 
     debug_print("Finalizing index...")
     index.finalize()
@@ -253,20 +386,28 @@ def beam_search(q, index: S2Index):
         if emb is None:
             continue
         similarity = torch.dot(q, emb)
-        beam.append((similarity, cid))
+        score = similarity * LEVEL_WEIGHTS[LEVELS[0]]
+        beam.append((score, similarity, cid))
 
     debug_print(f"Initial beam size at level {LEVELS[0]}: {len(beam)}")
-    beam.sort(reverse=True)
-    beam = beam[:BEAM_SIZE]
+    beam = heapq.nlargest(BEAM_SIZE, beam, key=lambda item: float(item[0].item()))
     debug_print(f"Beam after pruning at level {LEVELS[0]}: {len(beam)} items")
+
+    def expand_to_level(parent_id, target_level):
+        cells = [s2.CellId(parent_id)]
+        while cells and cells[0].level() < target_level:
+            next_cells = []
+            for cell in cells:
+                next_cells.extend(list(cell.children()))
+            cells = next_cells
+        return cells
 
     for level in LEVELS[1:]:
         new = []
         debug_print(f"Processing level {level}")
 
-        for _, parent in beam:
-            cell = s2.CellId(parent)
-            children = list(cell.children(level))
+        for path_score, _, parent in beam:
+            children = expand_to_level(parent, level)
 
             for ch in children:
                 emb = index.get(level, ch.id())
@@ -274,10 +415,10 @@ def beam_search(q, index: S2Index):
                     continue
 
                 similarity = torch.dot(q, emb)
-                new.append((similarity, ch.id()))
+                score = path_score + similarity * LEVEL_WEIGHTS[level]
+                new.append((score, similarity, ch.id()))
 
-        new.sort(reverse=True)
-        beam = new[:BEAM_SIZE]
+        beam = heapq.nlargest(BEAM_SIZE, new, key=lambda item: float(item[0].item()))
         debug_print(f"Beam after pruning at level {level}: {len(beam)} items")
 
     debug_print("Beam search completed")
@@ -287,22 +428,28 @@ def beam_search(q, index: S2Index):
 # ----------------------------
 # FINAL SELECTION
 # ----------------------------
-def final_cell(q, beam, index):
-    best = None
-    best_s = -1e9
+def final_prediction(beam, top_k=TOP_K_REFINEMENT):
+    if not beam:
+        return None, None, None
 
-    for s, cid in beam:
-        emb = index.get(LEVELS[-1], cid)
-        if emb is None:
-            continue
+    top = heapq.nlargest(
+        min(top_k, len(beam)),
+        beam,
+        key=lambda item: float(item[0].item()),
+    )
 
-        v = torch.dot(q, emb)
+    scores = torch.tensor([float(item[0].item()) for item in top], dtype=torch.float32)
+    weights = torch.softmax(scores, dim=0).tolist()
 
-        if v > best_s:
-            best_s = v
-            best = cid
+    vector = np.zeros(3, dtype=np.float64)
+    best_cid = top[0][2]
 
-    return best
+    for weight, (_, _, cid) in zip(weights, top):
+        lat, lon = cell_to_latlon(s2.CellId(cid))
+        vector += weight * latlon_to_unit_vector(lat, lon)
+
+    pred_lat, pred_lon = unit_vector_to_latlon(vector)
+    return best_cid, pred_lat, pred_lon
 
 
 # ----------------------------
@@ -315,11 +462,12 @@ def predict(img, encoder, index):
     beam = beam_search(q, index)
     debug_print(f"Beam search returned {len(beam)} candidates")
 
-    cid = final_cell(q, beam, index)
+    cid, pred_lat, pred_lon = final_prediction(beam)
     debug_print(f"Final cell ID: {cid}")
 
-    cell = s2.CellId(cid)
-    pred_lat, pred_lon = cell_to_latlon(cell)
+    if cid is None:
+        raise ValueError("Beam search returned no final cell")
+
     debug_print(f"Predicted coordinates: lat={pred_lat:.6f}, lon={pred_lon:.6f}")
 
     return pred_lat, pred_lon
@@ -387,10 +535,9 @@ def evaluate(encoder, index, progress_callback=None):
 
     rows = []
     processed_images = 0
-    total_images = len(list(TEST_DIR.glob("*")))
-
     # Get all test images for progress tracking
     test_images = sorted(TEST_DIR.glob("*"))
+    total_images = len(test_images)
 
     for i, p in enumerate(track(test_images)):
         debug_print(f"\nProcessing image: {p.name}")
@@ -400,9 +547,8 @@ def evaluate(encoder, index, progress_callback=None):
             gt = get_real_coordinates(test_type)[idx]
             debug_print(f"  - Ground truth: lat={gt[0]:.6f}, lon={gt[1]:.6f}")
 
-            img = Image.open(p).convert("RGB")
-
-            pred = predict(img, encoder, index)
+            with Image.open(p) as img:
+                pred = predict(img.convert("RGB"), encoder, index)
             debug_print(f"  - Prediction: lat={pred[0]:.6f}, lon={pred[1]:.6f}")
 
             dist = haversine(gt[0], gt[1], pred[0], pred[1])
